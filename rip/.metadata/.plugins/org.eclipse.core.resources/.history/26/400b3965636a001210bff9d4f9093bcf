@@ -1,0 +1,9 @@
+package com.rip.screens;
+
+public class MenuScreen extends Screen {
+	
+	public MenuScreen (Game game) {
+		super(game);
+	}
+
+}

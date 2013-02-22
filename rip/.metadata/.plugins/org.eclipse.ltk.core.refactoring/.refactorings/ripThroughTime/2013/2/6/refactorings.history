@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename field &apos;button&apos; in &apos;com.rip.screens.MainMenu&apos; to &apos;startButton&apos;&#x0A;- Original project: &apos;ripThroughTime&apos;&#x0A;- Original element: &apos;com.rip.screens.MainMenu.button&apos;&#x0A;- Renamed element: &apos;com.rip.screens.MainMenu.startButton&apos;&#x0A;- Update references to refactored element&#x0A;- Update textual occurrences in comments and strings" delegate="false" deprecate="false" description="Rename field &apos;button&apos;" flags="589830" getter="false" id="org.eclipse.jdt.ui.rename.field" input="/src&lt;com.rip.screens{MainMenu.java[MainMenu^button" name="startButton" references="true" setter="false" stamp="1359987954420" textual="false" version="1.0"/>
+</session>

@@ -1,0 +1,23 @@
+package tweens;
+
+import aurelienribon.tweenengine.TweenAccessor;
+
+import com.badlogic.gdx.graphics.g2d.Sprite;
+
+public class SpriteTween implements TweenAccessor<Sprite> {
+	
+	public static final int ALPHA = 1;
+
+	@Override
+	public int getValues(Sprite arg0, int arg1, float[] arg2) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public void setValues(Sprite arg0, int arg1, float[] arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+}

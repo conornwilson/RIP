@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<qualifiedTypeNameHistroy>
+<fullyQualifiedTypeName name="com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle"/>
+<fullyQualifiedTypeName name="com.rip.Game"/>
+<fullyQualifiedTypeName name="com.badlogic.gdx.math.Rectangle"/>
+<fullyQualifiedTypeName name="com.badlogic.gdx.scenes.scene2d.ui.Label"/>
+<fullyQualifiedTypeName name="com.rip.screens.MenuScreen"/>
+<fullyQualifiedTypeName name="com.badlogic.gdx.graphics.Color"/>
+<fullyQualifiedTypeName name="com.badlogic.gdx.graphics.Texture"/>
+<fullyQualifiedTypeName name="com.badlogic.gdx.graphics.Texture.TextureFilter"/>
+<fullyQualifiedTypeName name="com.rip.screens.SplashScreen"/>
+<fullyQualifiedTypeName name="com.badlogic.gdx.graphics.g2d.Sprite"/>
+<fullyQualifiedTypeName name="aurelienribon.tweenengine.Tween"/>
+<fullyQualifiedTypeName name="aurelienribon.tweenengine.TweenEquation"/>
+<fullyQualifiedTypeName name="aurelienribon.tweenengine.TweenEquations"/>
+<fullyQualifiedTypeName name="com.badlogic.gdx.graphics.GL10"/>
+<fullyQualifiedTypeName name="com.badlogic.gdx.Gdx"/>
+</qualifiedTypeNameHistroy>

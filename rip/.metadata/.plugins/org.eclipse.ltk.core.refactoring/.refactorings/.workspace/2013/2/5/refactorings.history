@@ -1,0 +1,3 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">&#x0A;<refactoring comment="Delete 4 resources" deleteContents="false" description="Delete 4 resources" element1="/ripThroughTime" element2="/ripThroughTime-android" element3="/ripThroughTime-desktop" element4="/ripThroughTime-html" flags="7" id="org.eclipse.ltk.core.refactoring.delete.resources" resources="4" stamp="1359731552851"/>&#x0A;<refactoring comment="Delete 4 resources" deleteContents="false" description="Delete 4 resources" element1="/ripThroughTime" element2="/ripThroughTime-android" element3="/ripThroughTime-desktop" element4="/ripThroughTime-html" flags="7" id="org.eclipse.ltk.core.refactoring.delete.resources" resources="4" stamp="1359824051066"/>
+</session>

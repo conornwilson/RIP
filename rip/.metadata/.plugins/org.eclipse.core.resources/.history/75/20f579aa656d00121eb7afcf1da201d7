@@ -1,0 +1,60 @@
+package com.rip.screens;
+
+import com.badlogic.gdx.Screen;
+import com.rip.RipGame;
+
+public class MenuScreen implements Screen {
+	
+	RipGame game;
+//	MenuWorld world;
+//	MenuRenderer wr;
+	
+	public MenuScreen (RipGame game) {
+		this.game = game;
+//		world = new MenuWorld(game);
+//		wr = new MenuRenderer(world);
+		
+	}
+		
+	@Override
+	public void render(float arg0) {
+			
+	}
+
+	@Override
+	public void resize(int width, int height) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void show() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void hide() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void pause() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void resume() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void dispose() {
+		// TODO Auto-generated method stub
+		
+	}
+
+}
