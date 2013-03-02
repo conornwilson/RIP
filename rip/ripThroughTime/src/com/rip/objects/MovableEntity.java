@@ -133,7 +133,7 @@ public abstract class MovableEntity extends Entity {
 	public void setStateTime(float stateTime) {
 		this.stateTime = stateTime;
 	}
-	
+	/*
 	public void track(Player p) {
 		int pX = p.getX();
 		int pY = p.getY();
@@ -149,6 +149,6 @@ public abstract class MovableEntity extends Entity {
 
 	}
 
-	
+	 */
 
 }

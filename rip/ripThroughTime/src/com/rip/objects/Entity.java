@@ -19,7 +19,7 @@ public abstract class Entity {
 		this.height = height;
 		this.bounds = new Rectangle(this.x, this.y, width, height);
 		
-		hitableBox = new Rectangle(this.x, this.y + (height/2), width, (height/2));
+		hitableBox = new Rectangle(this.x, this.y + (height/2), (width * 0.7f), ((height/2) * 0.7f));
 		
 	}
 	
@@ -31,7 +31,7 @@ public abstract class Entity {
 		this.bounds = new Rectangle(this.x, this.y, width, height);
 		this.texture = texture;
 		
-		hitableBox = new Rectangle(this.x, this.y + (height/2), width, (height / 2));
+		hitableBox = new Rectangle(this.x, this.y + (height/2), (width * 0.7f), ((height/2) * 0.7f));
 		
 	}
 	

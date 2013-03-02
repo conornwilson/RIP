@@ -40,7 +40,16 @@ public class LevelRender {
 	
 	public static float delta;
 	
+	// Load Textures
 	Texture playerTexture;
+	Texture timeFreezeOverlay = new Texture(Gdx.files.internal("data/timeFreezeOverlay.png"));
+	Texture timebaroutline = new Texture(Gdx.files.internal("data/timebaroutline.png"));
+	Texture timebar = new Texture(Gdx.files.internal("data/timebar.png"));
+	Texture healthbaroutline = new Texture(Gdx.files.internal("data/healthbaroutline.png"));
+	Texture healthbar = new Texture(Gdx.files.internal("data/healthbar.png"));
+	
+	
+	
 	ShapeRenderer sr;
 	Player player;
 	int width, height;
@@ -76,11 +85,7 @@ public class LevelRender {
 	Array<BackgroundObject> clouds = new Array<BackgroundObject>(100);
 	Array<BackgroundObject> debris = new Array<BackgroundObject>(100);
 	
-	/*
-	Array<BackgroundObject> trees = new Array<BackgroundObject>(100);
-	Array<BackgroundObject> bushes = new Array<BackgroundObject>(100);
-	Array<BackgroundObject> volcanos = new Array<BackgroundObject>(100);
-	*/
+
 	public LevelRender (Level_1_1 level) {
 		this.level = level;
 		level.setRenderer(this);
@@ -122,18 +127,6 @@ public class LevelRender {
 		Pixmap s = new Pixmap(Gdx.files.internal("data/sky.png"));
 		sk = new BackgroundObject(s,0,0);
 		
-		/*
-		Pixmap sky = new Pixmap(Gdx.files.internal("data/sky.png"));
-		bg = new Background(sky,-200,0);
-				
-		Pixmap ground = new Pixmap(Gdx.files.internal("data/ground.png"));
-		fg = new Background(ground,-300,0);
-		
-		Random r = new Random();
-		
-		
-		int levelLength = 4000;
-		*/
 		
 		//random tree objects.
 		Pixmap tree1 = new Pixmap(Gdx.files.internal("data/tree.png"));
@@ -233,7 +226,7 @@ public class LevelRender {
 		
 		player = level.getPlayer();
 		enemy_list = level.getEnemies();
-		//drawables.add(player);
+		drawables.add(player);
 		drawables.addAll(enemy_list);
 		//cam.position.set(player.getX(), player.getY(), 0);
 		
@@ -321,27 +314,7 @@ public class LevelRender {
 		}
 		batch.begin();
 		sr.begin(ShapeType.Rectangle);
-		/*
-		//Will need to implement a layered system in which entities at a higher Y value are drawn first
-		batch.begin();
-		sr.begin(ShapeType.Rectangle);
 		
-		batch.draw(bg.getTexture(), bg.getX(), bg.getY());
-		
-		for (BackgroundObject i : volcanos) {
-			batch.draw(i.getTexture(), i.getX(), i.getY());
-		}
-		
-		for (BackgroundObject i : trees) {
-			batch.draw(i.getTexture(), i.getX(), i.getY());
-		}
-		
-		batch.draw(fg.getTexture(), fg.getX(), fg.getY());
-		
-		for (BackgroundObject i : bushes) {
-			batch.draw(i.getTexture(), i.getX(), i.getY());
-		}
-		*/
 		
 		//////////RENDER ALL BACKGROUND OBJECTS//////////
 
@@ -393,68 +366,80 @@ public class LevelRender {
 		}
 		
 		
-		/*///////////////////
-		// Layered drawing effect:
-		// MovableEntities with higher Y values are drawn before those with lower Y values
-		for (int i = 0; i < drawables.size(); i++) {
-			MovableEntity me = drawables.get(i);
-			//Will become unnecessary once all movable entities have animations
-			
-			if (me instanceof Player){
-				//((Player) me).setCurrentFrame(stateTime);
-				batch.draw(me.getCurrentFrame(), me.getX(), me.getY());
-				sr.rect(me.getX(), me.getY(), me.getWidth(), me.getHeight());
-			} else {
-				batch.draw(me.getTexture(), me.getX(), me.getY());
-				sr.rect(me.hitableBox.x, me.hitableBox.y, me.hitableBox.width, me.hitableBox.height);
-			}
-			
-			//batch.draw(me.getTexture(), me.getX(), me.getY());
-			//sr.rect(me.hitableBox.x, me.hitableBox.y, me.hitableBox.width, me.hitableBox.height);
-			//sr.rect(me.getX(), me.getY(), me.hitableBox.width, me.hitableBox.height);
-		}	
-		
-		sr.rect(player.punchBoxLeft.x, player.punchBoxLeft.y, player.punchBoxLeft.width, player.punchBoxLeft.height);
-		sr.rect(player.punchBoxRight.x, player.punchBoxRight.y, player.punchBoxRight.width, player.punchBoxRight.height);
-		
-		
-		batch.end();
-		sr.end();
-		*////////////////////
-		//test
-		//stateTime = 0f;
-		
-		
-		
-//////////DRAW ALL MOVABLE OBJECTS//////////
+		//////////DRAW ALL MOVABLE OBJECTS//////////
 
 	    // Layered drawing effect:
 		// MovableEntities with higher Y values are drawn before those with lower Y values
 		for (int i = 0; i < drawables.size(); i++) {
 			//Gdx.app.log(RipGame.LOG, "Drawables");
 			MovableEntity me = drawables.get(i);
-			batch.draw(me.getTexture(), me.getX(), me.getY());
-			sr.rect(me.hitableBox.x, me.hitableBox.y, me.hitableBox.width, me.hitableBox.height);
+			if ((me instanceof Player) && player.getTimeFreeze() == false){
+				batch.draw(me.getCurrentFrame(), me.getX(), me.getY());
+			} else {
+				batch.draw(me.getTexture(), me.getX(), me.getY());
+			}
+			//sr.rect(me.hitableBox.x, me.hitableBox.y, me.hitableBox.width, me.hitableBox.height);
 			//sr.rect(me.getX(), me.getY(), me.hitableBox.width, me.hitableBox.height);
 		}	
+		
+		batch.draw(healthbar, camPos + 25, 450, player.getHealth()*2, 15);
+		batch.draw(healthbaroutline, camPos + 25 - 3, 450 - 3, 206, 21);
+
+		if (player.getTimeFreeze() == true || Gdx.input.isKeyPressed(Keys.SPACE)) {
+			batch.draw(timeFreezeOverlay, camPos, 0);
+			batch.draw(player.getCurrentFrame(), player.getX(), player.getY());
+		}
+
+		batch.draw(timebar, camPos + 25, 425, player.getTime()*2, 15);
+		batch.draw(timebaroutline, camPos + 25 - 3, 425 - 3, 206, 21);
 
 
-		batch.draw(player.getCurrentFrame(), player.getX(), player.getY());
+		//batch.draw(player.getCurrentFrame(), player.getX(), player.getY());
+		
+		/*
 		sr.rect(player.hitableBox.x, player.hitableBox.y, player.hitableBox.width, player.hitableBox.height);
+		
 		sr.rect(player.punchBoxLeft.x, player.punchBoxLeft.y, player.punchBoxLeft.width, player.punchBoxLeft.height);
 		sr.rect(player.punchBoxRight.x, player.punchBoxRight.y, player.punchBoxRight.width, player.punchBoxRight.height);
-
+		*/
 		batch.end();
 		sr.end();
 
 		//////////RENDER ENEMY TRACKING (AI)//////////
-
+/*
 		for (int i = 0; i < drawables.size(); i++) {
-			MovableEntity e = drawables.get(i);
+			Enemy e = (Enemy) drawables.get(i);
 			e.track(player);
 		}
+*/
+		if (player.getTime() <= 100) {
+			player.setTime(player.getTime() + (2 * delta));
+		} else if (player.getTime() > 100) {
+			player.setTime(100f);
+		}
 
-		
+		if (player.getTimeFreeze() == true && player.getTime() <= 0) {
+			player.flipTimeFreeze();
+		}
+
+		if (player.getTimeFreeze() == true && player.getTime() > 0) {
+			player.setTime(player.getTime() - (25 * delta));
+		} else if (Gdx.input.isKeyPressed(Keys.SPACE) && Gdx.input.isKeyPressed(Keys.A) && player.getTime() > 0 && player.getX() > camPos && player.getTimeFreeze() == false) {
+			player.setTime(player.getTime() - (100 * delta));
+			player.setX(player.getX() - 20);
+		} else if (Gdx.input.isKeyPressed(Keys.SPACE) && Gdx.input.isKeyPressed(Keys.D) && player.getTime() > 0 && player.getX() < camPos + RipGame.WIDTH - player.getWidth() && player.getTimeFreeze() == false) {
+			player.setTime(player.getTime() - (100 * delta));
+			player.setX(player.getX() + 20);
+		} else {
+			for (int i = 0; i < drawables.size(); i++) {
+				MovableEntity me = drawables.get(i);
+				if (me instanceof Player) {
+					continue;
+				}
+				Enemy e = (Enemy) me;
+				e.track(player);
+			}
+		}
 		
 		
 		
@@ -463,31 +448,45 @@ public class LevelRender {
 		boolean[] c = player.collides(enemy_list);
 		//Gdx.app.log(RipGame.LOG, c.toString());
 		
-		if(Gdx.input.isKeyPressed(Keys.A) && !c[2]) { 
+		if (player.isATTACK_ANIMATION()) {
+			player.setCurrentFrame(delta);
+			level.getIn().setWAIT(true);
+			if (player.getPlayer_animation().isAnimationFinished(player.getStateTime())) {
+				for (int i = 0; i < enemy_list.size(); i++) {
+					Enemy e = enemy_list.get(i);
+						if (e.getHealth() <= 0)	{
+							enemy_list.remove(i);
+							drawables.remove(e);
+						}
+				}
+				player.setATTACK_ANIMATION(false);
+				level.getIn().setWAIT(false);
+				switch(player.getDir()){
+					case DIR_LEFT:
+						player.setPlayer_animation(player.getWalkAnimationLeft());
+						player.setStateTime(0f);
+						player.setCurrentFrame(0f);
+						break;
+					case DIR_RIGHT:
+						player.setPlayer_animation(player.getWalkAnimationRight());
+						player.setStateTime(0f);
+						player.setCurrentFrame(0f);
+						break;
+				}
+					
+				Gdx.app.log(RipGame.LOG, "ANIMATION OVER");
+			}
+		}
+		
+		else if(Gdx.input.isKeyPressed(Keys.A) && !c[2]) { 
 			if (player.getX() > camPos) {
 				player.setX((player.getX() - player.getSPEED()));
 				player.setCurrentFrame(delta);
 			}
-			/*
-			//background parallax
-			bg.setX(bg.getX() - 2.5f);
-//			fg.setX(fg.getX() + 1.5f);
-			
-			for (BackgroundObject i : volcanos) {
-				i.setX(i.getX() - 1.5f);
-			}
-			
-			for (BackgroundObject i : trees) {
-				i.setX(i.getX() - 0.5f);
-			}
-			
-			if (move) {
-				cam.translate(-3, 0);
-				camPos -= 3;
-			}
-			*/
+		
 		}
-		if(Gdx.input.isKeyPressed(Keys.D) && !c[3]) { 
+		
+		else if(Gdx.input.isKeyPressed(Keys.D) && !c[3]) { 
 			if (player.getX() + player.getWidth() < camPos + RipGame.WIDTH) {
 				player.setX((player.getX() + player.getSPEED()));
 				player.setCurrentFrame(delta);
@@ -514,27 +513,8 @@ public class LevelRender {
 					}
 				}
 			
-			/*
-			//background parallax
-			bg.setX(bg.getX() + 2.5f);
-			//fg.setX(fg.getX() - 1.5f);
-			
-			for (BackgroundObject i : volcanos) {
-				i.setX(i.getX() + 1.5f);
-			}
-			
-			for (BackgroundObject i : trees) {
-				i.setX(i.getX() + 0.5f);
-			}
-			
-			if (move) {
-			//moves camera along level. 
-				cam.translate(3, 0);
-				camPos += 3;
-			}
-			*/
 		}
-		if(Gdx.input.isKeyPressed(Keys.W) && !c[0]) {
+		else if(Gdx.input.isKeyPressed(Keys.W) && !c[0]) {
 			if (player.getY() >= Y_LIMIT) {
 				player.setY(player.getY());
 				
@@ -543,7 +523,7 @@ public class LevelRender {
 			}
 			player.setCurrentFrame(delta);
 		}
-		if(Gdx.input.isKeyPressed(Keys.S) && !c[1]) { 
+		else if(Gdx.input.isKeyPressed(Keys.S) && !c[1]) { 
 			if (player.getY() <= 0) {
 				player.setY(player.getY());
 			} else {
@@ -552,8 +532,9 @@ public class LevelRender {
 			player.setCurrentFrame(delta);
 		}
 		
+		/*
 		//needs work
-		if(Gdx.input.isKeyPressed(Keys.K) || Gdx.input.isKeyPressed(Keys.L)) {
+		else if(Gdx.input.isKeyPressed(Keys.K) || Gdx.input.isKeyPressed(Keys.L)) {
 			player.setCurrentFrame(delta);
 			Gdx.app.log(RipGame.LOG, "space");
 			for (int i = 0; i < enemy_list.size(); i++) {
@@ -564,6 +545,7 @@ public class LevelRender {
 					}
 			}
 		}
+		*/
 
 		drawables.clear();
 	}

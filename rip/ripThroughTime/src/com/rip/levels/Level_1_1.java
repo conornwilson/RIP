@@ -20,6 +20,7 @@ public class Level_1_1 {
 	Player player;
 	LevelRender lr;
 	ArrayList<Enemy> enemies;
+	private InputHandler in;
 		
 	Music leveltheme;
 	
@@ -27,7 +28,8 @@ public class Level_1_1 {
 			this.game = game;
 			enemies = new ArrayList<Enemy>();
 			this.player = new Player(250, 158);
-			Gdx.input.setInputProcessor(new InputHandler(this));
+			setIn(new InputHandler(this));
+			Gdx.input.setInputProcessor(getIn());
 			/*
 			Raptor raptor_one = new Raptor(800, 50);
 			Raptor raptor_two = new Raptor(500, 150);
@@ -103,6 +105,14 @@ public class Level_1_1 {
 
 	public Music getLeveltheme() {
 		return leveltheme;
+	}
+
+	public InputHandler getIn() {
+		return in;
+	}
+
+	public void setIn(InputHandler in) {
+		this.in = in;
 	}
 
 	
