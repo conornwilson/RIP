@@ -34,48 +34,8 @@ public class InputHandler implements InputProcessor {
 		//this.ATTACK_ANIMATION = player.isATTACK_ANIMATION();
 		switch(keycode){
 		case Keys.K:
-			/*
-			player.setATTACK_ANIMATION(true);
-			
-			switch(player.getDir()) {
-			case DIR_LEFT:
-				player.setPlayer_animation(player.getPunchAnimationLeft());
-				player.setStateTime(0f);
-				player.setCurrentFrame(0f);
-				player.setTexture(player.getPUNCH_LEFT());
-				break;
-			case DIR_RIGHT:
-				player.setPlayer_animation(player.getPunchAnimationRight());
-				player.setStateTime(0f);
-				player.setCurrentFrame(0f);
-				player.setTexture(player.getPUNCH_RIGHT());
-				break;
-			default:
-				break;
-				
-			}
-			*/
 			break;
 		case Keys.L:
-			/*
-			//player.setTexture(player.getPunch());
-			//break;
-			player.setATTACK_ANIMATION(true);
-			switch(player.getDir()) {
-			case DIR_LEFT:
-				player.setPlayer_animation(player.getKickAnimationLeft());
-				player.setStateTime(0f);
-				player.setCurrentFrame(0f);
-				break;
-			case DIR_RIGHT:
-				player.setPlayer_animation(player.getKickAnimationRight());
-				player.setStateTime(0f);
-				player.setCurrentFrame(0f);
-				break;
-			default:
-				break;
-			}
-			*/
 			break;
 		
 		case Keys.W:
@@ -83,18 +43,22 @@ public class InputHandler implements InputProcessor {
 		case Keys.S:
 			break;
 		case Keys.A:
-			player.setTexture(player.getLEFT());
-			player.setDir(Directions.DIR_LEFT);
-			player.setPlayer_animation(player.getWalkAnimationLeft());
-			player.setStateTime(0f);
-			player.setCurrentFrame(0f);
+			//player.setTexture(player.getLEFT());
+			if (!player.isATTACK_ANIMATION()) {
+				player.setDir(Directions.DIR_LEFT);
+				player.setPlayer_animation(player.getWalkAnimationLeft());
+				player.setStateTime(0f);
+				player.setCurrentFrame(0f);
+			}
 			break;
 		case Keys.D:
-			player.setTexture(player.getRIGHT());
-			player.setDir(Directions.DIR_RIGHT);
-			player.setPlayer_animation(player.getWalkAnimationRight());
-			player.setStateTime(0f);
-			player.setCurrentFrame(0f);
+			//player.setTexture(player.getRIGHT());
+			if (!player.isATTACK_ANIMATION()) {
+				player.setDir(Directions.DIR_RIGHT);
+				player.setPlayer_animation(player.getWalkAnimationRight());
+				player.setStateTime(0f);
+				player.setCurrentFrame(0f);
+			}
 			break;
 		default:
 			break;
@@ -107,12 +71,37 @@ public class InputHandler implements InputProcessor {
 		player = level.getPlayer();
 		switch(keycode) {
 		case Keys.A:
-			player.setStateTime(0f);
-			player.setCurrentFrame(0f);
+			/*
+			if (player.getPlayer_animation() != player.getWalkAnimationLeft()) {
+				player.setPlayer_animation(player.getWalkAnimationLeft());
+			}
+			//player.setPlayer_animation(player.getWalkAnimationLeft());
+			 */
+			if (!player.isATTACK_ANIMATION()) {
+				player.setStateTime(0f);	
+				player.setCurrentFrame(0f);
+			}
+			
 			break;
 		case Keys.D:
-			player.setStateTime(0f);
-			player.setCurrentFrame(0f);
+
+			if (!player.isATTACK_ANIMATION()) {
+				player.setStateTime(0f);	
+				player.setCurrentFrame(0f);
+			}
+			
+			break;
+		case Keys.W:
+			if (!player.isATTACK_ANIMATION()) {
+				player.setStateTime(0f);	
+				player.setCurrentFrame(0f);
+			}
+			break;
+		case Keys.S:
+			if (!player.isATTACK_ANIMATION()) {
+				player.setStateTime(0f);	
+				player.setCurrentFrame(0f);
+			}
 			break;
 		case Keys.K:
 			switch(player.getDir()) {
@@ -148,16 +137,6 @@ public class InputHandler implements InputProcessor {
 				player.setCurrentFrame(0f);
 				//player.setATTACK_ANIMATION(true);
 				WAIT = true;
-				/*
-				while (WAIT) {
-					continue;
-				}
-				
-				//original code
-				player.setPlayer_animation(player.getWalkAnimationRight());
-				player.setStateTime(0f);
-				player.setCurrentFrame(0f);
-				*/
 				break;
 			default:
 				break;
@@ -173,15 +152,15 @@ public class InputHandler implements InputProcessor {
 						//Gdx.app.log(RipGame.LOG, "Punch");
 						Sound punch = player.getRandomPunch_sounds();
 						punch.play(1.0f);
-						e.setHealth(e.getHealth() - player.getAttack_damage());
+						e.setHealth(e.getHealth() - player.getPunch_damage());
 						
 						// Cause enemy to be pushed back
 						switch(player.getDir()) {
 						case DIR_LEFT:
-							e.setX(e.getX() - 10);
+							e.setX(e.getX() - 50);
 							break;
 						case DIR_RIGHT:
-							e.setX(e.getX() + 10);
+							e.setX(e.getX() + 50);
 							break;
 						default:
 							break;
@@ -203,16 +182,6 @@ public class InputHandler implements InputProcessor {
 					player.setCurrentFrame(0f);
 					//player.setATTACK_ANIMATION(true);
 					WAIT = true;
-					/*
-					while (WAIT) {
-						continue;
-					}
-					
-					//original code 
-					player.setPlayer_animation(player.getWalkAnimationLeft());
-					player.setStateTime(0f);
-					player.setCurrentFrame(0f);
-					*/
 					break;
 				case DIR_RIGHT:
 					if (player.isATTACK_ANIMATION()){
@@ -224,16 +193,6 @@ public class InputHandler implements InputProcessor {
 					player.setCurrentFrame(0f);
 					//player.setATTACK_ANIMATION(true);
 					WAIT = true;
-					/*
-					while (WAIT) {
-						continue;
-					}
-					
-					//original code
-					player.setPlayer_animation(player.getWalkAnimationRight());
-					player.setStateTime(0f);
-					player.setCurrentFrame(0f);
-					*/
 					break;
 				default:
 					break;
@@ -249,7 +208,7 @@ public class InputHandler implements InputProcessor {
 							//Gdx.app.log(RipGame.LOG, "Punch");
 							Sound punch = player.getRandomPunch_sounds();
 							punch.play(1.0f);
-							e.setHealth(e.getHealth() - player.getAttack_damage());
+							e.setHealth(e.getHealth() - player.getKick_damage());
 							
 							// Cause enemy to be pushed back
 							switch(player.getDir()) {

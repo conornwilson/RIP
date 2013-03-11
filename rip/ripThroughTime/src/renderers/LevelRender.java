@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Random;
 
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.audio.Music;
@@ -23,10 +24,14 @@ import com.rip.levels.Level_1_1;
 import com.rip.objects.Enemy;
 import com.rip.objects.Background;
 import com.rip.objects.BackgroundObject;
+import com.rip.objects.MovableEntity.Directions;
+import com.rip.objects.Raptor;
 //import com.rip.objects.Enemy;
 import com.rip.objects.MovableEntity;
 import com.rip.objects.NegaPlayer;
 import com.rip.objects.Player;
+import com.rip.screens.GameScreen;
+import com.rip.screens.MainMenu;
 
 
 public class LevelRender {
@@ -34,6 +39,7 @@ public class LevelRender {
 	Level_1_1 level;
 	SpriteBatch batch;
 	Music leveltheme;
+	RipGame game;
 	
 	OrthographicCamera cam;
 	public static int camPos = 0;
@@ -43,6 +49,7 @@ public class LevelRender {
 	// Load Textures
 	Texture playerTexture;
 	Texture timeFreezeOverlay = new Texture(Gdx.files.internal("data/timeFreezeOverlay.png"));
+	Texture level_complete = new Texture(Gdx.files.internal("data/level_complete.png"));
 	Texture timebaroutline = new Texture(Gdx.files.internal("data/timebaroutline.png"));
 	Texture timebar = new Texture(Gdx.files.internal("data/timebar.png"));
 	Texture healthbaroutline = new Texture(Gdx.files.internal("data/healthbaroutline.png"));
@@ -64,6 +71,7 @@ public class LevelRender {
 	boolean cp2Wave1, cp2Wave2 = false;
 	boolean cp3Wave1, cp3Wave2 = false;
 	boolean cp4Wave1, cp4Wave2 = false;
+	boolean end = false;
 	
 	Background bg;
 	Background fg;
@@ -91,6 +99,7 @@ public class LevelRender {
 		level.setRenderer(this);
 		this.leveltheme = level.getLeveltheme();
 		leveltheme.play();
+		game = level.game;
 		
 		
 		width = 960;
@@ -105,6 +114,7 @@ public class LevelRender {
 		
 		
 		drawables = new ArrayList<MovableEntity>();
+		
 		
 //////////GENERATE ALL BACKGROUND OBJECTS//////////		
 
@@ -224,10 +234,14 @@ public class LevelRender {
 		delta = Gdx.graphics.getDeltaTime();
 		stateTime += delta;
 		
+		
+		// May need to fix
+		
 		player = level.getPlayer();
 		enemy_list = level.getEnemies();
 		drawables.add(player);
 		drawables.addAll(enemy_list);
+		
 		//cam.position.set(player.getX(), player.getY(), 0);
 		
 		cam.update();
@@ -310,7 +324,9 @@ public class LevelRender {
 
 		if (checkPoint4 == true && camPos >= 11500) {
 			move = false;
+			end = true;
 			Gdx.app.log(RipGame.LOG, "End Level 1-1");
+			
 		}
 		batch.begin();
 		sr.begin(ShapeType.Rectangle);
@@ -375,6 +391,9 @@ public class LevelRender {
 			MovableEntity me = drawables.get(i);
 			if ((me instanceof Player) && player.getTimeFreeze() == false){
 				batch.draw(me.getCurrentFrame(), me.getX(), me.getY());
+			} else if (me instanceof Raptor){
+				batch.draw(me.getCurrentFrame(), me.getX(), me.getY());
+				((Raptor) me).setCurrentFrame(delta);
 			} else {
 				batch.draw(me.getTexture(), me.getX(), me.getY());
 			}
@@ -392,6 +411,11 @@ public class LevelRender {
 
 		batch.draw(timebar, camPos + 25, 425, player.getTime()*2, 15);
 		batch.draw(timebaroutline, camPos + 25 - 3, 425 - 3, 206, 21);
+		
+		if (end) {
+			leveltheme.stop();
+			batch.draw(level_complete, camPos, 0);
+		}
 
 
 		//batch.draw(player.getCurrentFrame(), player.getX(), player.getY());
@@ -448,6 +472,12 @@ public class LevelRender {
 		boolean[] c = player.collides(enemy_list);
 		//Gdx.app.log(RipGame.LOG, c.toString());
 		
+		if (end) {
+			if (Gdx.input.isKeyPressed(Keys.ENTER)){
+				game.setScreen(new MainMenu(game));
+			}
+		}
+		
 		if (player.isATTACK_ANIMATION()) {
 			player.setCurrentFrame(delta);
 			level.getIn().setWAIT(true);
@@ -478,7 +508,8 @@ public class LevelRender {
 			}
 		}
 		
-		else if(Gdx.input.isKeyPressed(Keys.A) && !c[2]) { 
+		else if(Gdx.input.isKeyPressed(Keys.A) && !c[2] && (player.getDir() == Directions.DIR_LEFT)) {
+			
 			if (player.getX() > camPos) {
 				player.setX((player.getX() - player.getSPEED()));
 				player.setCurrentFrame(delta);
@@ -486,7 +517,8 @@ public class LevelRender {
 		
 		}
 		
-		else if(Gdx.input.isKeyPressed(Keys.D) && !c[3]) { 
+		else if(Gdx.input.isKeyPressed(Keys.D) && !c[3] && (player.getDir() == Directions.DIR_RIGHT)) { 
+			
 			if (player.getX() + player.getWidth() < camPos + RipGame.WIDTH) {
 				player.setX((player.getX() + player.getSPEED()));
 				player.setCurrentFrame(delta);
@@ -559,6 +591,7 @@ public class LevelRender {
 		playerTexture.dispose();
 		sr.dispose();
 		leveltheme.dispose();
+		
 	}
 	
 }

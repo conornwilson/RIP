@@ -16,7 +16,7 @@ import com.rip.objects.Raptor;
 
 public class Level_1_1 {
 	
-	RipGame game;
+	public RipGame game;
 	Player player;
 	LevelRender lr;
 	ArrayList<Enemy> enemies;
