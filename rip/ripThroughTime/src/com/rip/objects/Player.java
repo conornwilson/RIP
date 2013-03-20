@@ -35,7 +35,7 @@ public class Player extends MovableEntity {
 	protected float stateTime = 0f;
 	
 	//Walk Animation
-	private static final int WALK_COLS = 7;
+	private static final int WALK_COLS = 5;
 	private static final int WALK_ROWS = 1;
 	
 	protected Animation walkAnimationRight;
@@ -86,9 +86,13 @@ public class Player extends MovableEntity {
 	protected final static Texture RIGHT = new Texture("data/RIP_RIGHT.png");
 	protected final Texture LEFT = new Texture("data/RIP_LEFT.png");
 	
-	Sound[] punch_sounds = {Gdx.audio.newSound(Gdx.files.internal("data/Punches_01.wav")),
-	                        Gdx.audio.newSound(Gdx.files.internal("data/Punches_02.wav")),
-	                        Gdx.audio.newSound(Gdx.files.internal("data/Punches_03.wav"))};
+	Sound[] punch_sounds = {Gdx.audio.newSound(Gdx.files.internal("data/CartoonPunches_01.wav")),
+	                        Gdx.audio.newSound(Gdx.files.internal("data/CartoonPunches_02.wav")),
+	                        Gdx.audio.newSound(Gdx.files.internal("data/CartoonPunches_03.wav")),
+	                        Gdx.audio.newSound(Gdx.files.internal("data/CartoonPunches_03.wav"))};
+	
+	Sound[] kick_sounds = {Gdx.audio.newSound(Gdx.files.internal("data/Cartoon Kicks_01.wav")),
+            Gdx.audio.newSound(Gdx.files.internal("data/Cartoon Kicks_02.wav"))};
 	
 	//collision objects.
 //	public Intersector in = new Intersector();
@@ -102,7 +106,7 @@ public class Player extends MovableEntity {
 	
 	public Player(int x, int y, float width, float height, int SPEED, Texture text) {
 		super(x, y, width, height, SPEED, text);
-		this.health = 100;
+		this.health = 100f;
 		this.punch_damage = 10;
 		this.kick_damage = 15;
 		CreateAnimations();
@@ -110,7 +114,7 @@ public class Player extends MovableEntity {
 	
 	public Player(int x, int y) {
 		super(x, y, 128, 163, 3, RIGHT);
-		this.health = 100;
+		this.health = 100f;
 		this.punch_damage = 10;
 		this.kick_damage = 15;
 		CreateAnimations();
@@ -212,13 +216,9 @@ public class Player extends MovableEntity {
 		
 	}
 	
-	
-	
 	public float getHealth() {
 		return health;
 	}
-
-
 
 	public void setHealth(float health) {
 		this.health = health;
@@ -396,6 +396,11 @@ public class Player extends MovableEntity {
 	public Sound getRandomPunch_sounds() {
 		int index = rand.nextInt(punch_sounds.length);
 		return punch_sounds[index];
+	}
+	
+	public Sound getRandomKick_sounds() {
+		int index = rand.nextInt(kick_sounds.length);
+		return kick_sounds[index];
 	}
 	
 	

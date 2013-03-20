@@ -26,6 +26,7 @@ import com.rip.objects.Background;
 import com.rip.objects.BackgroundObject;
 import com.rip.objects.MovableEntity.Directions;
 import com.rip.objects.Raptor;
+import com.rip.objects.Ape;
 //import com.rip.objects.Enemy;
 import com.rip.objects.MovableEntity;
 import com.rip.objects.NegaPlayer;
@@ -257,7 +258,7 @@ public class LevelRender {
 		});
 	
 		
-//////////CHECKPOINT HANDLING//////////
+		//////////CHECKPOINT HANDLING//////////
 
 		if (level.getEnemies().isEmpty() && move == false && camPos < 11500) {
 			move = true;
@@ -394,6 +395,41 @@ public class LevelRender {
 			} else if (me instanceof Raptor){
 				batch.draw(me.getCurrentFrame(), me.getX(), me.getY());
 				((Raptor) me).setCurrentFrame(delta);
+				if (((Raptor) me).attacking && 
+							((Raptor) me).getRaptor_animation().isAnimationFinished(me.getStateTime())) {
+					Gdx.app.log(RipGame.LOG, "Attack End");
+					((Raptor) me).attacking = false;
+					me.setStateTime(0);
+					switch (me.getDir()) {
+					case DIR_LEFT:
+						((Raptor) me).setRaptor_animation(((Raptor) me).getWalkAnimationLeft());
+						break;
+					case DIR_RIGHT:
+						((Raptor) me).setRaptor_animation(((Raptor) me).getWalkAnimationRight());
+						break;
+					default:
+						break;
+					}
+				}
+			} else if (me instanceof Ape) {
+				batch.draw(me.getCurrentFrame(), me.getX(), me.getY());
+				((Ape) me).setCurrentFrame(delta);
+				if (((Ape) me).attacking && 
+							((Ape) me).getApe_animation().isAnimationFinished(me.getStateTime())) {
+					Gdx.app.log(RipGame.LOG, "Attack End");
+					((Ape) me).attacking = false;
+					me.setStateTime(0);
+					switch (me.getDir()) {
+					case DIR_LEFT:
+						((Ape) me).setApe_animation(((Ape) me).getWalkAnimationLeft());
+						break;
+					case DIR_RIGHT:
+						((Ape) me).setApe_animation(((Ape) me).getWalkAnimationRight());
+						break;
+					default:
+						break;
+					}
+				}
 			} else {
 				batch.draw(me.getTexture(), me.getX(), me.getY());
 			}
@@ -428,14 +464,11 @@ public class LevelRender {
 		*/
 		batch.end();
 		sr.end();
+		
+		
 
 		//////////RENDER ENEMY TRACKING (AI)//////////
-/*
-		for (int i = 0; i < drawables.size(); i++) {
-			Enemy e = (Enemy) drawables.get(i);
-			e.track(player);
-		}
-*/
+
 		if (player.getTime() <= 100) {
 			player.setTime(player.getTime() + (2 * delta));
 		} else if (player.getTime() > 100) {
@@ -506,78 +539,67 @@ public class LevelRender {
 					
 				Gdx.app.log(RipGame.LOG, "ANIMATION OVER");
 			}
-		}
 		
-		else if(Gdx.input.isKeyPressed(Keys.A) && !c[2] && (player.getDir() == Directions.DIR_LEFT)) {
-			
-			if (player.getX() > camPos) {
-				player.setX((player.getX() - player.getSPEED()));
-				player.setCurrentFrame(delta);
-			}
+			//Find a way to slow diagonal movement
+		} else {
 		
-		}
-		
-		else if(Gdx.input.isKeyPressed(Keys.D) && !c[3] && (player.getDir() == Directions.DIR_RIGHT)) { 
-			
-			if (player.getX() + player.getWidth() < camPos + RipGame.WIDTH) {
-				player.setX((player.getX() + player.getSPEED()));
-				player.setCurrentFrame(delta);
-			}
-			
-			if (move && (player.getX()) - camPos > 450) {
-				//moves camera along level. 
-					cam.translate(3, 0);
-					camPos += 3;
-
-					//background parallax
-					sk.setX(sk.getX() + 3f);
-
-					for (BackgroundObject i : clouds) {
-						i.setX(i.getX() + 2.5f);
-					}
-
-					for (BackgroundObject i : volcanos) {
-						i.setX(i.getX() + 1.5f);
-					}
-
-					for (BackgroundObject i : trees) {
-						i.setX(i.getX() + 0.5f);
-					}
+			if(Gdx.input.isKeyPressed(Keys.A) && !c[2] && (player.getDir() == Directions.DIR_LEFT)) {
+				
+				if (player.getX() > camPos) {
+					player.setX((player.getX() - player.getSPEED()));
+					player.setCurrentFrame(delta);
 				}
 			
-		}
-		else if(Gdx.input.isKeyPressed(Keys.W) && !c[0]) {
-			if (player.getY() >= Y_LIMIT) {
-				player.setY(player.getY());
+			}
+			
+			else if(Gdx.input.isKeyPressed(Keys.D) && !c[3] && (player.getDir() == Directions.DIR_RIGHT)) { 
 				
-			} else {
-				player.setY(player.getY() + 2);
-			}
-			player.setCurrentFrame(delta);
-		}
-		else if(Gdx.input.isKeyPressed(Keys.S) && !c[1]) { 
-			if (player.getY() <= 0) {
-				player.setY(player.getY());
-			} else {
-				player.setY(player.getY() - 2);
-			}
-			player.setCurrentFrame(delta);
-		}
-		
-		/*
-		//needs work
-		else if(Gdx.input.isKeyPressed(Keys.K) || Gdx.input.isKeyPressed(Keys.L)) {
-			player.setCurrentFrame(delta);
-			Gdx.app.log(RipGame.LOG, "space");
-			for (int i = 0; i < enemy_list.size(); i++) {
-				Enemy e = enemy_list.get(i);
-					if (e.getHealth() <= 0)	{
-						enemy_list.remove(i);
-						drawables.remove(e);
+				if (player.getX() + player.getWidth() < camPos + RipGame.WIDTH) {
+					player.setX((player.getX() + player.getSPEED()));
+					player.setCurrentFrame(delta);
+				}
+				
+				if (move && (player.getX()) - camPos > 450) {
+					//moves camera along level. 
+						cam.translate(3, 0);
+						camPos += 3;
+	
+						//background parallax
+						sk.setX(sk.getX() + 3f);
+	
+						for (BackgroundObject i : clouds) {
+							i.setX(i.getX() + 2.5f);
+						}
+	
+						for (BackgroundObject i : volcanos) {
+							i.setX(i.getX() + 1.5f);
+						}
+	
+						for (BackgroundObject i : trees) {
+							i.setX(i.getX() + 0.5f);
+						}
 					}
+				
 			}
+			else if(Gdx.input.isKeyPressed(Keys.W) && !c[0]) {
+				if (player.getY() >= Y_LIMIT) {
+					player.setY(player.getY());
+					
+				} else {
+					player.setY(player.getY() + 2);
+				}
+				player.setCurrentFrame(delta);
+			}
+			else if(Gdx.input.isKeyPressed(Keys.S) && !c[1]) { 
+				if (player.getY() <= 0) {
+					player.setY(player.getY());
+				} else {
+					player.setY(player.getY() - 2);
+				}
+				player.setCurrentFrame(delta);
+			}
+		
 		}
-		*/
 
 		drawables.clear();
 	}
@@ -591,6 +613,10 @@ public class LevelRender {
 		playerTexture.dispose();
 		sr.dispose();
 		leveltheme.dispose();
+		level.dispose();
+		sr.dispose();
+		
+		// need to dispose everything
 		
 	}
 	

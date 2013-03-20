@@ -3,6 +3,7 @@ package com.rip.objects;
 import java.util.Random;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Rectangle;
@@ -16,6 +17,11 @@ public abstract class Enemy extends MovableEntity {
 	protected float health;
 	protected float damage;
 	boolean collides_player;
+	public boolean attacking = false;
+	float attack_chance;
+	
+	Random rand = new Random();
+	protected Sound hit_sounds[];
 	
 	//collision objects.
 	public Intersector in;
@@ -64,10 +70,64 @@ public abstract class Enemy extends MovableEntity {
 		}
 	}
 	
+/*	
+	public void attack(Player p) {
+		if (this.attacking)
+			return;
+		attack_chance = (float) Math.random();
+		if (attack_chance >= 0.7) {
+			this.attacking = true;
+			attack_chance = 0;
+			Gdx.app.log(RipGame.LOG, "Enemy Attack");
+			//attack code
+		} else {
+			attack_chance = 0;
+			Gdx.app.log(RipGame.LOG, "Enemy Attack Failed");
+			return;
+		}
+		
+		
+	}
+	*/
+	
+	public void attack(Player p) {
+		//(player.getPlayer_animation().isAnimationFinished(player.getStateTime()))
+		Gdx.app.log(RipGame.LOG, "Ape Attack");
+		if (this.attacking) {
+			return;
+		}
+		attack_chance = (float) Math.random();
+		if (attack_chance >= 0.9) {
+			this.attacking = true;
+			p.setHealth(p.getHealth() - this.damage);
+			attack_chance = 0;
+			Gdx.app.log(RipGame.LOG, String.valueOf(p.getHealth()));
+			
+			switch (this.getDir()) {
+			case DIR_LEFT:
+				Gdx.app.log(RipGame.LOG, "Enemy Attack Left");
+				//this.raptor_animation = this.attackAnimationLeft;
+				break;
+				//set animation
+			case DIR_RIGHT:
+				Gdx.app.log(RipGame.LOG, "Enemy Attack Right");
+				//this.raptor_animation = this.attackAnimationRight;
+				break;
+			default:
+				break;
+			}
+			//attack code
+			//set animation
+		} else {
+			attack_chance = 0;
+			Gdx.app.log(RipGame.LOG, "Enemy Attack Failed");
+			return;
+		}
+	}
 	
 	public void track(Player p) {
 		if (this.collides_player) {
-			return;
+			this.attack(p);
 			
 		} else {
 		
@@ -195,13 +255,6 @@ public abstract class Enemy extends MovableEntity {
 		this.health = health;
 	}
 
-	public Directions getDir() {
-		return dir;
-	}
-
-	public void setDir(Directions dir) {
-		this.dir = dir;
-	}
 
 	public boolean isCollides_player() {
 		return collides_player;
@@ -210,6 +263,20 @@ public abstract class Enemy extends MovableEntity {
 	public void setCollides_player(boolean collides_player) {
 		this.collides_player = collides_player;
 	}
+
+	public boolean isAttacking() {
+		return attacking;
+	}
+
+	public void setAttacking(boolean attacking) {
+		this.attacking = attacking;
+	}
+	
+	public Sound gethitSound() {
+		int index = rand.nextInt(hit_sounds.length);
+		return hit_sounds[index];
+	}
+	
 
 	
 

@@ -152,6 +152,8 @@ public class InputHandler implements InputProcessor {
 						//Gdx.app.log(RipGame.LOG, "Punch");
 						Sound punch = player.getRandomPunch_sounds();
 						punch.play(1.0f);
+						Sound hit = e.gethitSound();
+						hit.play(1.0f);
 						e.setHealth(e.getHealth() - player.getPunch_damage());
 						
 						// Cause enemy to be pushed back
@@ -206,8 +208,10 @@ public class InputHandler implements InputProcessor {
 						Enemy e = enemies.get(i);
 						if (player.punches(e.hitableBox)) {
 							//Gdx.app.log(RipGame.LOG, "Punch");
-							Sound punch = player.getRandomPunch_sounds();
-							punch.play(1.0f);
+							Sound kick = player.getRandomKick_sounds();
+							kick.play(1.0f);
+							Sound hit = e.gethitSound();
+							hit.play(1.0f);
 							e.setHealth(e.getHealth() - player.getKick_damage());
 							
 							// Cause enemy to be pushed back
