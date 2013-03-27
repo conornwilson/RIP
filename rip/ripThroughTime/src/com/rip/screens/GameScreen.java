@@ -75,6 +75,7 @@ public class GameScreen implements Screen {
 	public void dispose() {
 		// TODO Auto-generated method stub
 		level.dispose();
+		lr.dispose();
 	}
 
 }

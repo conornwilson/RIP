@@ -15,6 +15,7 @@ import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Rectangle;
 import com.rip.RipGame;
 
+
 public class Player extends MovableEntity {
 
 	Texture punch;
@@ -23,6 +24,7 @@ public class Player extends MovableEntity {
 	float kick_damage;
 	float time;
 	boolean timeFreeze;
+	public boolean hit = false;
 	
 	boolean ATTACK_ANIMATION = false;
 	
@@ -61,6 +63,16 @@ public class Player extends MovableEntity {
     float kickTime = 0f;
 	
 	//Hit Animation
+    private static final int HIT_COLS = 3;
+	private static final int HIT_ROWS = 1;
+	
+	protected Animation hitAnimationRight;
+	protected Animation hitAnimationLeft;
+	protected Texture hitSheet;
+	protected TextureRegion[] hitFramesRight;
+	protected TextureRegion[] hitFramesLeft;
+	
+    float hitTime = 0f;
 	
 	//Punch Animation
 	private static final int PUNCH_COLS = 5;
@@ -75,9 +87,6 @@ public class Player extends MovableEntity {
 	
     float punchTime = 0f;
     
-
-    
-	
 	Random rand = new Random();
 	
 	// Remove as soon as sprite sheets are available
@@ -90,6 +99,12 @@ public class Player extends MovableEntity {
 	                        Gdx.audio.newSound(Gdx.files.internal("data/CartoonPunches_02.wav")),
 	                        Gdx.audio.newSound(Gdx.files.internal("data/CartoonPunches_03.wav")),
 	                        Gdx.audio.newSound(Gdx.files.internal("data/CartoonPunches_03.wav"))};
+	
+	Sound[] miss_sounds = {Gdx.audio.newSound(Gdx.files.internal("data/No Hit_01.wav")),
+							Gdx.audio.newSound(Gdx.files.internal("data/No Hit_02.wav")),
+							Gdx.audio.newSound(Gdx.files.internal("data/No Hit_03.wav")),
+							Gdx.audio.newSound(Gdx.files.internal("data/No Hit_04.wav")),
+							Gdx.audio.newSound(Gdx.files.internal("data/No Hit_05.wav"))};
 	
 	Sound[] kick_sounds = {Gdx.audio.newSound(Gdx.files.internal("data/Cartoon Kicks_01.wav")),
             Gdx.audio.newSound(Gdx.files.internal("data/Cartoon Kicks_02.wav"))};
@@ -184,6 +199,29 @@ public class Player extends MovableEntity {
 		
 		
 		//Initiate Hit Animation
+		hitSheet = new Texture(Gdx.files.internal("data/riphit.png"));
+		TextureRegion[][] tmphRight = TextureRegion.split(hitSheet, hitSheet.getWidth() / HIT_COLS, hitSheet.getHeight() / HIT_ROWS);
+		TextureRegion[][] tmphLeft = TextureRegion.split(hitSheet, hitSheet.getWidth() / HIT_COLS, hitSheet.getHeight() / HIT_ROWS);
+		hitFramesRight = new TextureRegion[HIT_COLS * HIT_ROWS];
+		hitFramesLeft = new TextureRegion[HIT_COLS * HIT_ROWS];
+		index = 0;
+		for (int i = 0; i < HIT_ROWS; i++) {
+			for (int j = 0; j < HIT_COLS; j++) {
+				hitFramesRight[index++] = tmphRight[i][j];
+			}
+		}
+		
+		index = 0;
+		for (int i = 0; i < HIT_ROWS; i++) {
+			for (int j = 0; j < HIT_COLS; j++) {
+				hitFramesLeft[index] = tmphLeft[i][j];
+				hitFramesLeft[index].flip(true, false);
+				index++;
+			}
+		}
+		hitAnimationRight = new Animation(0.05f, hitFramesRight);
+		hitAnimationLeft = new Animation(0.05f, hitFramesLeft);
+		
 		
 		//Initiate Punch Animation
 		punchSheet = new Texture(Gdx.files.internal("data/rip_punch.png"));
@@ -403,6 +441,11 @@ public class Player extends MovableEntity {
 		return kick_sounds[index];
 	}
 	
+	public Sound getRandomMiss_sounds() {
+		int index = rand.nextInt(miss_sounds.length);
+		return miss_sounds[index];
+	}
+	
 	
 	public static Texture getRight() {
 		return RIGHT;
@@ -429,6 +472,51 @@ public class Player extends MovableEntity {
 		}
 		
 	}
+	
+	
+	public void hitBack(int distance, ArrayList<Enemy> e) {
+		if (distance == 0) {
+			return;
+		}
+		// make sure you can't be moved off screen
+		this.setX(this.getX() + distance);
+		
+		//distance += 10;
+		
+		for (Enemy m : e) {
+			// reverse this
+			if (Intersector.overlapRectangles(this.hitableBox, m.hitableBox)) {
+				if (distance < 0) {
+					if (((this.hitableBox.x + this.hitableBox.width) >= m.hitableBox.x) && (m.hitableBox.x >= this.hitableBox.x)){
+						m.hitBack(distance / 2, e);
+						break;
+					}
+						
+				} else {
+					if ((this.hitableBox.x <= (m.hitableBox.x + m.hitableBox.width)) && (this.hitableBox.x >= m.hitableBox.x)) {
+						m.hitBack(distance / 2, e);
+						break;
+					}
+				}
+			}
+		}
+		
+		
+		this.stateTime = 0f;
+		switch (this.getDir()) {
+		case DIR_LEFT:
+			this.player_animation = this.hitAnimationLeft;
+			break;
+		case DIR_RIGHT:
+			this.player_animation = this.hitAnimationRight;
+			break;
+		default:
+			break;
+		}
+		this.hit = true;
+		return;
+	}
+	
 
 	public void setCurrentFrame(TextureRegion currentFrame) {
 		this.currentFrame = currentFrame;
@@ -501,8 +589,21 @@ public class Player extends MovableEntity {
 		ATTACK_ANIMATION = aTTACK_ANIMATION;
 	}
 
+	public Animation getHitAnimationRight() {
+		return hitAnimationRight;
+	}
 
-	
+	public void setHitAnimationRight(Animation hitAnimationRight) {
+		this.hitAnimationRight = hitAnimationRight;
+	}
+
+	public Animation getHitAnimationLeft() {
+		return hitAnimationLeft;
+	}
+
+	public void setHitAnimationLeft(Animation hitAnimationLeft) {
+		this.hitAnimationLeft = hitAnimationLeft;
+	}
 
 	
 	

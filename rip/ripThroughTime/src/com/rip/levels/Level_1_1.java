@@ -45,18 +45,61 @@ public class Level_1_1 {
 		int rightside;
 		int leftside;
 		boolean lr;
-
+		int x;
+		int y;
+		int xmin_right, xmax_right, xmin_left, xmax_left;
+		int ymin, ymax;
+		
+		//avoid initiating with overlap
+		ymax = LevelRender.Y_LIMIT;
+		ymin = LevelRender.Y_LIMIT - 87;
+		
+		xmin_right = LevelRender.camPos + RipGame.WIDTH + 50;
+		xmax_right = xmin_right + 224;
+		
+		xmax_left = LevelRender.camPos - 50;
+		xmin_left = xmax_left - 224;
+		
 		for (int i = 0; i < numOfEnemiesRap; i++) {
 			lr = r.nextBoolean();
 			if (lr) {
 				rightside = LevelRender.camPos + RipGame.WIDTH;
-				enemies.add(new Raptor(r.nextInt((rightside + RipGame.WIDTH) - (rightside + 50)) + (rightside + 50), r.nextInt(LevelRender.Y_LIMIT)));
+				x = generateXY(xmin_right, xmax_right);
+				y = generateXY(ymin, ymax);
+				
+				ymin -= 87;
+				ymax -= 87;
+				
+				if (ymax <= LevelRender.Y_LIMIT - 300) {
+					ymax = LevelRender.Y_LIMIT;
+					ymin = LevelRender.Y_LIMIT - 87;
+				}
+				
+				xmax_right += 224;
+				xmin_right += 224;
+				
+				enemies.add(new Raptor(x, y));
 			} else {
 				leftside = LevelRender.camPos;
-				enemies.add(new Raptor(r.nextInt((leftside - 50) - (leftside - RipGame.WIDTH)) + (leftside - RipGame.WIDTH), r.nextInt(LevelRender.Y_LIMIT)));
+				x = generateXY(xmin_right, xmax_right);
+				y = generateXY(ymin, ymax);
+				
+				ymin -= 87;
+				ymax -= 87;
+				
+				if (ymax <= LevelRender.Y_LIMIT - 300) {
+					ymax = LevelRender.Y_LIMIT;
+					ymin = LevelRender.Y_LIMIT - 87;
+				}
+				
+				xmax_left -= 224;
+				xmin_left -= 224;
+				enemies.add(new Raptor(x, y));
 			}
 
 		}
+		
+		
 
 		for (int i = 0; i < numOfEnemiesApe; i++) {
 			lr = r.nextBoolean();
@@ -69,6 +112,13 @@ public class Level_1_1 {
 			}
 
 		}
+	}
+	
+	
+	
+	public int generateXY(int min, int max) {
+		//Min + (int)(Math.random() * ((Max - Min) + 1))
+		return min + (int)(Math.random() * ((max - min) + 1));
 	}
 	
 		
@@ -97,10 +147,6 @@ public class Level_1_1 {
 	public LevelRender getRenderer() {
 		return lr;
 	}
-	
-	public void dispose() {
-		
-	}
 
 
 	public Music getLeveltheme() {
@@ -114,7 +160,16 @@ public class Level_1_1 {
 	public void setIn(InputHandler in) {
 		this.in = in;
 	}
-
+	
+	
+	public void dispose() {
+		/*
+		player.dispose();
+		enemies.clear();
+		leveltheme.dispose();
+		*/
+		
+	}
 	
 	
 }

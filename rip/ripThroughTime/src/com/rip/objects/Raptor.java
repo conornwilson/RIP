@@ -140,6 +140,18 @@ public class Raptor extends MidLevelEnemy {
 		}
 	}
 	
+	public void setAttackAnimationLeft(){
+		this.setStateTime(0f);
+		this.raptor_animation = this.attackAnimationLeft;
+		return;
+	}
+	
+	public void setAttackAnimationRight(){
+		this.setStateTime(0f);
+		this.raptor_animation = this.attackAnimationRight;
+		return;
+	}
+	
 	public TextureRegion getCurrentFrame() {
 		return currentFrame;
 	}

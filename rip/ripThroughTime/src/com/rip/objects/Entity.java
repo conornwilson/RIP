@@ -119,6 +119,10 @@ public abstract class Entity {
 		this.boxset = boxset;
 	}
 	
+	public void dispose() {
+		
+	}
+	
 	
 	
 }

@@ -100,7 +100,7 @@ public class MainMenu implements Screen {
 				Gdx.app.log(RipGame.LOG, "Start Game: pushed");
 				maintheme.stop();
 				selectPlay.play();
-				
+				dispose();
 				game.setScreen(new GameScreen(game));
 			}
 		});
@@ -156,15 +156,13 @@ public class MainMenu implements Screen {
 		// TODO Auto-generated method stub
 		
 	}
-
+	
 	@Override
 	public void dispose() {
-		batch.dispose();
 		skin.dispose();
 		atlas.dispose();
 		white.dispose();
 		black.dispose();
-		stage.dispose();
 		
 		selectPlay.dispose();
 		maintheme.dispose();

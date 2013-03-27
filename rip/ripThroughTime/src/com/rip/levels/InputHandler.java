@@ -18,6 +18,7 @@ public class InputHandler implements InputProcessor {
 	ArrayList<Enemy> enemies;
 	
 	private boolean WAIT;
+	boolean miss = true;
 	
 	int newX;
 	int newY;
@@ -71,12 +72,6 @@ public class InputHandler implements InputProcessor {
 		player = level.getPlayer();
 		switch(keycode) {
 		case Keys.A:
-			/*
-			if (player.getPlayer_animation() != player.getWalkAnimationLeft()) {
-				player.setPlayer_animation(player.getWalkAnimationLeft());
-			}
-			//player.setPlayer_animation(player.getWalkAnimationLeft());
-			 */
 			if (!player.isATTACK_ANIMATION()) {
 				player.setStateTime(0f);	
 				player.setCurrentFrame(0f);
@@ -116,16 +111,6 @@ public class InputHandler implements InputProcessor {
 				player.setCurrentFrame(0f);
 				//player.setATTACK_ANIMATION(true);
 				WAIT = true;
-				/*
-				while (WAIT) {
-					continue;
-				}
-				
-				// original code
-				player.setPlayer_animation(player.getWalkAnimationLeft());
-				player.setStateTime(0f);
-				player.setCurrentFrame(0f);
-				*/
 				break;
 			case DIR_RIGHT:
 				if (player.isATTACK_ANIMATION()){
@@ -149,25 +134,34 @@ public class InputHandler implements InputProcessor {
 				for (int i = 0; i < enemies.size(); i++) {
 					Enemy e = enemies.get(i);
 					if (player.punches(e.hitableBox)) {
+						miss = false;
 						//Gdx.app.log(RipGame.LOG, "Punch");
 						Sound punch = player.getRandomPunch_sounds();
 						punch.play(1.0f);
-						Sound hit = e.gethitSound();
-						hit.play(1.0f);
+						playHitSound(e);
 						e.setHealth(e.getHealth() - player.getPunch_damage());
 						
 						// Cause enemy to be pushed back
 						switch(player.getDir()) {
 						case DIR_LEFT:
-							e.setX(e.getX() - 50);
+							e.hitBack(-50, enemies);
+							//e.setX(e.getX() - 50);
 							break;
 						case DIR_RIGHT:
-							e.setX(e.getX() + 50);
+							e.hitBack(50, enemies);
+							//e.setX(e.getX() + 50);
 							break;
 						default:
 							break;
 						}
-					}
+					} 
+				}
+				if (miss) {
+					Sound miss = player.getRandomMiss_sounds();
+					miss.play(1.0f);
+					
+				} else {
+					miss = true;
 				}
 				player.setATTACK_ANIMATION(true);
 			}
@@ -207,25 +201,33 @@ public class InputHandler implements InputProcessor {
 					for (int i = 0; i < enemies.size(); i++) {
 						Enemy e = enemies.get(i);
 						if (player.punches(e.hitableBox)) {
+							miss = false;
 							//Gdx.app.log(RipGame.LOG, "Punch");
 							Sound kick = player.getRandomKick_sounds();
 							kick.play(1.0f);
-							Sound hit = e.gethitSound();
-							hit.play(1.0f);
+							playHitSound(e);
 							e.setHealth(e.getHealth() - player.getKick_damage());
 							
 							// Cause enemy to be pushed back
 							switch(player.getDir()) {
 							case DIR_LEFT:
-								e.setX(e.getX() - 50);
+								e.hitBack(-50, enemies);
+								//e.setX(e.getX() - 50);
 								break;
 							case DIR_RIGHT:
-								e.setX(e.getX() + 50);
+								e.hitBack(50, enemies);
+								//e.setX(e.getX() + 50);
 								break;
 							default:
 								break;
 							}
 						}
+					} if (miss) {
+						Sound miss = player.getRandomMiss_sounds();
+						miss.play(1.0f);
+						
+					} else {
+						miss = true;
 					}
 					player.setATTACK_ANIMATION(true);
 				}
@@ -277,6 +279,13 @@ public class InputHandler implements InputProcessor {
 
 	public void setWAIT(boolean wAIT) {
 		WAIT = wAIT;
+	}
+	
+	public void playHitSound(Enemy e) {
+		if ((float) Math.random() >= .5) {
+			Sound hit = e.gethitSound();
+			hit.play(1.0f);
+		}
 	}
 	
 }

@@ -6,13 +6,13 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.rip.RipGame;
-import com.rip.objects.Enemy.Directions;
+
 
 public class Ape extends LowLevelEnemy {
 	
 	protected Animation ape_animation;
 	
-	private static final int WALK_COLS = 1;
+	private static final int WALK_COLS = 9;
 	private static final int WALK_ROWS = 1;
 	
 	private static final int ATTACK_COLS = 5;
@@ -49,7 +49,7 @@ public class Ape extends LowLevelEnemy {
 		
 		//Initiate Walk Animation
 		TextureRegion temp;
-		walkSheet = new Texture(Gdx.files.internal("data/ape_walk-1.png"));
+		walkSheet = new Texture(Gdx.files.internal("data/ape_walk.png"));
 		TextureRegion[][] tmpwRight = TextureRegion.split(walkSheet, walkSheet.getWidth() / WALK_COLS, walkSheet.getHeight() / WALK_ROWS);
 		TextureRegion[][] tmpwLeft = TextureRegion.split(walkSheet, walkSheet.getWidth() / WALK_COLS, walkSheet.getHeight() / WALK_ROWS);
 		walkFramesRight = new TextureRegion[WALK_COLS * WALK_ROWS];
@@ -75,8 +75,8 @@ public class Ape extends LowLevelEnemy {
 			}
 		}
 
-		walkAnimationRight = new Animation(0.075f, walkFramesRight);
-		walkAnimationLeft = new Animation(0.075f, walkFramesLeft);
+		walkAnimationRight = new Animation(0.08f, walkFramesRight);
+		walkAnimationLeft = new Animation(0.08f, walkFramesLeft);
 		
 		//Initiate Attack Animation
 		attackSheet = new Texture(Gdx.files.internal("data/ape_smack.png"));
@@ -105,8 +105,8 @@ public class Ape extends LowLevelEnemy {
 			}
 		}
 
-		attackAnimationRight = new Animation(0.075f, attackFramesRight);
-		attackAnimationLeft = new Animation(0.075f, attackFramesLeft);
+		attackAnimationRight = new Animation(0.03f, attackFramesRight);
+		attackAnimationLeft = new Animation(0.03f, attackFramesLeft);
 		
 		
 		ape_animation = walkAnimationRight;
@@ -141,6 +141,18 @@ public class Ape extends LowLevelEnemy {
 		} else { 
 			this.currentFrame = this.ape_animation.getKeyFrame(this.stateTime, true);
 		}
+	}
+	
+	public void setAttackAnimationLeft(){
+		this.setStateTime(0f);
+		this.ape_animation = this.attackAnimationLeft;
+		return;
+	}
+	
+	public void setAttackAnimationRight(){
+		this.setStateTime(0f);
+		this.ape_animation = this.attackAnimationRight;
+		return;
 	}
 	
 

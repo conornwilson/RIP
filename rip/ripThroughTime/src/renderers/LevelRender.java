@@ -24,6 +24,8 @@ import com.rip.levels.Level_1_1;
 import com.rip.objects.Enemy;
 import com.rip.objects.Background;
 import com.rip.objects.BackgroundObject;
+import com.rip.objects.Entity;
+import com.rip.objects.HealthPack;
 import com.rip.objects.MovableEntity.Directions;
 import com.rip.objects.Raptor;
 import com.rip.objects.Ape;
@@ -48,7 +50,7 @@ public class LevelRender {
 	public static float delta;
 	
 	// Load Textures
-	Texture playerTexture;
+
 	Texture timeFreezeOverlay = new Texture(Gdx.files.internal("data/timeFreezeOverlay.png"));
 	Texture level_complete = new Texture(Gdx.files.internal("data/level_complete.png"));
 	Texture timebaroutline = new Texture(Gdx.files.internal("data/timebaroutline.png"));
@@ -56,7 +58,8 @@ public class LevelRender {
 	Texture healthbaroutline = new Texture(Gdx.files.internal("data/healthbaroutline.png"));
 	Texture healthbar = new Texture(Gdx.files.internal("data/healthbar.png"));
 	
-	
+	Pixmap g, s, tree1, tree2, bush1 ,bush2, volcano1, volcano2,
+		cloud1, cloud2, cloud3, cloud4, debris1, debris2, debris3;
 	
 	ShapeRenderer sr;
 	Player player;
@@ -66,12 +69,15 @@ public class LevelRender {
 
 	ArrayList<Enemy> enemy_list;
 	ArrayList<MovableEntity> drawables;
+	ArrayList<HealthPack> healthpacks = new ArrayList<HealthPack>();
 	
 	//checkpoint boolean holders
-	boolean checkPoint1, checkPoint2, checkPoint3, checkPoint4, levelComplete = false;
+	boolean checkPoint1, checkPoint2, checkPoint3, checkPoint4, checkPoint5, checkPoint6, levelComplete = false;
 	boolean cp2Wave1, cp2Wave2 = false;
 	boolean cp3Wave1, cp3Wave2 = false;
 	boolean cp4Wave1, cp4Wave2 = false;
+	boolean cp5Wave1, cp5Wave2 = false;
+	boolean cp6Wave1, cp6Wave2 = false;
 	boolean end = false;
 	
 	Background bg;
@@ -117,14 +123,14 @@ public class LevelRender {
 		drawables = new ArrayList<MovableEntity>();
 		
 		
-//////////GENERATE ALL BACKGROUND OBJECTS//////////		
+		//////////GENERATE ALL BACKGROUND OBJECTS//////////		
 
 		Random r = new Random();
 
 		int levelLength = 13000;
 		
 		//background objects
-		Pixmap g = new Pixmap(Gdx.files.internal("data/ground.png"));
+		this.g = new Pixmap(Gdx.files.internal("data/ground.png"));
 		int startX = -20;
 		int startY = 0;
 		while (startX < levelLength) {
@@ -135,13 +141,13 @@ public class LevelRender {
 
 
 		//sky -- doesn't ever move. 
-		Pixmap s = new Pixmap(Gdx.files.internal("data/sky.png"));
+		this.s = new Pixmap(Gdx.files.internal("data/sky.png"));
 		sk = new BackgroundObject(s,0,0);
 		
 		
 		//random tree objects.
-		Pixmap tree1 = new Pixmap(Gdx.files.internal("data/tree.png"));
-		Pixmap tree2 = new Pixmap(Gdx.files.internal("data/tree2.png"));
+		this.tree1 = new Pixmap(Gdx.files.internal("data/tree.png"));
+		this.tree2 = new Pixmap(Gdx.files.internal("data/tree2.png"));
 		Array<Pixmap> treesPix = new Array<Pixmap>();
 		treesPix.add(tree1);
 		treesPix.add(tree2);
@@ -156,8 +162,8 @@ public class LevelRender {
 		}
 
 		    //random bush objects.
-			Pixmap bush1 = new Pixmap(Gdx.files.internal("data/bush.png"));
-			Pixmap bush2 = new Pixmap(Gdx.files.internal("data/bush2.png"));
+			this.bush1 = new Pixmap(Gdx.files.internal("data/bush.png"));
+			this.bush2 = new Pixmap(Gdx.files.internal("data/bush2.png"));
 			Array<Pixmap> bushPix = new Array<Pixmap>();
 			bushPix.add(bush1);
 			bushPix.add(bush2);
@@ -172,8 +178,8 @@ public class LevelRender {
 			}
 
 			//random volcano objects
-			Pixmap volcano1 = new Pixmap(Gdx.files.internal("data/volcano.png"));
-			Pixmap volcano2 = new Pixmap(Gdx.files.internal("data/volcanosmall.png"));
+			this.volcano1 = new Pixmap(Gdx.files.internal("data/volcano.png"));
+			this.volcano2 = new Pixmap(Gdx.files.internal("data/volcanosmall.png"));
 			Array<Pixmap> volcanoPix = new Array<Pixmap>();
 			volcanoPix.add(volcano1);
 			volcanoPix.add(volcano2);
@@ -188,10 +194,10 @@ public class LevelRender {
 			}
 
 			//random cloud objects
-			Pixmap cloud1 = new Pixmap(Gdx.files.internal("data/cloud1.png"));
-			Pixmap cloud2 = new Pixmap(Gdx.files.internal("data/cloud2.png"));
-			Pixmap cloud3 = new Pixmap(Gdx.files.internal("data/cloud3.png"));
-			Pixmap cloud4 = new Pixmap(Gdx.files.internal("data/cloud4.png"));
+			this.cloud1 = new Pixmap(Gdx.files.internal("data/cloud1.png"));
+			this.cloud2 = new Pixmap(Gdx.files.internal("data/cloud2.png"));
+			this.cloud3 = new Pixmap(Gdx.files.internal("data/cloud3.png"));
+			this.cloud4 = new Pixmap(Gdx.files.internal("data/cloud4.png"));
 			Array<Pixmap> cloudPix = new Array<Pixmap>();
 			cloudPix.add(cloud1);
 			cloudPix.add(cloud2);
@@ -208,9 +214,9 @@ public class LevelRender {
 			}
 
 			//random debris objects
-			Pixmap debris1 = new Pixmap(Gdx.files.internal("data/smallgrass.png"));
-			Pixmap debris2 = new Pixmap(Gdx.files.internal("data/smallrock1.png"));
-			Pixmap debris3 = new Pixmap(Gdx.files.internal("data/smallrock2.png"));
+			this.debris1 = new Pixmap(Gdx.files.internal("data/smallgrass.png"));
+			this.debris2 = new Pixmap(Gdx.files.internal("data/smallrock1.png"));
+			this.debris3 = new Pixmap(Gdx.files.internal("data/smallrock2.png"));
 			Array<Pixmap> debrisPix = new Array<Pixmap>();
 			debrisPix.add(debris1);
 			debrisPix.add(debris2);
@@ -242,6 +248,7 @@ public class LevelRender {
 		enemy_list = level.getEnemies();
 		drawables.add(player);
 		drawables.addAll(enemy_list);
+		drawables.addAll(healthpacks);
 		
 		//cam.position.set(player.getX(), player.getY(), 0);
 		
@@ -284,12 +291,29 @@ public class LevelRender {
 		//wave2
 		if (level.getEnemies().isEmpty() && cp2Wave2 == false && cp2Wave1 == true) {
 			move = false;
-			level.checkPoint(0,2);
+			level.checkPoint(1, 2);
 			cp2Wave2 = true;
 			checkPoint2 = true;
 		}
-
+		
 		//CHECKPOINT 3//
+				//wave 1
+				if (camPos >= 5500 && checkPoint2 == false && cp2Wave1 == false) {
+					Gdx.app.log(RipGame.LOG, "checkpoint2");
+					move = false;
+					level.checkPoint(0, 2);
+					cp2Wave1 = true;
+				}
+
+				//wave2
+				if (level.getEnemies().isEmpty() && cp2Wave2 == false && cp2Wave1 == true) {
+					move = false;
+					level.checkPoint(0,3);
+					cp2Wave2 = true;
+					checkPoint2 = true;
+				}
+
+		//CHECKPOINT 4//
 		//wave 1
 		if (camPos >= 7000 && checkPoint3 == false && cp3Wave1 == false) {
 			move = false;
@@ -300,7 +324,39 @@ public class LevelRender {
 		//wave 2
 		if (level.getEnemies().isEmpty() && cp3Wave2 == false && cp3Wave1 == true) {
 			move = false;
-			level.checkPoint(1,0);
+			level.checkPoint(1,1);
+			cp3Wave2 = true;
+			checkPoint3 = true;
+		}
+		
+		//CHECKPOINT 5//
+		//wave 1
+		if (camPos >= 8500 && checkPoint3 == false && cp3Wave1 == false) {
+			move = false;
+			level.checkPoint(0,1);
+			cp3Wave1 = true;
+		}
+
+		//wave 2
+		if (level.getEnemies().isEmpty() && cp3Wave2 == false && cp3Wave1 == true) {
+			move = false;
+			level.checkPoint(2,0);
+			cp3Wave2 = true;
+			checkPoint3 = true;
+		}
+		
+		//CHECKPOINT 5//
+		//wave 1
+		if (camPos >= 9500 && checkPoint3 == false && cp3Wave1 == false) {
+			move = false;
+			level.checkPoint(0,2);
+			cp3Wave1 = true;
+		}
+
+		//wave 2
+		if (level.getEnemies().isEmpty() && cp3Wave2 == false && cp3Wave1 == true) {
+			move = false;
+			level.checkPoint(1,1);
 			cp3Wave2 = true;
 			checkPoint3 = true;
 		}
@@ -326,7 +382,7 @@ public class LevelRender {
 		if (checkPoint4 == true && camPos >= 11500) {
 			move = false;
 			end = true;
-			Gdx.app.log(RipGame.LOG, "End Level 1-1");
+			//Gdx.app.log(RipGame.LOG, "End Level 1-1");
 			
 		}
 		batch.begin();
@@ -397,7 +453,8 @@ public class LevelRender {
 				((Raptor) me).setCurrentFrame(delta);
 				if (((Raptor) me).attacking && 
 							((Raptor) me).getRaptor_animation().isAnimationFinished(me.getStateTime())) {
-					Gdx.app.log(RipGame.LOG, "Attack End");
+					//Gdx.app.log(RipGame.LOG, "Attack End");
+					//player.setHealth(player.getHealth() - ((Raptor) me).getDamage());
 					((Raptor) me).attacking = false;
 					me.setStateTime(0);
 					switch (me.getDir()) {
@@ -416,7 +473,8 @@ public class LevelRender {
 				((Ape) me).setCurrentFrame(delta);
 				if (((Ape) me).attacking && 
 							((Ape) me).getApe_animation().isAnimationFinished(me.getStateTime())) {
-					Gdx.app.log(RipGame.LOG, "Attack End");
+					//Gdx.app.log(RipGame.LOG, "Attack End");
+					//player.setHealth(player.getHealth() - ((Ape) me).getDamage());
 					((Ape) me).attacking = false;
 					me.setStateTime(0);
 					switch (me.getDir()) {
@@ -430,13 +488,23 @@ public class LevelRender {
 						break;
 					}
 				}
+			} else if (me instanceof HealthPack) {
+				batch.draw(me.getTexture(), me.getX(), me.getY());
+				if (((HealthPack) me).collides(player)) {
+					healthpacks.remove(me);
+				}
+				
 			} else {
 				batch.draw(me.getTexture(), me.getX(), me.getY());
 			}
 			//sr.rect(me.hitableBox.x, me.hitableBox.y, me.hitableBox.width, me.hitableBox.height);
 			//sr.rect(me.getX(), me.getY(), me.hitableBox.width, me.hitableBox.height);
 		}	
-		
+		if (player.getHealth() > 100) {
+			player.setHealth(100);
+		} else if (player.getHealth() < 0) {
+			player.setHealth(0);
+		}
 		batch.draw(healthbar, camPos + 25, 450, player.getHealth()*2, 15);
 		batch.draw(healthbaroutline, camPos + 25 - 3, 450 - 3, 206, 21);
 
@@ -490,11 +558,11 @@ public class LevelRender {
 		} else {
 			for (int i = 0; i < drawables.size(); i++) {
 				MovableEntity me = drawables.get(i);
-				if (me instanceof Player) {
+				if ((me instanceof Player) || (me instanceof HealthPack)) {
 					continue;
 				}
 				Enemy e = (Enemy) me;
-				e.track(player);
+				e.track(player, enemy_list);
 			}
 		}
 		
@@ -507,6 +575,8 @@ public class LevelRender {
 		
 		if (end) {
 			if (Gdx.input.isKeyPressed(Keys.ENTER)){
+				//this.dispose();
+				game.getScreen().dispose();
 				game.setScreen(new MainMenu(game));
 			}
 		}
@@ -518,7 +588,13 @@ public class LevelRender {
 				for (int i = 0; i < enemy_list.size(); i++) {
 					Enemy e = enemy_list.get(i);
 						if (e.getHealth() <= 0)	{
+							
 							enemy_list.remove(i);
+							if (e.HealthDrop) {
+								HealthPack hp = e.getHealthDrop();
+								drawables.add(hp);
+								healthpacks.add(hp);
+							}
 							drawables.remove(e);
 						}
 				}
@@ -537,11 +613,27 @@ public class LevelRender {
 						break;
 				}
 					
-				Gdx.app.log(RipGame.LOG, "ANIMATION OVER");
+				//Gdx.app.log(RipGame.LOG, "ANIMATION OVER");
 			}
 		
-			//Find a way to slow diagonal movement
-		} else {
+		} else if (player.hit) {
+			player.setCurrentFrame(delta);
+			if (player.getPlayer_animation().isAnimationFinished(player.getStateTime())) {
+				player.hit = false;
+				switch(player.getDir()){
+				case DIR_LEFT:
+					player.setPlayer_animation(player.getWalkAnimationLeft());
+					player.setStateTime(0f);
+					player.setCurrentFrame(0f);
+					break;
+				case DIR_RIGHT:
+					player.setPlayer_animation(player.getWalkAnimationRight());
+					player.setStateTime(0f);
+					player.setCurrentFrame(0f);
+					break;
+				}
+			}
+ 		} else {
 		
 			if(Gdx.input.isKeyPressed(Keys.A) && !c[2] && (player.getDir() == Directions.DIR_LEFT)) {
 				
@@ -609,14 +701,49 @@ public class LevelRender {
 	}
 	
 	public void dispose() {
-		batch.dispose();
-		playerTexture.dispose();
-		sr.dispose();
-		leveltheme.dispose();
-		level.dispose();
-		sr.dispose();
+		//batch.dispose();
+		//sr.dispose();
 		
-		// need to dispose everything
+	/*
+		this.g.dispose();
+		this.s.dispose(); 
+		this.tree1.dispose(); 
+		this.tree2.dispose();
+		this.bush1.dispose(); 
+		this.bush2.dispose();
+		this.volcano1.dispose(); 
+		this.volcano2.dispose();
+		this.cloud1.dispose(); 
+		this.cloud2.dispose(); 
+		this.cloud3.dispose(); 
+		this.cloud4.dispose(); 
+		this.debris1.dispose(); 
+		this.debris2.dispose(); 
+		this.debris3.dispose();
+		*/
+		
+		this.timeFreezeOverlay.dispose();
+		this.level_complete.dispose();
+		this.timebaroutline.dispose();
+		this.timebar.dispose();
+		this.healthbaroutline.dispose();
+		this.healthbar.dispose();
+		
+		
+		timeFreezeOverlay.dispose();
+		level_complete.dispose();
+		timebaroutline.dispose();
+		timebar.dispose();
+		healthbaroutline.dispose();
+		healthbar.dispose();
+		
+		this.camPos = 0;
+		
+		
+		//game.getScreen().dispose();
+		
+		//player.dispose();
+		
 		
 	}
 	

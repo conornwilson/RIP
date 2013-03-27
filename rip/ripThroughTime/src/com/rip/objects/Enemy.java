@@ -1,5 +1,6 @@
 package com.rip.objects;
 
+import java.util.ArrayList;
 import java.util.Random;
 
 import com.badlogic.gdx.Gdx;
@@ -14,11 +15,13 @@ import renderers.LevelRender;
 
 public abstract class Enemy extends MovableEntity {
 
+	public static boolean HealthDrop;
 	protected float health;
 	protected float damage;
 	boolean collides_player;
 	public boolean attacking = false;
 	float attack_chance;
+	float initiate_attack_chance;
 	
 	Random rand = new Random();
 	protected Sound hit_sounds[];
@@ -36,9 +39,12 @@ public abstract class Enemy extends MovableEntity {
 	
 	public boolean spawnPoint = false;
 	
-	public enum Directions { DIR_LEFT, DIR_RIGHT };
-	
-	Directions dir = Directions.DIR_RIGHT;
+	//Collision Detection
+	boolean Collides_Left = false;
+	boolean Collides_Right = false;
+	boolean Collides_Up = false;
+	boolean Collides_down = false;
+
 	
 	public Enemy(int x, int y, float width, float height, Texture texture,
 			int SPEED, float health) {
@@ -46,6 +52,7 @@ public abstract class Enemy extends MovableEntity {
 		this.health = health;
 		collides_player = false;
 		make_flanks();
+		make_drop();
 		//hitableBox = new Rectangle(x, y, width, height);
 	}
 	
@@ -54,7 +61,22 @@ public abstract class Enemy extends MovableEntity {
 		this.health = health;
 		collides_player = false;
 		make_flanks();
+		make_drop();
 		//hitableBox = new Rectangle(x, y, width, height);
+	}
+
+	public void make_drop() {
+
+		if ((float) Math.random() >= .65) {
+			this.HealthDrop = true;
+		} else {
+			this.HealthDrop = false;
+		}
+	}
+	
+	public HealthPack getHealthDrop() {
+		HealthPack drop = new HealthPack(this.x + (int) (this.width/2), this.y);
+		return drop;
 	}
 	
 	public void make_flanks() {
@@ -70,47 +92,39 @@ public abstract class Enemy extends MovableEntity {
 		}
 	}
 	
-/*	
-	public void attack(Player p) {
-		if (this.attacking)
-			return;
-		attack_chance = (float) Math.random();
-		if (attack_chance >= 0.7) {
-			this.attacking = true;
-			attack_chance = 0;
-			Gdx.app.log(RipGame.LOG, "Enemy Attack");
-			//attack code
-		} else {
-			attack_chance = 0;
-			Gdx.app.log(RipGame.LOG, "Enemy Attack Failed");
-			return;
-		}
-		
-		
+	public void setAttackAnimationLeft(){
+		return;
 	}
-	*/
 	
-	public void attack(Player p) {
+	public void setAttackAnimationRight(){
+		return;
+	}
+
+	
+	public void attack(Player p, ArrayList<Enemy> e) {
 		//(player.getPlayer_animation().isAnimationFinished(player.getStateTime()))
-		Gdx.app.log(RipGame.LOG, "Ape Attack");
+		//Gdx.app.log(RipGame.LOG, this.getDir().toString());
 		if (this.attacking) {
 			return;
 		}
 		attack_chance = (float) Math.random();
-		if (attack_chance >= 0.9) {
+		if (attack_chance >= 0.95) {
 			this.attacking = true;
 			p.setHealth(p.getHealth() - this.damage);
 			attack_chance = 0;
-			Gdx.app.log(RipGame.LOG, String.valueOf(p.getHealth()));
+			//Gdx.app.log(RipGame.LOG, String.valueOf(p.getHealth()));
 			
 			switch (this.getDir()) {
 			case DIR_LEFT:
-				Gdx.app.log(RipGame.LOG, "Enemy Attack Left");
+				this.setAttackAnimationLeft();
+				p.hitBack(-30, e);
+				//Gdx.app.log(RipGame.LOG, "Enemy Attack Left");
 				//this.raptor_animation = this.attackAnimationLeft;
 				break;
-				//set animation
 			case DIR_RIGHT:
-				Gdx.app.log(RipGame.LOG, "Enemy Attack Right");
+				this.setAttackAnimationRight();
+				p.hitBack(30, e);
+				//Gdx.app.log(RipGame.LOG, "Enemy Attack Right");
 				//this.raptor_animation = this.attackAnimationRight;
 				break;
 			default:
@@ -120,20 +134,96 @@ public abstract class Enemy extends MovableEntity {
 			//set animation
 		} else {
 			attack_chance = 0;
-			Gdx.app.log(RipGame.LOG, "Enemy Attack Failed");
+			//Gdx.app.log(RipGame.LOG, "Enemy Attack Failed");
 			return;
 		}
 	}
 	
-	public void track(Player p) {
-		if (this.collides_player) {
-			this.attack(p);
-			
-		} else {
+	public void track(Player p, ArrayList<Enemy> e) {
 		
+		if (this.attacking) {
+			Gdx.app.log(RipGame.LOG, "attacking");
+			return;
+		}
+		
+		//Gdx.app.log(RipGame.LOG, "track");
+		update_collisions(e);
+		if (this.collides_player) {
+			this.initiate_attack_chance = (float) Math.random();
+			if (this.initiate_attack_chance >= 0.5f) {
+				this.attack(p, e);
+			}
+			this.initiate_attack_chance = 0f;
+			return;
+		} 
+		if ((p.getY() > this.y) && !(this.Collides_Up)) {
+			direct_movement(p);
+		} else if (p.getY() > this.y) {
+			if (!(this.Collides_down)) {
+				flank(p);
+			} else {
+				return;
+			}
+		}
+		// If enemy can go directly at player, do so
+		else if ((p.getX() < this.x) && !(this.Collides_Left)) {
+			direct_movement(p);
+		// If enemy can go directly at player, do so
+		} else if ((p.getX() > this.x) && !(this.Collides_Right)) {
+			direct_movement(p);
+		// If down is not blocked, flank
+		} else if (!(this.Collides_down)) {
+			flank(p);
+		// Else, stay still
+		} else {
+			//Gdx.app.log(RipGame.LOG, "else");
+			return;
+		}
+		return;
+	}
+	
+	public void update_collisions(ArrayList<Enemy> e) {
+		this.Collides_down = false;
+		this.Collides_Left = false;
+		this.Collides_Right = false;
+		this.Collides_Up = false;
+		
+		for (int i = 0; i < e.size(); i++) {
+			Enemy m = e.get(i);
+			
+			if (m == this) {
+				continue;
+			}
+			
+			if (Intersector.overlapRectangles(this.hitableBox, m.hitableBox)) {
+			//if (this.hitableBox.overlaps(m.hitableBox)) {
+				
+				//Is Left occupied?
+				if ((this.hitableBox.x <= (m.hitableBox.x + m.hitableBox.width)) && (this.hitableBox.x >= m.hitableBox.x)) {
+					this.Collides_Left = true;
+				}
+				//Is Down occupied?
+				else if ((this.hitableBox.y <= (m.hitableBox.y + m.hitableBox.height)) && (this.hitableBox.y >= m.hitableBox.y)) {
+					this.Collides_down = true;
+				}
+				//Is Right occupied?
+				else if (((this.hitableBox.x + this.hitableBox.width) >= m.hitableBox.x) && (m.hitableBox.x >= this.hitableBox.x)){
+					this.Collides_Right = true;
+				}
+				// Is Up occupied?
+				else if (((this.hitableBox.y + this.hitableBox.height) >= m.hitableBox.y) && (m.hitableBox.y >= this.hitableBox.y)){
+					this.Collides_Up = true;
+				}
+			
+			}
+		}
+		return;
+	}
+	
+	public void flank(Player p) {
 			int dx, dy;
 	
-	//		Gdx.app.log(RipGame.LOG, "flank: " + flank);
+			//Gdx.app.log(RipGame.LOG, "flank: ");
 	
 			if (flank == false) {
 				int pX;
@@ -165,8 +255,13 @@ public abstract class Enemy extends MovableEntity {
 				}
 	
 				this.setX(this.getX() + (int)((dx - this.SPEED) * LevelRender.delta));
-				this.setY(this.getY() + (int)((dy - this.SPEED) * LevelRender.delta));
-	
+				if ((dy > 0) && (this.Collides_Up)) {
+					this.setY(this.getY());
+				} else if ((dy < 0) && (this.Collides_down)){
+					this.setY(this.getY());
+				} else {
+					this.setY(this.getY() + (int)((dy - this.SPEED) * LevelRender.delta));
+				}
 	
 			} else {
 				if (trackX == 0 && trackY == 0) {
@@ -205,40 +300,71 @@ public abstract class Enemy extends MovableEntity {
 				} 
 			}
 		}
-
-	}
-
 	
-	
-	/*
-	public void track(Player p) {
-		if (this.collides_player) {
+	public void hitBack(int distance, ArrayList<Enemy> e) {
+		if (distance == 0) {
 			return;
-			
-		} else {
+		}
 		
-			int pX = p.getX();
-			int pY = p.getY();
-	
-			int dx = pX - x;
-			int dy = pY - y;
+		this.setX(this.getX() + distance);
+		
+		for (Enemy m : e) {
+			if (m == this) {
+				continue;
+			}
 			
+			if (Intersector.overlapRectangles(this.hitableBox, m.hitableBox)) {
+				if (distance < 0) {
+					if (((this.hitableBox.x + this.hitableBox.width) >= m.hitableBox.x) && (m.hitableBox.x >= this.hitableBox.x)){
+						m.hitBack(distance / 2, e);
+						break;
+					}
+						
+				} else {
+					if ((this.hitableBox.x <= (m.hitableBox.x + m.hitableBox.width)) && (this.hitableBox.x >= m.hitableBox.x)) {
+						m.hitBack(distance / 2, e);
+						break;
+					}
+				}
+			}
+		}
+		
+		return;
+	}
+	
+	public void direct_movement(Player p) {
+		//Gdx.app.log(RipGame.LOG, "direct");
+		int pX = p.getX();
+		int pY = p.getY();
+
+		int dx = pX - x;
+		int dy = pY - y;
+
+
+		
+		if ((dx > 0) && (this.Collides_Right)) {
+			this.setX(this.getX());
+		} else if ((dx < 0) && (this.Collides_Left)){
+			this.setX(this.getX());
+		} else {
 			if (dx > 0) {
 				dir = Directions.DIR_RIGHT;
 			} else if (dx < 0) {
 				dir = Directions.DIR_LEFT;
 			}
-	
 			this.setX(this.getX() + (int)((dx - this.SPEED) * LevelRender.delta));
-	
-	
+		}
+		
+		if ((dy > 0) && (this.Collides_Up)) {
+			this.setY(this.getY());
+		} else if ((dy < 0) && (this.Collides_down)){
+			this.setY(this.getY());
+		} else {
 			this.setY(this.getY() + (int)((dy - this.SPEED) * LevelRender.delta));
 		}
+		
+		return;
 	}
-	*/
-	
-	
-	
 	
 	
 	
@@ -276,6 +402,40 @@ public abstract class Enemy extends MovableEntity {
 		int index = rand.nextInt(hit_sounds.length);
 		return hit_sounds[index];
 	}
+
+	public boolean isCollides_Left() {
+		return Collides_Left;
+	}
+
+	public void setCollides_Left(boolean collides_Left) {
+		Collides_Left = collides_Left;
+	}
+
+	public boolean isCollides_Right() {
+		return Collides_Right;
+	}
+
+	public void setCollides_Right(boolean collides_Right) {
+		Collides_Right = collides_Right;
+	}
+
+	public boolean isCollides_Up() {
+		return Collides_Up;
+	}
+
+	public void setCollides_Up(boolean collides_Up) {
+		Collides_Up = collides_Up;
+	}
+
+	public boolean isCollides_down() {
+		return Collides_down;
+	}
+
+	public void setCollides_down(boolean collides_down) {
+		Collides_down = collides_down;
+	}
+	
+	
 	
 
 	
