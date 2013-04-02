@@ -13,7 +13,7 @@ import com.rip.objects.Player;
 
 
 public class InputHandler implements InputProcessor {
-	Level_1_1 level;
+	Level level;
 	Player player;
 	ArrayList<Enemy> enemies;
 	
@@ -23,7 +23,7 @@ public class InputHandler implements InputProcessor {
 	int newX;
 	int newY;
 	
-	public InputHandler(Level_1_1 level) {
+	public InputHandler(Level level) {
 		this.level = level;
 	}
 	
@@ -102,6 +102,7 @@ public class InputHandler implements InputProcessor {
 			switch(player.getDir()) {
 			case DIR_LEFT:
 				if (player.isATTACK_ANIMATION()){
+					Gdx.app.log(RipGame.LOG, "Punch C-c-combo!");
 					break;
 				}
 				
@@ -114,6 +115,7 @@ public class InputHandler implements InputProcessor {
 				break;
 			case DIR_RIGHT:
 				if (player.isATTACK_ANIMATION()){
+					Gdx.app.log(RipGame.LOG, "Punch C-c-combo!");
 					break;
 				}
 				//player.setTexture(player.getRIGHT());
@@ -170,6 +172,7 @@ public class InputHandler implements InputProcessor {
 				switch(player.getDir()) {
 				case DIR_LEFT:
 					if (player.isATTACK_ANIMATION()){
+						Gdx.app.log(RipGame.LOG, "Kick C-c-combo!");
 						break;
 					}
 					//player.setTexture(player.getLEFT());
@@ -181,6 +184,7 @@ public class InputHandler implements InputProcessor {
 					break;
 				case DIR_RIGHT:
 					if (player.isATTACK_ANIMATION()){
+						Gdx.app.log(RipGame.LOG, "Kick C-c-combo!");
 						break;
 					}
 					//player.setTexture(player.getRIGHT());

@@ -11,7 +11,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.rip.RipGame;
 import com.rip.objects.MovableEntity.Directions;
 
-import renderers.LevelRender;
+import renderers.LevelRenderer;
 
 public abstract class Enemy extends MovableEntity {
 
@@ -104,11 +104,14 @@ public abstract class Enemy extends MovableEntity {
 	public void attack(Player p, ArrayList<Enemy> e) {
 		//(player.getPlayer_animation().isAnimationFinished(player.getStateTime()))
 		//Gdx.app.log(RipGame.LOG, this.getDir().toString());
-		if (this.attacking) {
+		Gdx.app.log(RipGame.LOG, "Enemy Attack");
+		if (this.attacking || p.hit) {
+			Gdx.app.log(RipGame.LOG, "Break");
 			return;
 		}
 		attack_chance = (float) Math.random();
-		if (attack_chance >= 0.95) {
+		if (attack_chance >= 0.75) {
+			Gdx.app.log(RipGame.LOG, "Enemy Attack Really");
 			this.attacking = true;
 			p.setHealth(p.getHealth() - this.damage);
 			attack_chance = 0;
@@ -149,6 +152,7 @@ public abstract class Enemy extends MovableEntity {
 		//Gdx.app.log(RipGame.LOG, "track");
 		update_collisions(e);
 		if (this.collides_player) {
+			Gdx.app.log(RipGame.LOG, "collides player");
 			this.initiate_attack_chance = (float) Math.random();
 			if (this.initiate_attack_chance >= 0.5f) {
 				this.attack(p, e);
@@ -211,7 +215,7 @@ public abstract class Enemy extends MovableEntity {
 					this.Collides_Right = true;
 				}
 				// Is Up occupied?
-				else if (((this.hitableBox.y + this.hitableBox.height) >= m.hitableBox.y) && (m.hitableBox.y >= this.hitableBox.y)){
+				else if (((this.hitableBox.y + this.hitableBox.height) >= m.hitableBox.y) && ((m.hitableBox.y + m.hitableBox.height) >= this.hitableBox.y)){
 					this.Collides_Up = true;
 				}
 			
@@ -254,13 +258,13 @@ public abstract class Enemy extends MovableEntity {
 					dir = Directions.DIR_LEFT;
 				}
 	
-				this.setX(this.getX() + (int)((dx - this.SPEED) * LevelRender.delta));
+				this.setX(this.getX() + (int)((dx - this.SPEED) * LevelRenderer.delta));
 				if ((dy > 0) && (this.Collides_Up)) {
 					this.setY(this.getY());
 				} else if ((dy < 0) && (this.Collides_down)){
 					this.setY(this.getY());
 				} else {
-					this.setY(this.getY() + (int)((dy - this.SPEED) * LevelRender.delta));
+					this.setY(this.getY() + (int)((dy - this.SPEED) * LevelRenderer.delta));
 				}
 	
 			} else {
@@ -274,8 +278,8 @@ public abstract class Enemy extends MovableEntity {
 				} else if (flankPoint1 == false) {
 					dx = trackX - x;
 					dy = trackY - y;
-					this.setX(this.getX() + (int)((dx - this.SPEED + 2) * LevelRender.delta));
-					this.setY(this.getY() + (int)((dy - this.SPEED + 2) * LevelRender.delta));
+					this.setX(this.getX() + (int)((dx - this.SPEED + 2) * LevelRenderer.delta));
+					this.setY(this.getY() + (int)((dy - this.SPEED + 2) * LevelRenderer.delta));
 					if (x <= trackX + this.width + 10 && x >= trackX - this.width + 10 && y <= trackY + this.height + 10 && y >= trackY - this.height + 10 ) {
 						flankPoint1 = true;
 						Gdx.app.log(RipGame.LOG, "flankPoin1 = " + flankPoint1);
@@ -290,8 +294,8 @@ public abstract class Enemy extends MovableEntity {
 				} else if (flankPoint2 == false) {
 					dx = trackX - x;
 					dy = trackY - y;
-					setX(getX() + (int)((dx - SPEED + 2) * LevelRender.delta));
-					setY(getY() + (int)((dy - SPEED + 2) * LevelRender.delta));
+					setX(getX() + (int)((dx - SPEED + 2) * LevelRenderer.delta));
+					setY(getY() + (int)((dy - SPEED + 2) * LevelRenderer.delta));
 					if (x <= trackX + this.width + 10 && x >= trackX - this.width + 10 && y <= trackY + this.height + 10 && y >= trackY - this.height + 10 ) {
 						flankPoint2 = true;
 						trackY = p.getY();
@@ -352,7 +356,7 @@ public abstract class Enemy extends MovableEntity {
 			} else if (dx < 0) {
 				dir = Directions.DIR_LEFT;
 			}
-			this.setX(this.getX() + (int)((dx - this.SPEED) * LevelRender.delta));
+			this.setX(this.getX() + (int)((dx - this.SPEED) * LevelRenderer.delta));
 		}
 		
 		if ((dy > 0) && (this.Collides_Up)) {
@@ -360,7 +364,7 @@ public abstract class Enemy extends MovableEntity {
 		} else if ((dy < 0) && (this.Collides_down)){
 			this.setY(this.getY());
 		} else {
-			this.setY(this.getY() + (int)((dy - this.SPEED) * LevelRender.delta));
+			this.setY(this.getY() + (int)((dy - this.SPEED) * LevelRenderer.delta));
 		}
 		
 		return;

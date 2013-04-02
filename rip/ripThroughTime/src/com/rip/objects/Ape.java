@@ -5,6 +5,7 @@ import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Rectangle;
 import com.rip.RipGame;
 
 
@@ -40,6 +41,9 @@ public class Ape extends LowLevelEnemy {
 				Gdx.audio.newSound(Gdx.files.internal("data/GorillaGrunt_02.wav")),
 				Gdx.audio.newSound(Gdx.files.internal("data/GorillaGrunt_03.wav"))};
 		this.hit_sounds = s;
+		this.hitableBox = new Rectangle(this.x + boxset, 
+				this.y + (height/2), (width * 0.7f), (height / 3));
+		
 		create_animations();
 		// TODO Auto-generated constructor stub
 	}

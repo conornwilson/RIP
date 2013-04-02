@@ -1,4 +1,4 @@
-package renderers;
+/*package renderers;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -524,12 +524,12 @@ public class LevelRender {
 
 		//batch.draw(player.getCurrentFrame(), player.getX(), player.getY());
 		
-		/*
+		
 		sr.rect(player.hitableBox.x, player.hitableBox.y, player.hitableBox.width, player.hitableBox.height);
 		
 		sr.rect(player.punchBoxLeft.x, player.punchBoxLeft.y, player.punchBoxLeft.width, player.punchBoxLeft.height);
 		sr.rect(player.punchBoxRight.x, player.punchBoxRight.y, player.punchBoxRight.width, player.punchBoxRight.height);
-		*/
+		
 		batch.end();
 		sr.end();
 		
@@ -704,7 +704,7 @@ public class LevelRender {
 		//batch.dispose();
 		//sr.dispose();
 		
-	/*
+	
 		this.g.dispose();
 		this.s.dispose(); 
 		this.tree1.dispose(); 
@@ -720,7 +720,7 @@ public class LevelRender {
 		this.debris1.dispose(); 
 		this.debris2.dispose(); 
 		this.debris3.dispose();
-		*/
+		
 		
 		this.timeFreezeOverlay.dispose();
 		this.level_complete.dispose();
@@ -748,3 +748,4 @@ public class LevelRender {
 	}
 	
 }
+*/
