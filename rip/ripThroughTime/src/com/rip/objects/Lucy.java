@@ -172,7 +172,7 @@ public class Lucy extends Enemy {
 	
 	public void swipe() {
 	
-		if (Intersector.overlapRectangles(this.hitableBox, LevelRenderer.getPlayer().hitableBox)) {
+		if (Intersector.overlapRectangles(this.bounds, LevelRenderer.getPlayer().hitableBox)) {
 			LevelRenderer.getPlayer().hitBack(30);
 			LevelRenderer.getPlayer().setHealth(LevelRenderer.getPlayer().getHealth() - this.swipe_damage);
 			// replace this.hitableBox with a swipeBox
@@ -182,7 +182,7 @@ public class Lucy extends Enemy {
 	}
 	
 	public void hit() {
-		if (Intersector.overlapRectangles(this.hitableBox, LevelRenderer.getPlayer().hitableBox)) {
+		if (Intersector.overlapRectangles(this.bounds, LevelRenderer.getPlayer().hitableBox)) {
 			LevelRenderer.getPlayer().hitBack(30);
 			LevelRenderer.getPlayer().setHealth(LevelRenderer.getPlayer().getHealth() - this.hit_damage);
 			// replace this.hitableBox with a hitBox
@@ -200,8 +200,7 @@ public class Lucy extends Enemy {
 		if (this.attacking) {
 		} else {
 		
-			if (this.x == attack_point_1 || this.x == attack_point_2 ||
-					this.x == attack_point_3) {
+			if (this.x == attack_point_1 || this.x == attack_point_2 ) {
 				this.attacking = true;
 				switch (this.dir) {
 				case DIR_LEFT:
