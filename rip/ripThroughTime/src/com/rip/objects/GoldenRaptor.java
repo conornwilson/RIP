@@ -8,7 +8,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.rip.RipGame;
 
 
-public class GoldenRaptor extends MidLevelEnemy {
+public class GoldenRaptor extends MiniBoss {
 	
 	protected Animation raptor_animation;
 	protected TextureRegion currentFrame;

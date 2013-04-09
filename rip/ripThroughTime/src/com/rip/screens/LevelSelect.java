@@ -25,6 +25,10 @@ public class LevelSelect implements Screen {
 	SpriteBatch batch;
 	TextButton level1_1Button;
 	TextButton level1_2Button;
+	TextButton level1_3Button;
+	TextButton level1_4Button;
+	TextButton level1_5Button;
+	TextButton returnButton;
 
 	public LevelSelect(RipGame game) {
 		this.game = game;
@@ -63,14 +67,38 @@ public class LevelSelect implements Screen {
 		level1_1Button = new TextButton("Level1_1", style);
 		level1_1Button.setWidth(300);
 		level1_1Button.setHeight(75);
-		level1_1Button.setX(Gdx.graphics.getWidth() / 2 + 125);
-		level1_1Button.setY(Gdx.graphics.getHeight() /2 - level1_1Button.getHeight() / 2 + 50);
+		level1_1Button.setX(Gdx.graphics.getWidth() / 2 - 300);
+		level1_1Button.setY(Gdx.graphics.getHeight() /2 - level1_1Button.getHeight() / 2 + 150);
 
 		level1_2Button = new TextButton("Level1_2", style);
 		level1_2Button.setWidth(300);
 		level1_2Button.setHeight(75);
-		level1_2Button.setX(Gdx.graphics.getWidth() / 2 + 125);
-		level1_2Button.setY(Gdx.graphics.getHeight() /2 - level1_2Button.getHeight() / 2 - 50);
+		level1_2Button.setX(Gdx.graphics.getWidth() / 2 - 300);
+		level1_2Button.setY(Gdx.graphics.getHeight() /2 - level1_1Button.getHeight() / 2 + 50);
+
+		level1_3Button = new TextButton("Level1_3", style);
+		level1_3Button.setWidth(300);
+		level1_3Button.setHeight(75);
+		level1_3Button.setX(Gdx.graphics.getWidth() / 2 - 300);
+		level1_3Button.setY(Gdx.graphics.getHeight() /2 - level1_1Button.getHeight() / 2 - 50);
+
+		level1_4Button = new TextButton("Level1_4", style);
+		level1_4Button.setWidth(300);
+		level1_4Button.setHeight(75);
+		level1_4Button.setX(Gdx.graphics.getWidth() / 2 + 125);
+		level1_4Button.setY(Gdx.graphics.getHeight() /2 - level1_1Button.getHeight() / 2 + 150);
+
+		level1_5Button = new TextButton("Level1_5", style);
+		level1_5Button.setWidth(300);
+		level1_5Button.setHeight(75);
+		level1_5Button.setX(Gdx.graphics.getWidth() / 2 + 125);
+		level1_5Button.setY(Gdx.graphics.getHeight() /2 - level1_1Button.getHeight() / 2 + 50);
+
+		returnButton = new TextButton("Return", style);
+		returnButton.setWidth(300);
+		returnButton.setHeight(75);
+		returnButton.setX(Gdx.graphics.getWidth() / 2 + 125);
+		returnButton.setY(Gdx.graphics.getHeight() /2 - level1_1Button.getHeight() / 2 - 50);
 
 		level1_1Button.addListener(new InputListener() {
 			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
@@ -100,8 +128,68 @@ public class LevelSelect implements Screen {
 			}
 		});
 
+		level1_3Button.addListener(new InputListener() {
+			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
+				return true;
+			}
+
+			public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
+				Gdx.app.log(RipGame.LOG, "Start Game: pushed");
+//				maintheme.stop();
+//				selectPlay.play();
+
+				game.setScreen(new GameScreen(game, "level1_3"));
+			}
+		});
+
+		level1_4Button.addListener(new InputListener() {
+			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
+				return true;
+			}
+
+			public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
+				Gdx.app.log(RipGame.LOG, "Start Game: pushed");
+//				maintheme.stop();
+//				selectPlay.play();
+
+				game.setScreen(new GameScreen(game, "level1_4"));
+			}
+		});
+
+		level1_5Button.addListener(new InputListener() {
+			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
+				return true;
+			}
+
+			public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
+				Gdx.app.log(RipGame.LOG, "Start Game: pushed");
+//				maintheme.stop();
+//				selectPlay.play();
+
+				game.setScreen(new GameScreen(game, "level1_5"));
+			}
+		});
+
+		returnButton.addListener(new InputListener() {
+			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
+				return true;
+			}
+
+			public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
+				Gdx.app.log(RipGame.LOG, "Start Game: pushed");
+//				maintheme.stop();
+//				selectPlay.play();
+
+				game.setScreen(new MainMenu(game));;
+			}
+		});
+
 		stage.addActor(level1_1Button);
 		stage.addActor(level1_2Button);
+		stage.addActor(level1_3Button);
+		stage.addActor(level1_4Button);
+		stage.addActor(level1_5Button);
+		stage.addActor(returnButton);
 
 	}
 

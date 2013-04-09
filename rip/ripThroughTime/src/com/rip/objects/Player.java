@@ -29,12 +29,16 @@ public class Player extends MovableEntity {
 	float time;
 	boolean timeFreeze;
 	
+	boolean miss = true;
+	
 	public boolean hit = false;
 
 	boolean ATTACK_ANIMATION = false;
 	
 	public enum attack_state { PUNCH_ONE, PUNCH_TWO, PUNCH_THREE, 
-			KICK_ONE, KICK_TWO, KICK_THREE };
+			KICK_ONE, KICK_TWO, KICK_THREE, DONE };
+	public attack_state astate = attack_state.DONE;
+	public attack_state prevstate = attack_state.DONE;
 
 	//The player class has several animations
 	////At any given time, the renderer can only 
@@ -69,6 +73,19 @@ public class Player extends MovableEntity {
 	protected TextureRegion currentkickFrame;
 
     float kickTime = 0f;
+    
+    //Kick Animation 3
+    private static final int KICK_COLS3 = 8;
+	private static final int KICK_ROWS3 = 1;
+
+	protected Animation kick3AnimationRight;
+	protected Animation kick3AnimationLeft;
+	protected Texture kick3Sheet;
+	protected TextureRegion[] kick3FramesRight;
+	protected TextureRegion[] kick3FramesLeft;
+	protected TextureRegion currentkick3Frame;
+
+    float kick3Time = 0f;
 
     //Hit Animation
     private static final int HIT_COLS = 3;
@@ -95,7 +112,31 @@ public class Player extends MovableEntity {
 
     float punchTime = 0f;
     
+    //Punch Animation 2
+  	private static final int PUNCH_COLS2 = 5;
+  	private static final int PUNCH_ROWS2 = 1;
 
+  	protected Animation punch2AnimationRight;
+  	protected Animation punch2AnimationLeft;
+  	protected Texture punch2Sheet;
+  	protected TextureRegion[] punch2FramesRight;
+  	protected TextureRegion[] punch2FramesLeft;
+  	protected TextureRegion currentpunch2Frame;
+
+      float punch2Time = 0f;
+      
+    //Punch Animation 3
+	private static final int PUNCH_COLS3 = 4;
+	private static final int PUNCH_ROWS3 = 1;
+
+	protected Animation punch3AnimationRight;
+	protected Animation punch3AnimationLeft;
+	protected Texture punch3Sheet;
+	protected TextureRegion[] punch3FramesRight;
+	protected TextureRegion[] punch3FramesLeft;
+	protected TextureRegion currentpunch3Frame;
+
+    float punch3Time = 0f;
     
 
 	Random rand = new Random();
@@ -209,6 +250,29 @@ public class Player extends MovableEntity {
 		kickAnimationRight = new Animation(0.05f, kickFramesRight);
 		kickAnimationLeft = new Animation(0.05f, kickFramesLeft);
 
+		//Initiate Kick3 Animation
+		kick3Sheet = new Texture(Gdx.files.internal("data/rip_kick3.png"));
+		TextureRegion[][] tmpk3Right = TextureRegion.split(kick3Sheet, kick3Sheet.getWidth() / KICK_COLS3, kick3Sheet.getHeight() / KICK_ROWS3);
+		TextureRegion[][] tmpk3Left = TextureRegion.split(kick3Sheet, kick3Sheet.getWidth() / KICK_COLS3, kick3Sheet.getHeight() / KICK_ROWS3);
+		kick3FramesRight = new TextureRegion[KICK_COLS3 * KICK_ROWS3];
+		kick3FramesLeft = new TextureRegion[KICK_COLS3 * KICK_ROWS3];
+		index = 0;
+		for (int i = 0; i < KICK_ROWS3; i++) {
+			for (int j = 0; j < KICK_COLS3; j++) {
+				kick3FramesRight[index++] = tmpk3Right[i][j];
+			}
+		}
+
+		index = 0;
+		for (int i = 0; i < KICK_ROWS3; i++) {
+			for (int j = 0; j < KICK_COLS3; j++) {
+				kick3FramesLeft[index] = tmpk3Left[i][j];
+				kick3FramesLeft[index].flip(true, false);
+				index++;
+			}
+		}
+		kick3AnimationRight = new Animation(0.05f, kick3FramesRight);
+		kick3AnimationLeft = new Animation(0.05f, kick3FramesLeft);
 
 		//Initiate Hit Animation
 		hitSheet = new Texture(Gdx.files.internal("data/riphit.png"));
@@ -233,6 +297,7 @@ public class Player extends MovableEntity {
 		}
 		hitAnimationRight = new Animation(0.05f, hitFramesRight);
 		hitAnimationLeft = new Animation(0.05f, hitFramesLeft);
+		
 		//Initiate Punch Animation
 		punchSheet = new Texture(Gdx.files.internal("data/rip_punch.png"));
 		TextureRegion[][] tmppRight = TextureRegion.split(punchSheet, punchSheet.getWidth() / PUNCH_COLS, punchSheet.getHeight() / PUNCH_ROWS);
@@ -254,14 +319,62 @@ public class Player extends MovableEntity {
 				index++;
 			}
 		}
-		punchAnimationRight = new Animation(0.05f, punchFramesRight);
-		punchAnimationLeft = new Animation(0.05f, punchFramesLeft);
+		punchAnimationRight = new Animation(0.08f, punchFramesRight);
+		punchAnimationLeft = new Animation(0.08f, punchFramesLeft);
+
+
+		//Initiate Punch Animation 2
+		punch2Sheet = new Texture(Gdx.files.internal("data/rip_punch2.png"));
+		TextureRegion[][] tmpp2Right = TextureRegion.split(punch2Sheet, punch2Sheet.getWidth() / PUNCH_COLS2, punch2Sheet.getHeight() / PUNCH_ROWS2);
+		TextureRegion[][] tmpp2Left = TextureRegion.split(punch2Sheet, punch2Sheet.getWidth() / PUNCH_COLS2, punch2Sheet.getHeight() / PUNCH_ROWS2);
+		punch2FramesRight = new TextureRegion[PUNCH_COLS2 * PUNCH_ROWS2];
+		punch2FramesLeft = new TextureRegion[PUNCH_COLS2 * PUNCH_ROWS2];
+		index = 0;
+		for (int i = 0; i < PUNCH_ROWS2; i++) {
+			for (int j = 0; j < PUNCH_COLS2; j++) {
+				punch2FramesRight[index++] = tmpp2Right[i][j];
+			}
+		}
+
+		index = 0;
+		for (int i = 0; i < PUNCH_ROWS2; i++) {
+			for (int j = 0; j < PUNCH_COLS2; j++) {
+				punch2FramesLeft[index] = tmpp2Left[i][j];
+				punch2FramesLeft[index].flip(true, false);
+				index++;
+			}
+		}
+		punch2AnimationRight = new Animation(0.08f, punch2FramesRight);
+		punch2AnimationLeft = new Animation(0.08f, punch2FramesLeft);
+		
+		//Initiate Punch Animation 3
+		punch3Sheet = new Texture(Gdx.files.internal("data/rip_punch3.png"));
+		TextureRegion[][] tmpp3Right = TextureRegion.split(punch3Sheet, punch3Sheet.getWidth() / PUNCH_COLS3, punch3Sheet.getHeight() / PUNCH_ROWS3);
+		TextureRegion[][] tmpp3Left = TextureRegion.split(punch3Sheet, punch3Sheet.getWidth() / PUNCH_COLS3, punch3Sheet.getHeight() / PUNCH_ROWS3);
+		punch3FramesRight = new TextureRegion[PUNCH_COLS3 * PUNCH_ROWS3];
+		punch3FramesLeft = new TextureRegion[PUNCH_COLS3 * PUNCH_ROWS3];
+		index = 0;
+		for (int i = 0; i < PUNCH_ROWS3; i++) {
+			for (int j = 0; j < PUNCH_COLS3; j++) {
+				punch3FramesRight[index++] = tmpp3Right[i][j];
+			}
+		}
+
+		index = 0;
+		for (int i = 0; i < PUNCH_ROWS3; i++) {
+			for (int j = 0; j < PUNCH_COLS3; j++) {
+				punch3FramesLeft[index] = tmpp3Left[i][j];
+				punch3FramesLeft[index].flip(true, false);
+				index++;
+			}
+		}
+		punch3AnimationRight = new Animation(0.07f, punch3FramesRight);
+		punch3AnimationLeft = new Animation(0.07f, punch3FramesLeft);
 
 
 		//Set player_animation
 		player_animation = walkAnimationRight;
 		currentFrame = player_animation.getKeyFrame(stateTime, true);
-
 	}
 
 
@@ -465,7 +578,10 @@ public class Player extends MovableEntity {
 		//this.currentFrame = player_animation.getKeyFrame(stateTime, true);
 
 		if (player_animation == this.kickAnimationLeft || player_animation == this.kickAnimationRight
-			|| player_animation == this.punchAnimationLeft || player_animation == this.punchAnimationRight) {
+			|| player_animation == this.punchAnimationLeft || player_animation == this.punchAnimationRight
+			|| player_animation == this.punch2AnimationRight || player_animation == this.punch2AnimationLeft
+			|| player_animation == this.punch3AnimationRight || player_animation == this.punch3AnimationLeft
+			|| player_animation == this.kick3AnimationLeft || player_animation == this.kick3AnimationRight) {
 			this.currentFrame = player_animation.getKeyFrame(stateTime, false);
 		} else {
 			this.currentFrame = player_animation.getKeyFrame(stateTime, true);
@@ -543,6 +659,15 @@ public class Player extends MovableEntity {
 	public void setATTACK_ANIMATION(boolean aTTACK_ANIMATION) {
 		ATTACK_ANIMATION = aTTACK_ANIMATION;
 	}
+	
+
+	public attack_state getAstate() {
+		return astate;
+	}
+
+	public void setAstate(attack_state astate) {
+		this.astate = astate;
+	}
 
 	public void handleMovement(LevelRenderer lr, Level level, RipGame game) {
 		boolean[] c = collides(LevelRenderer.enemy_list);
@@ -555,14 +680,8 @@ public class Player extends MovableEntity {
 			}
 		}
 
-/*
-		if (LevelRenderer.camPos > level.levelLength - 100) {
-			if (Gdx.input.isKeyPressed(Keys.ENTER)){
-				game.setScreen(new MainMenu(game));
-			}
-		}
-*/
 		if (this.isATTACK_ANIMATION()) {
+			Gdx.app.log(RipGame.LOG, this.getAstate().toString());
 			this.setCurrentFrame(LevelRenderer.delta);
 			level.getIn().setWAIT(true);
 			if (this.getPlayer_animation().isAnimationFinished(this.getStateTime())) {
@@ -578,24 +697,123 @@ public class Player extends MovableEntity {
 							}
 							LevelRenderer.drawables.remove(e);
 						}
-				}
-				this.setATTACK_ANIMATION(false);
-				level.getIn().setWAIT(false);
-				switch(this.getDir()){
-					case DIR_LEFT:
-						this.setPlayer_animation(this.getWalkAnimationLeft());
-						this.setStateTime(0f);
-						this.setCurrentFrame(0f);
+				} 
+				if (this.astate == attack_state.DONE || this.astate == this.prevstate) {
+					this.astate = attack_state.DONE;
+					this.prevstate = attack_state.DONE;
+					Gdx.app.log(RipGame.LOG, "Done");
+					this.setATTACK_ANIMATION(false);
+					level.getIn().setWAIT(false);
+					switch(this.getDir()){
+						case DIR_LEFT:
+							this.setPlayer_animation(this.getWalkAnimationLeft());
+							this.setStateTime(0f);
+							this.setCurrentFrame(0f);
+							break;
+						case DIR_RIGHT:
+							this.setPlayer_animation(this.getWalkAnimationRight());
+							this.setStateTime(0f);
+							this.setCurrentFrame(0f);
+							break;
+					}
+						
+					Gdx.app.log(RipGame.LOG, "ANIMATION OVER");
+				} else {
+					Gdx.app.log(RipGame.LOG, "Combo");
+					switch(this.astate) {
+					case PUNCH_ONE:
+						//this.setAstate(attack_state.DONE);
+						this.prevstate = this.astate;
+						switch(this.getDir()){
+						case DIR_LEFT:
+							this.setPlayer_animation(this.getPunchAnimationLeft());
+							this.setStateTime(0f);
+							this.setCurrentFrame(0f);
+							break;
+						case DIR_RIGHT:
+							this.setPlayer_animation(this.getPunchAnimationRight());
+							this.setStateTime(0f);
+							this.setCurrentFrame(0f);
+							break;
+						}
+						this.handlePunch(level.getEnemies());
 						break;
-					case DIR_RIGHT:
-						this.setPlayer_animation(this.getWalkAnimationRight());
-						this.setStateTime(0f);
-						this.setCurrentFrame(0f);
+					case KICK_ONE:
+						this.prevstate = this.astate;
+						this.setAstate(attack_state.DONE);
+						switch(this.getDir()){
+						case DIR_LEFT:
+							this.setPlayer_animation(this.getKickAnimationLeft());
+							this.setStateTime(0f);
+							this.setCurrentFrame(0f);
+							break;
+						case DIR_RIGHT:
+							this.setPlayer_animation(this.getKickAnimationRight());
+							this.setStateTime(0f);
+							this.setCurrentFrame(0f);
+							break;
+						}
+						this.handleKick(level.getEnemies());
+						break;
+					case PUNCH_TWO:
+						//this.setAstate(attack_state.DONE);
+						this.prevstate = this.astate;
+						switch(this.getDir()){
+						case DIR_LEFT:
+							this.setPlayer_animation(this.getPunch2AnimationLeft());
+							this.setStateTime(0f);
+							this.setCurrentFrame(0f);
+							break;
+						case DIR_RIGHT:
+							this.setPlayer_animation(this.getPunch2AnimationRight());
+							this.setStateTime(0f);
+							this.setCurrentFrame(0f);
+							break;
+						}
+						this.handlePunch(level.getEnemies());
+						break;
+					case KICK_TWO:
+						//this.setAstate(attack_state.DONE);
+						break;
+					case PUNCH_THREE:
+						this.prevstate = this.astate;
+						this.setAstate(attack_state.DONE);
+						switch(this.getDir()){
+						case DIR_LEFT:
+							this.setPlayer_animation(this.getPunch3AnimationLeft());
+							this.setStateTime(0f);
+							this.setCurrentFrame(0f);
+							break;
+						case DIR_RIGHT:
+							this.setPlayer_animation(this.getPunch3AnimationRight());
+							this.setStateTime(0f);
+							this.setCurrentFrame(0f);
+							break;
+						}
+						this.handlePunch(level.getEnemies());
+						break;
+					case KICK_THREE:
+						this.prevstate = this.astate;
+						this.setAstate(attack_state.DONE);
+						switch(this.getDir()){
+						case DIR_LEFT:
+							this.setPlayer_animation(this.getKick3AnimationLeft());
+							this.setStateTime(0f);
+							this.setCurrentFrame(0f);
+							break;
+						case DIR_RIGHT:
+							this.setPlayer_animation(this.getKick3AnimationRight());
+							this.setStateTime(0f);
+							this.setCurrentFrame(0f);
+							break;
+						}
+						this.handleKick(level.getEnemies());
+						break;
+					default:
 						break;
 				}
-					
-				//Gdx.app.log(RipGame.LOG, "ANIMATION OVER");
 			}
+		}
 		} else if (this.hit) {
 			this.setCurrentFrame(LevelRenderer.delta);
 			if (this.getPlayer_animation().isAnimationFinished(this.getStateTime())) {
@@ -617,6 +835,7 @@ public class Player extends MovableEntity {
 			 if(Gdx.input.isKeyPressed(Keys.A) && !c[2] && (getDir() == Directions.DIR_LEFT)) {
 	
 				if (getX() > LevelRenderer.camPos) {
+					Gdx.app.log(RipGame.LOG, "A!");
 					setX((getX() - getSPEED()));
 					setCurrentFrame(LevelRenderer.delta);
 				}
@@ -626,6 +845,7 @@ public class Player extends MovableEntity {
 			else if(Gdx.input.isKeyPressed(Keys.D) && !c[3] && (getDir() == Directions.DIR_RIGHT)) { 
 	
 				if (getX() + getWidth() < LevelRenderer.camPos + RipGame.WIDTH) {
+					Gdx.app.log(RipGame.LOG, "D!");
 					setX((getX() + getSPEED()));
 					setCurrentFrame(LevelRenderer.delta);
 				}
@@ -660,6 +880,76 @@ public class Player extends MovableEntity {
 		}
 	}
 	
+	
+	public void handlePunch(ArrayList<Enemy> enemies) {
+		for (int i = 0; i < enemies.size(); i++) {
+			Enemy e = enemies.get(i);
+			if (this.punches(e.hitableBox)) {
+				miss = false;
+				//Gdx.app.log(RipGame.LOG, "Punch");
+				Sound punch = this.getRandomPunch_sounds();
+				punch.play(1.0f);
+				playHitSound(e);
+				e.setHealth(e.getHealth() - this.getPunch_damage());
+				
+				// Cause enemy to be pushed back
+				switch(this.getDir()) {
+				case DIR_LEFT:
+					e.hitBack(-50, enemies);
+					//e.setX(e.getX() - 50);
+					break;
+				case DIR_RIGHT:
+					e.hitBack(50, enemies);
+					//e.setX(e.getX() + 50);
+					break;
+				default:
+					break;
+				}
+			} 
+		}
+		if (miss) {
+			Sound miss = this.getRandomMiss_sounds();
+			miss.play(1.0f);
+			
+		} else {
+			miss = true;
+		}
+	}
+	
+	public void handleKick(ArrayList<Enemy> enemies) {
+		for (int i = 0; i < enemies.size(); i++) {
+			Enemy e = enemies.get(i);
+			if (this.punches(e.hitableBox)) {
+				miss = false;
+				//Gdx.app.log(RipGame.LOG, "Punch");
+				Sound kick = this.getRandomKick_sounds();
+				kick.play(1.0f);
+				playHitSound(e);
+				e.setHealth(e.getHealth() - this.getKick_damage());
+				
+				// Cause enemy to be pushed back
+				switch(this.getDir()) {
+				case DIR_LEFT:
+					e.hitBack(-50, enemies);
+					//e.setX(e.getX() - 50);
+					break;
+				case DIR_RIGHT:
+					e.hitBack(50, enemies);
+					//e.setX(e.getX() + 50);
+					break;
+				default:
+					break;
+				}
+			}
+		} if (miss) {
+			Sound miss = this.getRandomMiss_sounds();
+			miss.play(1.0f);
+			
+		} else {
+			miss = true;
+		}
+	}
+	
 	public Sound getRandomPunch_sounds() {
 		int index = rand.nextInt(punch_sounds.length);
 		return punch_sounds[index];
@@ -675,6 +965,71 @@ public class Player extends MovableEntity {
 		return miss_sounds[index];
 	}
 	
+	
+	
+	public Animation getKick3AnimationRight() {
+		return kick3AnimationRight;
+	}
+
+	public void setKick3AnimationRight(Animation kick3AnimationRight) {
+		this.kick3AnimationRight = kick3AnimationRight;
+	}
+
+	public Animation getKick3AnimationLeft() {
+		return kick3AnimationLeft;
+	}
+
+	public void setKick3AnimationLeft(Animation kick3AnimationLeft) {
+		this.kick3AnimationLeft = kick3AnimationLeft;
+	}
+
+	public Animation getPunch2AnimationRight() {
+		return punch2AnimationRight;
+	}
+
+	public void setPunch2AnimationRight(Animation punch2AnimationRight) {
+		this.punch2AnimationRight = punch2AnimationRight;
+	}
+
+	public Animation getPunch2AnimationLeft() {
+		return punch2AnimationLeft;
+	}
+
+	public void setPunch2AnimationLeft(Animation punch2AnimationLeft) {
+		this.punch2AnimationLeft = punch2AnimationLeft;
+	}
+
+	public Animation getPunch3AnimationRight() {
+		return punch3AnimationRight;
+	}
+
+	public void setPunch3AnimationRight(Animation punch3AnimationRight) {
+		this.punch3AnimationRight = punch3AnimationRight;
+	}
+
+	public Animation getPunch3AnimationLeft() {
+		return punch3AnimationLeft;
+	}
+
+	public void setPunch3AnimationLeft(Animation punch3AnimationLeft) {
+		this.punch3AnimationLeft = punch3AnimationLeft;
+	}
+	
+	public void playHitSound(Enemy e) {
+		if ((float) Math.random() >= .5) {
+			Sound hit = e.gethitSound();
+			hit.play(1.0f);
+		}
+	}
+	
+	public void hitBack(int distance) {
+		if (distance == 0) {
+			return;
+		} else {
+			this.setX(this.getX() + distance);
+		}
+	}
+
 	public void hitBack(int distance, ArrayList<Enemy> e) {
 		if (distance == 0) {
 			return;

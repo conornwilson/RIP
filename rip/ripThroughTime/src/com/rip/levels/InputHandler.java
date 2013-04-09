@@ -10,6 +10,7 @@ import com.rip.RipGame;
 import com.rip.objects.MovableEntity.Directions;
 import com.rip.objects.Enemy;
 import com.rip.objects.Player;
+import com.rip.objects.Player.attack_state;
 
 
 public class InputHandler implements InputProcessor {
@@ -35,8 +36,63 @@ public class InputHandler implements InputProcessor {
 		//this.ATTACK_ANIMATION = player.isATTACK_ANIMATION();
 		switch(keycode){
 		case Keys.K:
+			if (player.isATTACK_ANIMATION()){
+				//public enum attack_state { PUNCH_ONE, PUNCH_TWO, PUNCH_THREE, 
+				//KICK_ONE, KICK_TWO, KICK_THREE };
+				Gdx.app.log(RipGame.LOG, "Punch C-c-combo!");
+				switch (player.getAstate()) {
+				case DONE:
+					player.prevstate = attack_state.PUNCH_ONE;
+					player.setAstate(attack_state.PUNCH_ONE);
+					break;
+				case PUNCH_ONE:
+					player.setAstate(attack_state.PUNCH_TWO);
+					break;
+				case PUNCH_TWO:
+					player.setAstate(attack_state.PUNCH_THREE);
+					break;
+				case KICK_ONE:
+					player.setAstate(attack_state.DONE);
+					break;
+				case KICK_TWO:
+					player.setAstate(attack_state.DONE);
+					break;
+				
+				default:
+					player.setAstate(attack_state.DONE);
+					break;
+				}
+				break;
+			}
 			break;
 		case Keys.L:
+			if (player.isATTACK_ANIMATION()){
+				//public enum attack_state { PUNCH_ONE, PUNCH_TWO, PUNCH_THREE, 
+				//KICK_ONE, KICK_TWO, KICK_THREE };
+				Gdx.app.log(RipGame.LOG, "Kick C-c-combo!");
+				switch (player.getAstate()) {
+				case DONE:
+					player.prevstate = attack_state.KICK_ONE;
+					player.setAstate(attack_state.KICK_ONE);
+					break;
+				case PUNCH_ONE:
+					player.setAstate(attack_state.DONE);
+					break;
+				case PUNCH_TWO:
+					player.setAstate(attack_state.KICK_THREE);
+					break;
+				case KICK_ONE:
+					player.setAstate(attack_state.KICK_THREE);
+					break;
+				case KICK_TWO:
+					player.setAstate(attack_state.DONE);
+					break;
+				default:
+					player.setAstate(attack_state.DONE);
+					break;
+				}
+				break;
+			}
 			break;
 		
 		case Keys.W:
@@ -46,6 +102,7 @@ public class InputHandler implements InputProcessor {
 		case Keys.A:
 			//player.setTexture(player.getLEFT());
 			if (!player.isATTACK_ANIMATION()) {
+				Gdx.app.log(RipGame.LOG, "IN A");
 				player.setDir(Directions.DIR_LEFT);
 				player.setPlayer_animation(player.getWalkAnimationLeft());
 				player.setStateTime(0f);
@@ -55,6 +112,7 @@ public class InputHandler implements InputProcessor {
 		case Keys.D:
 			//player.setTexture(player.getRIGHT());
 			if (!player.isATTACK_ANIMATION()) {
+				Gdx.app.log(RipGame.LOG, "IN D");
 				player.setDir(Directions.DIR_RIGHT);
 				player.setPlayer_animation(player.getWalkAnimationRight());
 				player.setStateTime(0f);
@@ -62,6 +120,7 @@ public class InputHandler implements InputProcessor {
 			}
 			break;
 		default:
+			player.setAstate(attack_state.DONE);
 			break;
 		}
 		return true;
@@ -98,6 +157,8 @@ public class InputHandler implements InputProcessor {
 				player.setCurrentFrame(0f);
 			}
 			break;
+			
+			//add state change
 		case Keys.K:
 			switch(player.getDir()) {
 			case DIR_LEFT:
@@ -133,38 +194,7 @@ public class InputHandler implements InputProcessor {
 			if (player.isATTACK_ANIMATION()){
 				break;
 			} else {
-				for (int i = 0; i < enemies.size(); i++) {
-					Enemy e = enemies.get(i);
-					if (player.punches(e.hitableBox)) {
-						miss = false;
-						//Gdx.app.log(RipGame.LOG, "Punch");
-						Sound punch = player.getRandomPunch_sounds();
-						punch.play(1.0f);
-						playHitSound(e);
-						e.setHealth(e.getHealth() - player.getPunch_damage());
-						
-						// Cause enemy to be pushed back
-						switch(player.getDir()) {
-						case DIR_LEFT:
-							e.hitBack(-50, enemies);
-							//e.setX(e.getX() - 50);
-							break;
-						case DIR_RIGHT:
-							e.hitBack(50, enemies);
-							//e.setX(e.getX() + 50);
-							break;
-						default:
-							break;
-						}
-					} 
-				}
-				if (miss) {
-					Sound miss = player.getRandomMiss_sounds();
-					miss.play(1.0f);
-					
-				} else {
-					miss = true;
-				}
+				player.handlePunch(enemies);
 				player.setATTACK_ANIMATION(true);
 			}
 			break;
@@ -172,7 +202,7 @@ public class InputHandler implements InputProcessor {
 				switch(player.getDir()) {
 				case DIR_LEFT:
 					if (player.isATTACK_ANIMATION()){
-						Gdx.app.log(RipGame.LOG, "Kick C-c-combo!");
+						
 						break;
 					}
 					//player.setTexture(player.getLEFT());
@@ -202,37 +232,7 @@ public class InputHandler implements InputProcessor {
 				if (player.isATTACK_ANIMATION()){
 					break;
 				} else {
-					for (int i = 0; i < enemies.size(); i++) {
-						Enemy e = enemies.get(i);
-						if (player.punches(e.hitableBox)) {
-							miss = false;
-							//Gdx.app.log(RipGame.LOG, "Punch");
-							Sound kick = player.getRandomKick_sounds();
-							kick.play(1.0f);
-							playHitSound(e);
-							e.setHealth(e.getHealth() - player.getKick_damage());
-							
-							// Cause enemy to be pushed back
-							switch(player.getDir()) {
-							case DIR_LEFT:
-								e.hitBack(-50, enemies);
-								//e.setX(e.getX() - 50);
-								break;
-							case DIR_RIGHT:
-								e.hitBack(50, enemies);
-								//e.setX(e.getX() + 50);
-								break;
-							default:
-								break;
-							}
-						}
-					} if (miss) {
-						Sound miss = player.getRandomMiss_sounds();
-						miss.play(1.0f);
-						
-					} else {
-						miss = true;
-					}
+					player.handleKick(enemies);
 					player.setATTACK_ANIMATION(true);
 				}
 				break;

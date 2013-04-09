@@ -11,9 +11,11 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.rip.RipGame;
+import com.rip.objects.Ape;
 import com.rip.objects.Enemy;
 import com.rip.objects.Player;
 //import com.badlogic.gdx.Gdx;
+import com.rip.objects.Raptor;
 
 public abstract class Level {
 
@@ -35,7 +37,7 @@ public abstract class Level {
 
 	//////////HUD OBJECTS//////////
 	
-	Texture timeFreezeOverlay = new Texture(Gdx.files.internal("data/timeFreezeOverlay.png"));
+	public Texture timeFreezeOverlay = new Texture(Gdx.files.internal("data/timeFreezeOverlay.png"));
 	public Texture level_complete = new Texture(Gdx.files.internal("data/level_complete.png"));
 	Texture timebaroutline = new Texture(Gdx.files.internal("data/timebaroutline.png"));
 	Texture timebaroutlineWhite = new Texture(Gdx.files.internal("data/timebaroutlineWhite.png"));
@@ -150,6 +152,87 @@ public abstract class Level {
 		if (player.getTimeFreeze() == false) {
 			LevelRenderer.levelTime = (float)LevelRenderer.levelTime + LevelRenderer.delta;
 		}
+	}
+	
+	public void checkPoint(int numOfEnemiesRap, int numOfEnemiesApe) {
+		Random r = new Random();
+		int rightside;
+		int leftside;
+		boolean lr;
+		int x;
+		int y;
+		int xmin_right, xmax_right, xmin_left, xmax_left;
+		int ymin, ymax;
+		
+		//avoid initiating with overlap
+		ymax = LevelRenderer.Y_LIMIT;
+		ymin = LevelRenderer.Y_LIMIT - 87;
+		
+		xmin_right = LevelRenderer.camPos + RipGame.WIDTH + 100;
+		xmax_right = xmin_right + 224;
+		
+		xmax_left = LevelRenderer.camPos - 100;
+		xmin_left = xmax_left - 224;
+		
+		for (int i = 0; i < numOfEnemiesRap; i++) {
+			lr = r.nextBoolean();
+			if (lr) {
+				rightside = LevelRenderer.camPos + RipGame.WIDTH;
+				x = generateXY(xmin_right, xmax_right);
+				y = generateXY(ymin, ymax);
+				
+				ymin -= 87;
+				ymax -= 87;
+				
+				if (ymax <= LevelRenderer.Y_LIMIT - 300) {
+					ymax = LevelRenderer.Y_LIMIT;
+					ymin = LevelRenderer.Y_LIMIT - 87;
+				}
+				
+				xmax_right += 224;
+				xmin_right += 224;
+				
+				enemies.add(new Raptor(x, y));
+			} else {
+				leftside = LevelRenderer.camPos;
+				x = generateXY(xmin_right, xmax_right);
+				y = generateXY(ymin, ymax);
+				
+				ymin -= 87;
+				ymax -= 87;
+				
+				if (ymax <= LevelRenderer.Y_LIMIT - 300) {
+					ymax = LevelRenderer.Y_LIMIT;
+					ymin = LevelRenderer.Y_LIMIT - 87;
+				}
+				
+				xmax_left -= 224;
+				xmin_left -= 224;
+				enemies.add(new Raptor(x, y));
+			}
+
+		}
+		
+		
+
+		for (int i = 0; i < numOfEnemiesApe; i++) {
+			lr = r.nextBoolean();
+			if (lr) {
+				rightside = LevelRenderer.camPos + RipGame.WIDTH;
+				enemies.add(new Ape(r.nextInt((rightside + RipGame.WIDTH) - (rightside + 50)) + (rightside + 50), r.nextInt(LevelRenderer.Y_LIMIT)));
+			} else {
+				leftside = LevelRenderer.camPos;
+				enemies.add(new Ape(r.nextInt((leftside - 50) - (leftside - RipGame.WIDTH)) + (leftside - RipGame.WIDTH), r.nextInt(LevelRenderer.Y_LIMIT)));
+			}
+
+		}
+	}
+	
+	
+	
+	public int generateXY(int min, int max) {
+		//Min + (int)(Math.random() * ((Max - Min) + 1))
+		return min + (int)(Math.random() * ((max - min) + 1));
 	}
 	
 	public Music getLeveltheme() {

@@ -21,13 +21,6 @@ import com.rip.objects.Raptor;
 
 public class Level_1_1 extends Level {
 
-//	public RipGame game;
-//	Player player;
-//	LevelRenderer lr;
-//	ArrayList<Enemy> enemies;
-//	private InputHandler in;
-
-//	Random r = new Random();
 
 	Timer t = new Timer();
 
@@ -65,7 +58,7 @@ public class Level_1_1 extends Level {
 			levelName = "Level 1  1";
 			levelHudColor = "black";
 	}
-
+/*
 	public void checkPoint(int numOfEnemiesRap, int numOfEnemiesApe) {
 		Random r = new Random();
 		int rightside;
@@ -146,7 +139,9 @@ public class Level_1_1 extends Level {
 		//Min + (int)(Math.random() * ((Max - Min) + 1))
 		return min + (int)(Math.random() * ((max - min) + 1));
 	}
-
+	
+	*/
+	
 	@Override
 	public void handleCheckPoints(LevelRenderer lr) {
 		if (getEnemies().isEmpty() && LevelRenderer.move == false && LevelRenderer.camPos < 11500) {
