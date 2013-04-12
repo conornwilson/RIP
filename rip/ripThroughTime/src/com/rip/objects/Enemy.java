@@ -23,6 +23,11 @@ public abstract class Enemy extends MovableEntity {
 	float attack_chance;
 	float initiate_attack_chance;
 	
+	protected float totalHealth;
+	
+	boolean backtrack = false;
+	int btX, btY; //backtracking point.
+	
 	Random rand = new Random();
 	protected Sound hit_sounds[];
 	
@@ -143,6 +148,90 @@ public abstract class Enemy extends MovableEntity {
 	}
 	
 	public void track(Player p, ArrayList<Enemy> e) {
+
+		if (backtrack) {
+			backtrack();
+			//Gdx.app.log(RipGame.LOG, "backtrack started . . .");
+			return;
+		}
+
+		if (this.attacking) {
+			//Gdx.app.log(RipGame.LOG, "attacking");
+			int breakChance = r.nextInt(5);
+			if (breakChance == 1 && this.health <= this.totalHealth / 2) {
+				backtrack = true;
+				btX = -1;
+				btY = -1;
+			}
+			if (backtrack && btX == -1 && btY == -1) {
+				if (dir == Directions.DIR_RIGHT) {
+					btX = p.getX() - (r.nextInt(800 - 500) + 500);
+				} else if (dir == Directions.DIR_LEFT) {
+					btX = p.getX() + (r.nextInt(800 - 500) + 500);
+				}
+				btY = p.getY();
+			}
+			return;
+		}
+
+		//Gdx.app.log(RipGame.LOG, "track");
+		update_collisions(e);
+		if (this.collides_player) {
+			Gdx.app.log(RipGame.LOG, "collides player");
+			this.initiate_attack_chance = (float) Math.random();
+			if (this.initiate_attack_chance >= 0.5f) {
+				this.attack(p, e);
+			}
+			this.initiate_attack_chance = 0f;
+			return;
+		}
+		if ((p.getY() > this.y) && !(this.Collides_Up)) {
+			direct_movement(p);
+		} else if (p.getY() > this.y) {
+			if (!(this.Collides_down)) {
+				flank(p);
+			} else {
+				return;
+			}
+		}
+		// If enemy can go directly at player, do so
+		else if ((p.getX() < this.x) && !(this.Collides_Left)) {
+			direct_movement(p);
+			// If enemy can go directly at player, do so
+		} else if ((p.getX() > this.x) && !(this.Collides_Right)) {
+			direct_movement(p);
+			// If down is not blocked, flank
+		} else if (!(this.Collides_down)) {
+			flank(p);
+			// Else, stay still
+		} else {
+			//Gdx.app.log(RipGame.LOG, "else");
+			return;
+		}
+		return;
+	}
+
+	public void backtrack() {
+		int dx = btX - x;
+		int dy = btY - y;
+
+		if (dx > 0) {
+			dir = Directions.DIR_RIGHT;
+		} else if (dx < 0) {
+			dir = Directions.DIR_LEFT;
+		}
+
+		this.setX(this.getX() + (int)((dx - this.SPEED + 5) * LevelRenderer.delta));
+		this.setY(this.getY() + (int)((dy - this.SPEED + 5) * LevelRenderer.delta));
+		if (Math.abs(dx) <= 125 && Math.abs(dy) <= 125) {
+			backtrack = false;
+		}
+	}
+
+
+	
+	/*
+	public void track(Player p, ArrayList<Enemy> e) {
 		
 		if (this.attacking) {
 			Gdx.app.log(RipGame.LOG, "attacking");
@@ -184,7 +273,7 @@ public abstract class Enemy extends MovableEntity {
 			return;
 		}
 		return;
-	}
+	} */
 	
 	public void update_collisions(ArrayList<Enemy> e) {
 		this.Collides_down = false;

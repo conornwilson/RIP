@@ -14,6 +14,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
+import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.rip.RipGame;
 import com.rip.levels.Level;
 import com.rip.objects.Ape;
@@ -46,6 +47,9 @@ public class LevelRenderer {
 	public Random r = new Random();
 	float stateTime = 0f;
 	public static boolean move = true;
+	
+	public static Stage stage;
+	public static boolean pause = false;
 
 	//////////UNIVERSAL TEXTURES//////////
 	Texture playerTexture;
@@ -84,7 +88,7 @@ public class LevelRenderer {
 		level.generateBackground();
 		
 		this.leveltheme = level.getLeveltheme();
-		//leveltheme.play();
+		leveltheme.play();
 	}
 
 	public void render() {
@@ -117,29 +121,32 @@ public class LevelRenderer {
 		batch.begin();
 		sr.begin(ShapeType.Rectangle);
 
-			level.drawBackground(batch);
+		level.drawBackground(batch);
 
-			drawDrawables();
-
+		drawDrawables();
+		
+		if (!pause) {
 			player.handleTime(this, level, game);
 
 			player.handleMovement(this, level, game);
+		}
 
-			level.drawHud(batch, level.levelHudColor, this);
+		level.drawHud(batch, level.levelHudColor, this);
 
-			level.handleCheckPoints(this);
-			
-			if (level.isEnd()) {
-				this.leveltheme.stop();
-				batch.draw(level.level_complete, camPos, 0);
-			}
-			
-			if (player.getTimeFreeze() == true || Gdx.input.isKeyPressed(Keys.SPACE)) {
-				batch.draw(level.timeFreezeOverlay, camPos, 0);
-				batch.draw(player.getCurrentFrame(), player.getX(), player.getY());
-			}
+		level.handleCheckPoints(this);
+		
+		if (level.isEnd()) {
+			this.leveltheme.stop();
+			batch.draw(level.level_complete, camPos, 0);
+		}
+		
+		if (player.getTimeFreeze() == true || Gdx.input.isKeyPressed(Keys.SPACE)) {
+			batch.draw(level.timeFreezeOverlay, camPos, 0);
+			batch.draw(player.getCurrentFrame(), player.getX(), player.getY());
+		}
 
-			drawables.clear();
+		drawables.clear();
+		level.checkPause();
 
 		batch.end();
 		sr.end();
@@ -149,11 +156,11 @@ public class LevelRenderer {
 	public void drawDrawables() {
 		for (int i = 0; i < drawables.size(); i++) {
 			MovableEntity me = drawables.get(i);
-			sr.rect(me.hitableBox.x, me.hitableBox.y, me.hitableBox.width, me.hitableBox.height);
+			//sr.rect(me.hitableBox.x, me.hitableBox.y, me.hitableBox.width, me.hitableBox.height);
 			if ((me instanceof Player) && player.getTimeFreeze() == false){
 				batch.draw(me.getCurrentFrame(), me.getX(), me.getY());
-				sr.rect(player.punchBoxLeft.x, player.punchBoxLeft.y, player.punchBoxLeft.width, player.punchBoxLeft.height);
-				sr.rect(player.punchBoxRight.x, player.punchBoxRight.y, player.punchBoxRight.width, player.punchBoxRight.height);
+				//sr.rect(player.punchBoxLeft.x, player.punchBoxLeft.y, player.punchBoxLeft.width, player.punchBoxLeft.height);
+				//sr.rect(player.punchBoxRight.x, player.punchBoxRight.y, player.punchBoxRight.width, player.punchBoxRight.height);
 			} else if (me instanceof Raptor){
 				batch.draw(me.getCurrentFrame(), me.getX(), me.getY());
 				((Raptor) me).setCurrentFrame(delta);
@@ -202,9 +209,12 @@ public class LevelRenderer {
 			} else if (me instanceof Lucy) {
 				batch.draw(me.getCurrentFrame(), me.getX(), me.getY());
 				((Lucy) me).setCurrentFrame(delta);
+				if (((Lucy) me).attacking) {
+					Gdx.app.log(RipGame.LOG, "Lucy Attack");
+				}
 				if (((Lucy) me).attacking && 
 							((Lucy) me).getLucy_animation().isAnimationFinished(me.getStateTime())) {
-					//Gdx.app.log(RipGame.LOG, "Attack End");
+					Gdx.app.log(RipGame.LOG, "Lucy Attack End");
 					//player.setHealth(player.getHealth() - ((Ape) me).getDamage());
 					((Lucy) me).attacking = false;
 					me.setStateTime(0);
@@ -253,7 +263,7 @@ public class LevelRenderer {
 	
 	public void dispose() {
 		this.camPos = 0;
-		//leveltheme.dispose();
+		leveltheme.dispose();
 		
 	}
 }

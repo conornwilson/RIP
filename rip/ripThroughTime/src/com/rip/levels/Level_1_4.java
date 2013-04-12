@@ -33,17 +33,150 @@ public class Level_1_4 extends Level {
 	Array<BackgroundObject> rocks2 = new Array<BackgroundObject>(100);
 	Array<BackgroundObject> smallRocks = new Array<BackgroundObject>(100);
 
+	boolean checkPoint1, checkPoint2, checkPoint3, checkPoint4, levelComplete = false;
+	boolean cp1Wave1, cp1Wave2 = false;
+	boolean cp2Wave1, cp2Wave2 = false;
+	boolean cp3Wave1, cp3Wave2 = false;
+	boolean cp4Wave1, cp4Wave2, cp4Wave3 = false;
+	float spawnChance = 0;
+	boolean spawnToggle = false;
+	boolean randomSpawnToggle = false;
+
 
 	public Level_1_4(RipGame game) {
 		super(game);
-		levelLength = 14000;
-		levelName = "Level 1   4";
+		this.player = new Player(250, 158);
+		setIn(new InputHandler(this));
+		Gdx.input.setInputProcessor(getIn());
+
+		levelLength = 12000;
+		levelName = "Level 1 4";
 		levelHudColor = "white";
+		
+		leveltheme = Gdx.audio.newMusic(Gdx.files.internal("data/Prehistoric Cave.mp3"));
+		leveltheme.setLooping(true);
 	}
 
-//	public LevelRenderer1_2 getRenderer() {
-//		return lr;
-//	}
+	// public LevelRenderer1_2 getRenderer() {
+	// return lr;
+	// }
+
+	@Override
+	public void handleCheckPoints(LevelRenderer lr) {
+		if (getEnemies().isEmpty() && LevelRenderer.move == false && LevelRenderer.camPos < 11500) {
+			LevelRenderer.move = true;
+		}
+
+		if (getEnemies().isEmpty()) {
+			randomSpawnToggle = true;
+		} else {
+			randomSpawnToggle = false;
+		}
+
+		if (LevelRenderer.camPos >= 1000 && !checkPoint1 && !cp1Wave1) {
+			LevelRenderer.move = false;
+			spawnApe(2);
+			cp1Wave1 = true;
+		} else if (getEnemies().isEmpty() && cp1Wave1 && !cp1Wave2) {
+			LevelRenderer.move = false;
+			spawnSuperApe(1);
+			cp1Wave2 = true;
+			checkPoint1 = true;
+		} else if (LevelRenderer.camPos >= 4000 && !checkPoint2 && !cp2Wave1) {
+			LevelRenderer.move = false;
+			spawnSuperApe(1);
+			cp2Wave1 = true;
+		} else if (getEnemies().isEmpty() && cp2Wave1 && !cp2Wave2) {
+			LevelRenderer.move = false;
+			spawnApe(2);
+			spawnSuperApe(1);
+			cp2Wave2 = true;
+			checkPoint2 = true;
+		} else if (LevelRenderer.camPos >= 7000 && !checkPoint3 && !cp3Wave1) {
+			LevelRenderer.move = false;
+			spawnSuperApe(2);
+			cp3Wave1 = true;
+		} else if (getEnemies().size() <= 1 && cp3Wave1 && !cp3Wave2) {
+			LevelRenderer.move = false;
+			spawnSuperApe(1);
+			spawnRaptor(1);
+			cp3Wave2 = true;
+			checkPoint3 = true;
+		} else if (LevelRenderer.camPos >= 10000 && !checkPoint4 && !cp4Wave1) {
+			LevelRenderer.move = false;
+			spawnSuperApe(1);
+			spawnApe(2);
+			cp4Wave1 = true;
+		} else if (getEnemies().isEmpty() && cp4Wave1 && !cp4Wave2) {
+			LevelRenderer.move = false;
+			spawnApe(3);
+			spawnSuperApe(1);
+			cp4Wave2 = true;
+		} else if (getEnemies().size() <= 1 && cp4Wave2 && !cp4Wave3) {
+			LevelRenderer.move = false;
+			spawnSuperApe(2);
+			cp4Wave3 = true;
+			checkPoint4 = true;
+			levelComplete = true;
+		} else if (checkPoint1 && !levelComplete && randomSpawnToggle) {
+			if (player.getHealth() > player.getTotalHealth() * .75) {
+				randomSpawn(5, 3);
+			} else if (player.getHealth() > player.getTotalHealth() * .25) {
+				randomSpawn(12, 5);
+			} else {
+				randomSpawn(20, 7);
+			}
+		}
+
+		if (levelComplete && this.getEnemies().size() == 0) {
+			//end level.
+			this.end = true;
+			LevelRenderer.move = false;
+			Gdx.app.log(RipGame.LOG, "Level 1_4 Complete.");
+		}
+
+	}
+
+	public void randomSpawn(int freq, int prob) {
+		if (spawnChance >= freq && spawnToggle) {
+			spawnChance = 0;
+			if (r.nextInt(prob) == 1) {
+				float ran2 = r.nextFloat();
+				if (ran2 <= .25) {
+					spawnApe(2);
+				} else if ( ran2 <= .5 && ran2 > .25) {
+					spawnRaptor(2);
+				} else if (ran2 > .5 && ran2 <= .7) {
+					spawnRaptor(1);
+					spawnApe(1);
+				} else if (ran2 > .7 && ran2 <= .85) {
+					spawnSuperApe(1);
+					spawnRaptor(1);
+				} else {
+					spawnApe(1);
+					spawnRedRaptor(1);
+				}
+			} else {
+				float ran2 = r.nextFloat();
+				if (ran2 <= .3) {
+					spawnApe(1);
+				} else if (ran2 > .3 && ran2 <= .6) {
+					spawnRaptor(1);
+				} else if (ran2 > .6 && ran2 <= .8) {
+					spawnRedRaptor(1);
+				} else {
+					spawnSuperApe(1);
+				}
+			}
+			spawnToggle = false;
+		} else {
+			spawnChance += r.nextFloat() * LevelRenderer.delta;
+		}
+
+		if (spawnChance >= freq && !spawnToggle) {
+			spawnToggle = true;
+		}
+	}
 
 	@Override
 	public void generateBackground() {
@@ -198,21 +331,31 @@ public class Level_1_4 extends Level {
 			rocks.add(rR);
 		}
 
-		Pixmap smallRock1 = new Pixmap(Gdx.files.internal("level1_4/rocksmall1.png"));
-		Pixmap smallRock2 = new Pixmap(Gdx.files.internal("level1_4/rocksmall2.png"));
-		Pixmap smallRock3 = new Pixmap(Gdx.files.internal("level1_4/rocksmall3.png"));
-		Pixmap smallRock4 = new Pixmap(Gdx.files.internal("level1_4/rocksmall4.png"));
-		Pixmap smallRock5 = new Pixmap(Gdx.files.internal("level1_4/rocksmall5.png"));
+		Pixmap smallRock1 = new Pixmap(Gdx.files.internal("level1_4/cluster1.png"));
+		Pixmap smallRock2 = new Pixmap(Gdx.files.internal("level1_4/cluster2.png"));
+		Pixmap smallRock3 = new Pixmap(Gdx.files.internal("level1_4/cluster3.png"));
+		Pixmap smallRock4 = new Pixmap(Gdx.files.internal("level1_4/cluster4.png"));
+		Pixmap smallRock5 = new Pixmap(Gdx.files.internal("level1_4/cluster5.png"));
+		Pixmap smallRock6 = new Pixmap(Gdx.files.internal("level1_4/cluster6.png"));
+		Pixmap smallRock7 = new Pixmap(Gdx.files.internal("level1_4/cluster7.png"));
+		Pixmap smallRock8 = new Pixmap(Gdx.files.internal("level1_4/cluster8.png"));
+		Pixmap smallRock9 = new Pixmap(Gdx.files.internal("level1_4/cluster9.png"));
+		Pixmap smallRock10 = new Pixmap(Gdx.files.internal("level1_4/cluster10.png"));
 		Array<Pixmap> smallRockPix = new Array<Pixmap>();
 		smallRockPix.add(smallRock1);
 		smallRockPix.add(smallRock2);
 		smallRockPix.add(smallRock3);
 		smallRockPix.add(smallRock4);
 		smallRockPix.add(smallRock5);
+		smallRockPix.add(smallRock6);
+		smallRockPix.add(smallRock7);
+		smallRockPix.add(smallRock8);
+		smallRockPix.add(smallRock9);
+		smallRockPix.add(smallRock10);
 		ranPos = -100;
 		while (ranPos < levelLength) {
-			int randomX = r.nextInt(100-25) + 25;
-			int randomY = r.nextInt(235 - 180) + 180;
+			int randomX = r.nextInt(150-100) + 100;
+			int randomY = r.nextInt(210-190) + 190;
 			ranPos += randomX;
 			BackgroundObject sR = new BackgroundObject(smallRockPix, ranPos, randomY);
 			sR.setTexture();
@@ -269,7 +412,7 @@ public class Level_1_4 extends Level {
 			}
 		}
 	}
-	@Override 
+	@Override
 	public void parallax() {
 		for (BackgroundObject i : bgFront) {
 			i.setX(i.getX() + 0.5f);
@@ -291,11 +434,11 @@ public class Level_1_4 extends Level {
 			i.setX(i.getX() + 2.5f);
 		}
 	}
-	
+
 	public void dispose() {
 		//leveltheme.dispose();
 		super.dispose();
-		
+
 	}
 
 }

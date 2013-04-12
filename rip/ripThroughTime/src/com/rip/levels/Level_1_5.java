@@ -42,6 +42,9 @@ public class Level_1_5 extends Level {
 		levelLength = 14000;
 		levelName = "Level 1   5";
 		levelHudColor = "black";
+		
+		leveltheme = Gdx.audio.newMusic(Gdx.files.internal("data/Prehistoric Boss Battle.mp3"));
+		leveltheme.setLooping(true);
 	}
 
 	@Override
@@ -60,7 +63,7 @@ public class Level_1_5 extends Level {
 	}
 	
 	public void generateLucy() {
-		Lucy lucy = new Lucy(LevelRenderer.camPos + LevelRenderer.width, 10);
+		Lucy lucy = new Lucy((LevelRenderer.camPos + LevelRenderer.width + 10), 10);
 		this.enemies.add(lucy);
 		//this.enemies.add(new Lucy(LevelRenderer.camPos + LevelRenderer.width, 10));
 		

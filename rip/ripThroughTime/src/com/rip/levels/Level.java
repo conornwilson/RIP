@@ -10,12 +10,22 @@ import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton.TextButtonStyle;
 import com.rip.RipGame;
 import com.rip.objects.Ape;
 import com.rip.objects.Enemy;
+import com.rip.objects.GoldenRaptor;
 import com.rip.objects.Player;
-//import com.badlogic.gdx.Gdx;
 import com.rip.objects.Raptor;
+import com.rip.objects.RedRaptor;
+import com.rip.objects.SuperApe;
+import com.rip.screens.MainMenu;
 
 public abstract class Level {
 
@@ -28,12 +38,22 @@ public abstract class Level {
 	public int levelLength;
 	public String levelName;
 	public String levelHudColor;
+	public Stage stage;
 	
 	Music leveltheme;
 	
 	public boolean end = false;
 
 	Random r = new Random();
+	
+	//////////PAUSE ITEMS//////////
+	BitmapFont black;
+	BitmapFont white;
+	TextureAtlas atlas;
+	Skin skin;
+	TextButton resumeButton;
+	TextButton mainMenuButton;
+	TextButton quitButton;
 
 	//////////HUD OBJECTS//////////
 	
@@ -154,7 +174,424 @@ public abstract class Level {
 		}
 	}
 	
-	public void checkPoint(int numOfEnemiesRap, int numOfEnemiesApe) {
+	/////////Enemy Spawning Functions//////////
+
+	public void spawnApe(int num) {
+		Random r = new Random();
+		int rightside;
+		int leftside;
+		boolean lr;
+		int x;
+		int y;
+		int xmin_right, xmax_right, xmin_left, xmax_left;
+		int ymin, ymax;
+		
+		//avoid initiating with overlap
+		ymax = LevelRenderer.Y_LIMIT;
+		ymin = LevelRenderer.Y_LIMIT - 87;
+		
+		xmin_right = LevelRenderer.camPos + RipGame.WIDTH + 100;
+		xmax_right = xmin_right + 224;
+		
+		xmax_left = LevelRenderer.camPos - 100;
+		xmin_left = xmax_left - 224;
+		
+		for (int i = 0; i < num; i++) {
+			lr = r.nextBoolean();
+			if (lr) {
+				rightside = LevelRenderer.camPos + RipGame.WIDTH;
+				x = generateXY(xmin_right, xmax_right);
+				y = generateXY(ymin, ymax);
+				
+				ymin -= 87;
+				ymax -= 87;
+				
+				if (ymax <= LevelRenderer.Y_LIMIT - 300) {
+					ymax = LevelRenderer.Y_LIMIT;
+					ymin = LevelRenderer.Y_LIMIT - 87;
+				}
+				
+				xmax_right += 224;
+				xmin_right += 224;
+				
+				enemies.add(new Ape(x, y));
+			} else {
+				leftside = LevelRenderer.camPos;
+				x = generateXY(xmin_right, xmax_right);
+				y = generateXY(ymin, ymax);
+				
+				ymin -= 87;
+				ymax -= 87;
+				
+				if (ymax <= LevelRenderer.Y_LIMIT - 300) {
+					ymax = LevelRenderer.Y_LIMIT;
+					ymin = LevelRenderer.Y_LIMIT - 87;
+				}
+				
+				xmax_left -= 224;
+				xmin_left -= 224;
+				enemies.add(new Ape(x, y));
+				
+			}
+
+		}
+		/*
+		int buffer = 200;
+		Random r = new Random();
+		int rightside;
+		int leftside;
+		boolean lr;
+		
+		for (int i = 0; i < num; i++) {
+		lr = r.nextBoolean();
+			if (lr) {
+			rightside = LevelRenderer.camPos + RipGame.WIDTH;
+			Ape ape = new Ape(LevelRenderer.camPos + RipGame.WIDTH + buffer, r.nextInt(LevelRenderer.Y_LIMIT));
+			ape.spawnPoint = true;
+			LevelRenderer.enemy_list.add(ape);
+			buffer += 200;
+			} else {
+			leftside = LevelRenderer.camPos;
+			LevelRenderer.enemy_list.add(new Ape(LevelRenderer.camPos - buffer, r.nextInt(LevelRenderer.Y_LIMIT)));
+			buffer += 200;
+			}
+		}
+		*/
+	}
+
+	public void spawnSuperApe(int num) {
+		Random r = new Random();
+		int rightside;
+		int leftside;
+		boolean lr;
+		int x;
+		int y;
+		int xmin_right, xmax_right, xmin_left, xmax_left;
+		int ymin, ymax;
+		
+		//avoid initiating with overlap
+		ymax = LevelRenderer.Y_LIMIT;
+		ymin = LevelRenderer.Y_LIMIT - 87;
+		
+		xmin_right = LevelRenderer.camPos + RipGame.WIDTH + 100;
+		xmax_right = xmin_right + 224;
+		
+		xmax_left = LevelRenderer.camPos - 100;
+		xmin_left = xmax_left - 224;
+		
+		for (int i = 0; i < num; i++) {
+			lr = r.nextBoolean();
+			if (lr) {
+				rightside = LevelRenderer.camPos + RipGame.WIDTH;
+				x = generateXY(xmin_right, xmax_right);
+				y = generateXY(ymin, ymax);
+				
+				ymin -= 87;
+				ymax -= 87;
+				
+				if (ymax <= LevelRenderer.Y_LIMIT - 300) {
+					ymax = LevelRenderer.Y_LIMIT;
+					ymin = LevelRenderer.Y_LIMIT - 87;
+				}
+				
+				xmax_right += 224;
+				xmin_right += 224;
+				
+				enemies.add(new SuperApe(x, y));
+			} else {
+				leftside = LevelRenderer.camPos;
+				x = generateXY(xmin_right, xmax_right);
+				y = generateXY(ymin, ymax);
+				
+				ymin -= 87;
+				ymax -= 87;
+				
+				if (ymax <= LevelRenderer.Y_LIMIT - 300) {
+					ymax = LevelRenderer.Y_LIMIT;
+					ymin = LevelRenderer.Y_LIMIT - 87;
+				}
+				
+				xmax_left -= 224;
+				xmin_left -= 224;
+				enemies.add(new SuperApe(x, y));
+				
+			}
+
+		}
+		/*
+		int buffer = 200;
+		Random r = new Random();
+		int rightside;
+		int leftside;
+		boolean lr;
+		
+		for (int i = 0; i < num; i++) {
+			lr = r.nextBoolean();
+			if (lr) {
+			rightside = LevelRenderer.camPos + RipGame.WIDTH;
+			SuperApe ape = new SuperApe(LevelRenderer.camPos + RipGame.WIDTH + buffer, r.nextInt(LevelRenderer.Y_LIMIT));
+			ape.spawnPoint = true;
+			LevelRenderer.enemy_list.add(ape);
+			buffer += 200;
+			} else {
+			leftside = LevelRenderer.camPos;
+			LevelRenderer.enemy_list.add(new SuperApe(LevelRenderer.camPos - buffer, r.nextInt(LevelRenderer.Y_LIMIT)));
+			buffer += 200;
+			}
+		}
+		*/
+	}
+
+	public void spawnRedRaptor(int num) {
+		Random r = new Random();
+		int rightside;
+		int leftside;
+		boolean lr;
+		int x;
+		int y;
+		int xmin_right, xmax_right, xmin_left, xmax_left;
+		int ymin, ymax;
+		
+		//avoid initiating with overlap
+		ymax = LevelRenderer.Y_LIMIT;
+		ymin = LevelRenderer.Y_LIMIT - 87;
+		
+		xmin_right = LevelRenderer.camPos + RipGame.WIDTH + 100;
+		xmax_right = xmin_right + 224;
+		
+		xmax_left = LevelRenderer.camPos - 100;
+		xmin_left = xmax_left - 224;
+		
+		for (int i = 0; i < num; i++) {
+			lr = r.nextBoolean();
+			if (lr) {
+				rightside = LevelRenderer.camPos + RipGame.WIDTH;
+				x = generateXY(xmin_right, xmax_right);
+				y = generateXY(ymin, ymax);
+				
+				ymin -= 87;
+				ymax -= 87;
+				
+				if (ymax <= LevelRenderer.Y_LIMIT - 300) {
+					ymax = LevelRenderer.Y_LIMIT;
+					ymin = LevelRenderer.Y_LIMIT - 87;
+				}
+				
+				xmax_right += 224;
+				xmin_right += 224;
+				
+				enemies.add(new RedRaptor(x, y));
+			} else {
+				leftside = LevelRenderer.camPos;
+				x = generateXY(xmin_right, xmax_right);
+				y = generateXY(ymin, ymax);
+				
+				ymin -= 87;
+				ymax -= 87;
+				
+				if (ymax <= LevelRenderer.Y_LIMIT - 300) {
+					ymax = LevelRenderer.Y_LIMIT;
+					ymin = LevelRenderer.Y_LIMIT - 87;
+				}
+				
+				xmax_left -= 224;
+				xmin_left -= 224;
+				enemies.add(new RedRaptor(x, y));
+				
+			}
+
+		}
+		/*
+		int buffer = 200;
+		Random r = new Random();
+		int rightside;
+		int leftside;
+		boolean lr;
+		
+		for (int i = 0; i < num; i++) {
+			lr = r.nextBoolean();
+			if (lr) {
+			rightside = LevelRenderer.camPos + RipGame.WIDTH;
+			RedRaptor raptor = new RedRaptor(LevelRenderer.camPos + RipGame.WIDTH + buffer, r.nextInt(LevelRenderer.Y_LIMIT));
+			raptor.spawnPoint = true;
+			LevelRenderer.enemy_list.add(raptor);
+			buffer += 200;
+			} else {
+			leftside = LevelRenderer.camPos;
+			LevelRenderer.enemy_list.add(new RedRaptor(LevelRenderer.camPos - buffer, r.nextInt(LevelRenderer.Y_LIMIT)));
+			buffer += 200;
+			}
+		}
+		*/
+	}
+
+	public void spawnGoldenRaptor() {
+		GoldenRaptor raptor = new GoldenRaptor(LevelRenderer.camPos + RipGame.WIDTH + 200, 140, this);
+		LevelRenderer.enemy_list.add(raptor);
+	}
+
+	public void spawnRaptor(int num) {
+		Random r = new Random();
+		int rightside;
+		int leftside;
+		boolean lr;
+		int x;
+		int y;
+		int xmin_right, xmax_right, xmin_left, xmax_left;
+		int ymin, ymax;
+		
+		//avoid initiating with overlap
+		ymax = LevelRenderer.Y_LIMIT;
+		ymin = LevelRenderer.Y_LIMIT - 87;
+		
+		xmin_right = LevelRenderer.camPos + RipGame.WIDTH + 100;
+		xmax_right = xmin_right + 224;
+		
+		xmax_left = LevelRenderer.camPos - 100;
+		xmin_left = xmax_left - 224;
+		
+		for (int i = 0; i < num; i++) {
+			lr = r.nextBoolean();
+			if (lr) {
+				rightside = LevelRenderer.camPos + RipGame.WIDTH;
+				x = generateXY(xmin_right, xmax_right);
+				y = generateXY(ymin, ymax);
+				
+				ymin -= 87;
+				ymax -= 87;
+				
+				if (ymax <= LevelRenderer.Y_LIMIT - 300) {
+					ymax = LevelRenderer.Y_LIMIT;
+					ymin = LevelRenderer.Y_LIMIT - 87;
+				}
+				
+				xmax_right += 224;
+				xmin_right += 224;
+				
+				enemies.add(new Raptor(x, y));
+			} else {
+				leftside = LevelRenderer.camPos;
+				x = generateXY(xmin_right, xmax_right);
+				y = generateXY(ymin, ymax);
+				
+				ymin -= 87;
+				ymax -= 87;
+				
+				if (ymax <= LevelRenderer.Y_LIMIT - 300) {
+					ymax = LevelRenderer.Y_LIMIT;
+					ymin = LevelRenderer.Y_LIMIT - 87;
+				}
+				
+				xmax_left -= 224;
+				xmin_left -= 224;
+				enemies.add(new Raptor(x, y));
+				
+			}
+
+		}
+		/*
+		int buffer = 200;
+		Random r = new Random();
+		int rightside;
+		int leftside;
+		boolean lr;
+		
+		for (int i = 0; i < num; i++) {
+			lr = r.nextBoolean();
+			if (lr) {
+			rightside = LevelRenderer.camPos + RipGame.WIDTH;
+			Raptor raptor = new Raptor(LevelRenderer.camPos + RipGame.WIDTH + buffer, r.nextInt(LevelRenderer.Y_LIMIT));
+			raptor.spawnPoint = true;
+			LevelRenderer.enemy_list.add(raptor);
+			buffer += 200;
+			
+			} else {
+			leftside = LevelRenderer.camPos;
+			LevelRenderer.enemy_list.add(new Raptor(LevelRenderer.camPos - buffer , r.nextInt(LevelRenderer.Y_LIMIT)));
+			buffer += 200;
+			}
+		} 
+		*/
+	}
+
+	public void createPauseMenu() {
+		stage = new Stage(960, 480, true);
+		
+		atlas = new TextureAtlas("data/button.pack"); //need to create our own button graphic!
+		skin = new Skin();
+		skin.addRegions(atlas);
+		white = new BitmapFont(Gdx.files.internal("data/arcadeFontWhite32.fnt"),false);
+		black = new BitmapFont(Gdx.files.internal("data/arcadeFontBlack32.fnt"),false);
+		
+		TextButtonStyle style = new TextButtonStyle();
+		style.up = skin.getDrawable("buttonnormal");
+		style.down = skin.getDrawable("buttonpressed");
+		style.font = black;
+		
+		resumeButton = new TextButton("Resume", style);
+		resumeButton.setWidth(300);
+		resumeButton.setHeight(75);
+		resumeButton.setX(Gdx.graphics.getWidth() / 2 - 150);
+		resumeButton.setY(Gdx.graphics.getHeight() /2 - resumeButton.getHeight() / 2 + 150);
+		
+		mainMenuButton = new TextButton("Main Menu", style);
+		mainMenuButton.setWidth(300);
+		mainMenuButton.setHeight(75);
+		mainMenuButton.setX(Gdx.graphics.getWidth() / 2 - 150);
+		mainMenuButton.setY(Gdx.graphics.getHeight() /2 - resumeButton.getHeight() / 2 + 50);
+		
+		quitButton = new TextButton("quit", style);
+		quitButton.setWidth(300);
+		quitButton.setHeight(75);
+		quitButton.setX(Gdx.graphics.getWidth() / 2 - 150);
+		quitButton.setY(Gdx.graphics.getHeight() /2 - resumeButton.getHeight() / 2 - 50);
+		
+		resumeButton.addListener(new InputListener() {
+			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
+			return true;
+		}
+		
+		public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
+			LevelRenderer.pause = false;
+			Gdx.input.setInputProcessor(getIn());
+			}
+		});
+		
+		mainMenuButton.addListener(new InputListener() {
+			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
+			return true;
+			}
+		
+		public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
+			lr.dispose();
+			game.setScreen(new MainMenu(game));
+			}
+		});
+		
+		quitButton.addListener(new InputListener() {
+			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
+				return true;
+			}
+			
+			public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
+				game.dispose();
+			}
+		});
+	}
+
+	public void checkPause() {
+		if (LevelRenderer.pause) {
+		stage.clear();
+		Gdx.input.setInputProcessor(stage);
+		stage.addActor(resumeButton);
+		stage.addActor(mainMenuButton);
+		stage.addActor(quitButton);
+		stage.draw();
+		}
+	}
+	
+	/*
+	public int[] checkPoint(int numOfEnemiesRap, int numOfEnemiesApe) {
 		Random r = new Random();
 		int rightside;
 		int leftside;
@@ -209,25 +646,13 @@ public abstract class Level {
 				xmax_left -= 224;
 				xmin_left -= 224;
 				enemies.add(new Raptor(x, y));
-			}
-
-		}
-		
-		
-
-		for (int i = 0; i < numOfEnemiesApe; i++) {
-			lr = r.nextBoolean();
-			if (lr) {
-				rightside = LevelRenderer.camPos + RipGame.WIDTH;
-				enemies.add(new Ape(r.nextInt((rightside + RipGame.WIDTH) - (rightside + 50)) + (rightside + 50), r.nextInt(LevelRenderer.Y_LIMIT)));
-			} else {
-				leftside = LevelRenderer.camPos;
-				enemies.add(new Ape(r.nextInt((leftside - 50) - (leftside - RipGame.WIDTH)) + (leftside - RipGame.WIDTH), r.nextInt(LevelRenderer.Y_LIMIT)));
+				
 			}
 
 		}
 	}
-	
+
+	*/
 	
 	
 	public int generateXY(int min, int max) {
@@ -257,6 +682,7 @@ public abstract class Level {
 		healthbar.dispose();
 		player.dispose();
 		enemies.clear();
+		this.leveltheme.dispose();
 	}
 
 }

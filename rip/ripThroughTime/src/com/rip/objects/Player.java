@@ -24,6 +24,7 @@ public class Player extends MovableEntity {
 
 	Texture punch;
 	float health;
+	float totalHealth = 100;
 	float punch_damage;
 	float kick_damage;
 	float time;
@@ -429,6 +430,10 @@ public class Player extends MovableEntity {
 	public Texture getPunch() {
 		return punch;
 	}
+	
+	public float getTotalHealth() {
+		return this.totalHealth;
+	}
 
 
 	public void setPunch(Texture punch) {
@@ -681,10 +686,11 @@ public class Player extends MovableEntity {
 		}
 
 		if (this.isATTACK_ANIMATION()) {
-			Gdx.app.log(RipGame.LOG, this.getAstate().toString());
+			
 			this.setCurrentFrame(LevelRenderer.delta);
 			level.getIn().setWAIT(true);
 			if (this.getPlayer_animation().isAnimationFinished(this.getStateTime())) {
+				
 				for (int i = 0; i < LevelRenderer.enemy_list.size(); i++) {
 					Enemy e = LevelRenderer.enemy_list.get(i);
 						if (e.getHealth() <= 0)	{
@@ -702,7 +708,8 @@ public class Player extends MovableEntity {
 					this.astate = attack_state.DONE;
 					this.prevstate = attack_state.DONE;
 					Gdx.app.log(RipGame.LOG, "Done");
-					this.setATTACK_ANIMATION(false);
+					this.ATTACK_ANIMATION = false;
+					//this.setATTACK_ANIMATION(false);
 					level.getIn().setWAIT(false);
 					switch(this.getDir()){
 						case DIR_LEFT:
@@ -811,10 +818,11 @@ public class Player extends MovableEntity {
 						break;
 					default:
 						break;
+					}
 				}
 			}
-		}
 		} else if (this.hit) {
+			Gdx.app.log(RipGame.LOG, "Hit!");
 			this.setCurrentFrame(LevelRenderer.delta);
 			if (this.getPlayer_animation().isAnimationFinished(this.getStateTime())) {
 				this.hit = false;
@@ -832,12 +840,12 @@ public class Player extends MovableEntity {
 				}
 			}
 		} else {
-			 if(Gdx.input.isKeyPressed(Keys.A) && !c[2] && (getDir() == Directions.DIR_LEFT)) {
+			
+			if(Gdx.input.isKeyPressed(Keys.A) && !c[2] && (getDir() == Directions.DIR_LEFT)) {
 	
 				if (getX() > LevelRenderer.camPos) {
-					Gdx.app.log(RipGame.LOG, "A!");
 					setX((getX() - getSPEED()));
-					setCurrentFrame(LevelRenderer.delta);
+					this.setCurrentFrame(LevelRenderer.delta);
 				}
 	
 			}
@@ -845,7 +853,6 @@ public class Player extends MovableEntity {
 			else if(Gdx.input.isKeyPressed(Keys.D) && !c[3] && (getDir() == Directions.DIR_RIGHT)) { 
 	
 				if (getX() + getWidth() < LevelRenderer.camPos + RipGame.WIDTH) {
-					Gdx.app.log(RipGame.LOG, "D!");
 					setX((getX() + getSPEED()));
 					setCurrentFrame(LevelRenderer.delta);
 				}
@@ -904,7 +911,7 @@ public class Player extends MovableEntity {
 					break;
 				default:
 					break;
-				}
+				} 
 			} 
 		}
 		if (miss) {
@@ -939,7 +946,7 @@ public class Player extends MovableEntity {
 					break;
 				default:
 					break;
-				}
+				} 
 			}
 		} if (miss) {
 			Sound miss = this.getRandomMiss_sounds();
@@ -1069,6 +1076,7 @@ public class Player extends MovableEntity {
 		default:
 			break;
 		}
+		this.ATTACK_ANIMATION = false;
 		this.hit = true;
 		return;
 	}
@@ -1098,8 +1106,12 @@ public class Player extends MovableEntity {
 				if ((me instanceof Player) || (me instanceof HealthPack)) {
 					continue;
 				}
-				Enemy e = (Enemy) me;
-				e.track(this, LevelRenderer.enemy_list);
+				else if (me instanceof Lucy) {
+					((Lucy) me).update_movements(); 
+				} else  {
+					Enemy e = (Enemy) me;
+					e.track(this, LevelRenderer.enemy_list);
+				}
 			}
 		}
 			/*

@@ -43,7 +43,9 @@ public class Lucy extends Enemy {
 	protected TextureRegion[] hitFramesLeft;
 	protected TextureRegion currenthitFrame;
 	
-	protected float stateTime = 0f;
+	boolean has_been_seen = false;
+	
+	//protected float stateTime = 0f;
 
 	private static final int WALK_COLS = 10;
 	private static final int WALK_ROWS = 1;
@@ -58,15 +60,14 @@ public class Lucy extends Enemy {
 	
 	public Attack_State astate;
 	
-	protected static int SPEED = 2;
-	
-	public boolean attacking = false;
+	public int localSPEED = -2;
 	
 
 	public Lucy(int x, int y) {
-		super(x, y, 275, 380, SPEED, 100);
+		super(x, y, 275, 380, -2, 100);
 		create_animations();
 		astate = Attack_State.SWIPE;
+		this.setDir(dir.DIR_LEFT);
 	}
 	
 	public void create_animations() {
@@ -198,12 +199,28 @@ public class Lucy extends Enemy {
 		}
 		
 		if (this.attacking) {
+			//Gdx.app.log(RipGame.LOG, "Attacking");
+			/*
+			if (this.lucy_animation.isAnimationFinished(this.getStateTime())) {
+				switch (this.dir){
+				case DIR_LEFT:
+					this.lucy_animation = this.walkAnimationLeft;
+					break;
+				case DIR_RIGHT:
+					this.lucy_animation = this.walkAnimationRight;
+					break;
+				default:
+					break;
+				}
+			}*/
 		} else {
-		
 			if (this.x == attack_point_1 || this.x == attack_point_2 ) {
+				this.setX(this.getX() + 1);
+				Gdx.app.log(RipGame.LOG, "Lucy Attack");
 				this.attacking = true;
 				switch (this.dir) {
 				case DIR_LEFT:
+					Gdx.app.log(RipGame.LOG, "Attack Left");
 					switch (this.astate) {
 					case SWIPE:
 						this.lucy_animation = this.swipeAnimationLeft;
@@ -220,13 +237,14 @@ public class Lucy extends Enemy {
 					}
 					break;
 				case DIR_RIGHT:
+					Gdx.app.log(RipGame.LOG, "Attack Right");
 					switch (this.astate) {
 					case SWIPE:
 						this.lucy_animation = this.swipeAnimationRight;
 						swipe();
 						break;
 					case HIT:
-						this.lucy_animation = this.hitAnimationLeft;
+						this.lucy_animation = this.hitAnimationRight;
 						hit();
 						break;
 					default:
@@ -237,22 +255,48 @@ public class Lucy extends Enemy {
 					break;
 				
 				}
+				this.stateTime = 0;
 				
-			} else if (this.x == LevelRenderer.camPos) {
-				this.SPEED *= -1;
+			} else if (this.x <= LevelRenderer.camPos) {
+				Gdx.app.log(RipGame.LOG, "Hit Wall Left");
+				this.localSPEED = 2;
+				this.setX(LevelRenderer.camPos + 1);
+				switchDir();
 				this.lucy_animation = this.walkAnimationRight;
+				this.has_been_seen = true;
 				//turn around
 				
-			} else if ((this.x + this.width) == (LevelRenderer.camPos + LevelRenderer.width)) {
-				this.SPEED *= -1;
+			} else if (((this.x + this.width) >= (LevelRenderer.camPos + LevelRenderer.width))
+					&& this.has_been_seen) {
+				//Gdx.app.log(RipGame.LOG, "Hit Wall Right");
+				this.localSPEED = -2;
+				this.setX((LevelRenderer.camPos + LevelRenderer.width) - 1);
+				switchDir();
 				this.lucy_animation = this.walkAnimationLeft;
 				//turn around
 			} else {
 				//move
-				this.setX(this.getX() + (int)(this.SPEED * LevelRenderer.delta));
+				//Gdx.app.log(RipGame.LOG, "Move");
+				Gdx.app.log(RipGame.LOG, Integer.toString(this.localSPEED));
+				//int update = (int)(this.SPEED * LevelRenderer.delta);
+				//Gdx.app.log(RipGame.LOG, Integer.toString(update));
+				this.setX(this.getX() + this.localSPEED);
 			}
 		//if collides push back?
 		//else
+		}
+	}
+	
+	public void switchDir() {
+		switch(this.dir) {
+		case DIR_LEFT:
+			this.setDir(dir.DIR_RIGHT);
+			break;
+		case DIR_RIGHT:
+			this.setDir(dir.DIR_LEFT);
+			break;
+		default:
+			break;
 		}
 	}
 	
@@ -260,7 +304,8 @@ public class Lucy extends Enemy {
 		this.stateTime += delta;
 		/*
 		if (this.attacking) {
-			if ((this.dir == Directions.DIR_LEFT) && !(lucy_animation == attackAnimationLeft)) {
+			if ((this.dir == Directions.DIR_LEFT) && !((lucy_animation == swipeAnimationLeft) ||
+						!(lucy_animation == this.hitAnimationLeft))) {
 				lucy_animation = attackAnimationLeft;
 			} else if ((this.dir == Directions.DIR_RIGHT) && !(lucy_animation == attackAnimationRight)) {
 				lucy_animation = attackAnimationRight;
@@ -280,7 +325,7 @@ public class Lucy extends Enemy {
 				this.lucy_animation == this.hitAnimationRight) {
 			Gdx.app.log(RipGame.LOG, "setAttack");
 			this.currentFrame = this.lucy_animation.getKeyFrame(this.stateTime, false);
-		} else { 
+		} else {
 			this.currentFrame = this.lucy_animation.getKeyFrame(this.stateTime, true);
 		}
 	}
@@ -288,7 +333,6 @@ public class Lucy extends Enemy {
 	public Animation getLucy_animation() {
 		return lucy_animation;
 	}
-	
 	
 
 	public void setLucy_animation(Animation lucy_animation) {
