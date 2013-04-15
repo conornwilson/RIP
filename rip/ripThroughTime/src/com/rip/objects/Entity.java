@@ -11,6 +11,8 @@ public abstract class Entity {
 	protected Rectangle bounds;
 	Texture texture;
 	public Rectangle hitableBox;
+	public Rectangle leftAttackBox;
+	public Rectangle rightAttackBox;
 	
 	protected float boxset;
 	

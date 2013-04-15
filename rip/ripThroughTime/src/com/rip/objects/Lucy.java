@@ -3,10 +3,12 @@ package com.rip.objects;
 import renderers.LevelRenderer;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Intersector;
+import com.badlogic.gdx.math.Rectangle;
 import com.rip.RipGame;
 import com.rip.objects.MovableEntity.Directions;
 
@@ -60,7 +62,10 @@ public class Lucy extends Enemy {
 	
 	public Attack_State astate;
 	
-	public int localSPEED = -2;
+	public int localSPEED = -1;
+	
+	//protected Rectangle leftAttackBox, rightAttackBox;
+	public Rectangle leftHitableBox, rightHitableBox;
 	
 
 	public Lucy(int x, int y) {
@@ -68,6 +73,16 @@ public class Lucy extends Enemy {
 		create_animations();
 		astate = Attack_State.SWIPE;
 		this.setDir(dir.DIR_LEFT);
+		this.hitableBox = new Rectangle(this.x + this.boxset, this.y, (this.width * 0.7f), this.height);
+		this.leftHitableBox = new Rectangle(this.x + this.boxset, this.y, ((this.width * 0.7f) / 2), this.height);
+		this.rightHitableBox  = new Rectangle(((this.x + this.boxset) + ((this.width * 0.7f) / 2)), this.y, 
+					((this.width * 0.7f) / 2), this.height);
+		this.leftAttackBox = new Rectangle(this.x, this.y, (this.width / 2), this.height);
+		this.rightAttackBox = new Rectangle(this.x + (this.width / 2), this.y, (this.width / 2), this.height);
+		Sound s[] = {Gdx.audio.newSound(Gdx.files.internal("data/GorillaGrunt_01.wav")),
+				Gdx.audio.newSound(Gdx.files.internal("data/GorillaGrunt_02.wav")),
+				Gdx.audio.newSound(Gdx.files.internal("data/GorillaGrunt_03.wav"))};
+		this.hit_sounds = s;
 	}
 	
 	public void create_animations() {
@@ -131,8 +146,8 @@ public class Lucy extends Enemy {
 			}
 		}
 
-		swipeAnimationRight = new Animation(0.075f, swipeFramesRight);
-		swipeAnimationLeft = new Animation(0.075f, swipeFramesLeft);
+		swipeAnimationRight = new Animation(0.045f, swipeFramesRight);
+		swipeAnimationLeft = new Animation(0.045f, swipeFramesLeft);
 		
 		//Initiate Hit Animation
 		hitSheet = new Texture(Gdx.files.internal("data/lucy_hit.png"));
@@ -172,22 +187,55 @@ public class Lucy extends Enemy {
 	
 	
 	public void swipe() {
-	
-		if (Intersector.overlapRectangles(this.bounds, LevelRenderer.getPlayer().hitableBox)) {
-			LevelRenderer.getPlayer().hitBack(30);
-			LevelRenderer.getPlayer().setHealth(LevelRenderer.getPlayer().getHealth() - this.swipe_damage);
-			// replace this.hitableBox with a swipeBox
+		switch (this.dir) {
+		case DIR_LEFT:
+			
+			if (Intersector.overlapRectangles(this.leftAttackBox, LevelRenderer.getPlayer().hitableBox)) {
+				Gdx.app.log(RipGame.LOG, "Swipe Left");
+				LevelRenderer.getPlayer().makeHit();
+				LevelRenderer.getPlayer().hitBack(-60);
+				LevelRenderer.getPlayer().setHealth(LevelRenderer.getPlayer().getHealth() - this.swipe_damage);
+			}
+			
+			break;
+		case DIR_RIGHT:
+			if (Intersector.overlapRectangles(this.rightAttackBox, LevelRenderer.getPlayer().hitableBox)) {
+				LevelRenderer.getPlayer().makeHit();
+				LevelRenderer.getPlayer().hitBack(60);
+				LevelRenderer.getPlayer().setHealth(LevelRenderer.getPlayer().getHealth() - this.swipe_damage);
+			}
+			break;
+		default:
+			break;
 		}
+			// replace this.hitableBox with a swipeBox
 		//swipe noise
-		
 	}
+
+		
+
 	
 	public void hit() {
-		if (Intersector.overlapRectangles(this.bounds, LevelRenderer.getPlayer().hitableBox)) {
-			LevelRenderer.getPlayer().hitBack(30);
-			LevelRenderer.getPlayer().setHealth(LevelRenderer.getPlayer().getHealth() - this.hit_damage);
-			// replace this.hitableBox with a hitBox
+		switch (this.dir) {
+		case DIR_LEFT:
+			if (Intersector.overlapRectangles(this.leftAttackBox, LevelRenderer.getPlayer().hitableBox)) {
+				LevelRenderer.getPlayer().makeHit();
+				LevelRenderer.getPlayer().hitBack(-70);
+				LevelRenderer.getPlayer().setHealth(LevelRenderer.getPlayer().getHealth() - this.hit_damage);
+			}
+			break;
+		case DIR_RIGHT:
+			if (Intersector.overlapRectangles(this.rightAttackBox, LevelRenderer.getPlayer().hitableBox)) {
+				LevelRenderer.getPlayer().makeHit();
+				LevelRenderer.getPlayer().hitBack(70);
+				LevelRenderer.getPlayer().setHealth(LevelRenderer.getPlayer().getHealth() - this.hit_damage);
+			}
+			break;
+		default:
+			break;
 		}
+		
+		// replace this.hitableBox with a hitBox
 		//thud noise
 		// release time-ups?
 		// release health?
@@ -214,12 +262,15 @@ public class Lucy extends Enemy {
 				}
 			}*/
 		} else {
-			if (this.x == attack_point_1 || this.x == attack_point_2 ) {
-				this.setX(this.getX() + 1);
-				Gdx.app.log(RipGame.LOG, "Lucy Attack");
+			//need to make it a range
+			if ((this.x <= attack_point_1 && this.x >= (this.attack_point_1 - 2)) || 
+					(this.x <= attack_point_2 && this.x >= (this.attack_point_2 - 2))) {
 				this.attacking = true;
 				switch (this.dir) {
 				case DIR_LEFT:
+					this.setX(this.getX() - 3);
+					//if (this.leftAttackBox.overlaps(LevelRenderer.getPlayer().hitableBox)) {
+						//Gdx.app.log(RipGame.LOG, "IF Left");
 					Gdx.app.log(RipGame.LOG, "Attack Left");
 					switch (this.astate) {
 					case SWIPE:
@@ -237,6 +288,7 @@ public class Lucy extends Enemy {
 					}
 					break;
 				case DIR_RIGHT:
+					this.setX(this.getX() + 3);
 					Gdx.app.log(RipGame.LOG, "Attack Right");
 					switch (this.astate) {
 					case SWIPE:
@@ -258,7 +310,7 @@ public class Lucy extends Enemy {
 				this.stateTime = 0;
 				
 			} else if (this.x <= LevelRenderer.camPos) {
-				Gdx.app.log(RipGame.LOG, "Hit Wall Left");
+				//Gdx.app.log(RipGame.LOG, "Hit Wall Left");
 				this.localSPEED = 2;
 				this.setX(LevelRenderer.camPos + 1);
 				switchDir();
@@ -270,17 +322,38 @@ public class Lucy extends Enemy {
 					&& this.has_been_seen) {
 				//Gdx.app.log(RipGame.LOG, "Hit Wall Right");
 				this.localSPEED = -2;
-				this.setX((LevelRenderer.camPos + LevelRenderer.width) - 1);
+				this.setX(((LevelRenderer.camPos + LevelRenderer.width) -1) - (int) this.width);
 				switchDir();
 				this.lucy_animation = this.walkAnimationLeft;
 				//turn around
 			} else {
-				//move
-				//Gdx.app.log(RipGame.LOG, "Move");
-				Gdx.app.log(RipGame.LOG, Integer.toString(this.localSPEED));
-				//int update = (int)(this.SPEED * LevelRenderer.delta);
-				//Gdx.app.log(RipGame.LOG, Integer.toString(update));
+				
 				this.setX(this.getX() + this.localSPEED);
+				this.leftAttackBox.x += this.localSPEED;
+				this.rightAttackBox.x += this.localSPEED;
+				this.leftHitableBox.x += this.localSPEED;
+				this.rightHitableBox.x += this.localSPEED;
+				switch (this.dir) {
+				case DIR_LEFT:
+					if (Intersector.intersectRectangles(this.leftHitableBox, LevelRenderer.getPlayer().hitableBox)) {
+						Gdx.app.log(RipGame.LOG, "IF Left");
+						LevelRenderer.getPlayer().makeHit();
+						LevelRenderer.getPlayer().hitBack(-30);
+						//LevelRenderer.getPlayer().setX(LevelRenderer.getPlayer().getX() + this.localSPEED);
+					}
+					break;
+				case DIR_RIGHT:
+					if (Intersector.intersectRectangles(this.rightHitableBox, LevelRenderer.getPlayer().hitableBox)) {
+						Gdx.app.log(RipGame.LOG, "IF Right");
+						LevelRenderer.getPlayer().makeHit();
+						LevelRenderer.getPlayer().hitBack(30);
+						//LevelRenderer.getPlayer().setX(LevelRenderer.getPlayer().getX() + this.localSPEED);
+					}
+					break;
+				default:
+					break;
+				}
+				
 			}
 		//if collides push back?
 		//else
@@ -323,7 +396,7 @@ public class Lucy extends Enemy {
 				this.lucy_animation == this.swipeAnimationRight ||
 				this.lucy_animation == this.hitAnimationLeft ||
 				this.lucy_animation == this.hitAnimationRight) {
-			Gdx.app.log(RipGame.LOG, "setAttack");
+			//Gdx.app.log(RipGame.LOG, "setAttack");
 			this.currentFrame = this.lucy_animation.getKeyFrame(this.stateTime, false);
 		} else {
 			this.currentFrame = this.lucy_animation.getKeyFrame(this.stateTime, true);

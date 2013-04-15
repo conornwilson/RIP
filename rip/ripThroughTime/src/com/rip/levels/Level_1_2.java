@@ -42,7 +42,6 @@ public class Level_1_2 extends Level {
 	boolean cp1Wave1, cp1Wave2 = false;
 	boolean cp2Wave1, cp2Wave2 = false;
 	boolean cp3Wave1, cp3Wave2 = false;
-	boolean end = false;
 	float spawnChance = 0;
 	boolean spawnToggle, randomSpawnToggle = false;
 	

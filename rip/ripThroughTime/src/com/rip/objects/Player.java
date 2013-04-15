@@ -124,7 +124,7 @@ public class Player extends MovableEntity {
   	protected TextureRegion[] punch2FramesLeft;
   	protected TextureRegion currentpunch2Frame;
 
-      float punch2Time = 0f;
+     float punch2Time = 0f;
       
     //Punch Animation 3
 	private static final int PUNCH_COLS3 = 4;
@@ -477,6 +477,21 @@ public class Player extends MovableEntity {
 	public boolean isHit(Rectangle attacker) {
 		return Intersector.intersectRectangles(hitableBox, attacker);
 	}
+	
+	public void makeHit() {
+		this.hit = true;
+		switch (this.dir) {
+		case DIR_LEFT:
+			this.player_animation = this.hitAnimationLeft;
+			break;
+		case DIR_RIGHT:
+			this.player_animation = this.hitAnimationRight;
+			break;
+		default:
+			break;
+		}
+		this.stateTime = 0f;
+	}
 
 	public boolean punches(Rectangle attacker) {
 		switch (this.getDir()) {
@@ -690,7 +705,7 @@ public class Player extends MovableEntity {
 			this.setCurrentFrame(LevelRenderer.delta);
 			level.getIn().setWAIT(true);
 			if (this.getPlayer_animation().isAnimationFinished(this.getStateTime())) {
-				
+				this.hit = false;
 				for (int i = 0; i < LevelRenderer.enemy_list.size(); i++) {
 					Enemy e = LevelRenderer.enemy_list.get(i);
 						if (e.getHealth() <= 0)	{
@@ -841,13 +856,12 @@ public class Player extends MovableEntity {
 			}
 		} else {
 			
+			
 			if(Gdx.input.isKeyPressed(Keys.A) && !c[2] && (getDir() == Directions.DIR_LEFT)) {
-	
 				if (getX() > LevelRenderer.camPos) {
 					setX((getX() - getSPEED()));
 					this.setCurrentFrame(LevelRenderer.delta);
 				}
-	
 			}
 	
 			else if(Gdx.input.isKeyPressed(Keys.D) && !c[3] && (getDir() == Directions.DIR_RIGHT)) { 
@@ -859,12 +873,11 @@ public class Player extends MovableEntity {
 	
 				if (LevelRenderer.move && (getX()) - LevelRenderer.camPos > 450) {
 					//moves camera along level. 
-						LevelRenderer.cam.translate(3, 0);
-						LevelRenderer.camPos += 3;
-	
-						//background parallax
-						level.parallax();
-					}
+					LevelRenderer.cam.translate(3, 0);
+					LevelRenderer.camPos += 3;
+					//background parallax
+					level.parallax();
+				}
 	
 			}
 			else if(Gdx.input.isKeyPressed(Keys.W) && !c[0]) {
@@ -1032,7 +1045,8 @@ public class Player extends MovableEntity {
 	public void hitBack(int distance) {
 		if (distance == 0) {
 			return;
-		} else {
+		} else if (((distance < 0) && (this.getX() >= LevelRenderer.camPos + 5)) || 
+				((distance > 0) && ((this.getX() + this.width) <= ((LevelRenderer.camPos + LevelRenderer.width) - 5)))){
 			this.setX(this.getX() + distance);
 		}
 	}
@@ -1042,28 +1056,31 @@ public class Player extends MovableEntity {
 			return;
 		}
 		// make sure you can't be moved off screen
-		this.setX(this.getX() + distance);
 		
-		//distance += 10;
-		
-		for (Enemy m : e) {
-			// reverse this
-			if (Intersector.overlapRectangles(this.hitableBox, m.hitableBox)) {
-				if (distance < 0) {
-					if (((this.hitableBox.x + this.hitableBox.width) >= m.hitableBox.x) && (m.hitableBox.x >= this.hitableBox.x)){
-						m.hitBack(distance / 2, e);
-						break;
-					}
-						
-				} else {
-					if ((this.hitableBox.x <= (m.hitableBox.x + m.hitableBox.width)) && (this.hitableBox.x >= m.hitableBox.x)) {
-						m.hitBack(distance / 2, e);
-						break;
+		if (((distance < 0) && (this.getX() >= LevelRenderer.camPos + 5)) || 
+				((distance > 0) && ((this.getX() + this.width) <= ((LevelRenderer.camPos + LevelRenderer.width) - 5)))){
+			this.setX(this.getX() + distance);
+			//distance += 10;
+			
+			for (Enemy m : e) {
+				// reverse this
+				if (Intersector.overlapRectangles(this.hitableBox, m.hitableBox)) {
+					if (distance < 0) {
+						if (((this.hitableBox.x + this.hitableBox.width) >= m.hitableBox.x) && (m.hitableBox.x >= this.hitableBox.x)){
+							m.hitBack(distance / 2, e);
+							break;
+						}
+							
+					} else {
+						if ((this.hitableBox.x <= (m.hitableBox.x + m.hitableBox.width)) && (this.hitableBox.x >= m.hitableBox.x)) {
+							m.hitBack(distance / 2, e);
+							break;
+						}
 					}
 				}
+				
 			}
 		}
-		
 		
 		this.stateTime = 0f;
 		switch (this.getDir()) {
@@ -1100,6 +1117,12 @@ public class Player extends MovableEntity {
 		} else if (Gdx.input.isKeyPressed(Keys.SPACE) && Gdx.input.isKeyPressed(Keys.D) && getTime() > 0 && getX() < LevelRenderer.camPos + RipGame.WIDTH - getWidth() && getTimeFreeze() == false) {
 			setTime(getTime() - (100 * LevelRenderer.delta));
 			setX(getX() + 20);
+		} else if (Gdx.input.isKeyPressed(Keys.SPACE) && Gdx.input.isKeyPressed(Keys.W) && getTime() > 0 && getX() < LevelRenderer.camPos + RipGame.WIDTH - getWidth() && getTimeFreeze() == false) {
+			setTime(getTime() - (100 * LevelRenderer.delta));
+			setY(getY() + 10);
+		} else if (Gdx.input.isKeyPressed(Keys.SPACE) && Gdx.input.isKeyPressed(Keys.S) && getTime() > 0 && getX() < LevelRenderer.camPos + RipGame.WIDTH - getWidth() && getTimeFreeze() == false) {
+			setTime(getTime() - (100 * LevelRenderer.delta));
+			setY(getY() - 10);
 		} else {
 			for (int i = 0; i < LevelRenderer.drawables.size(); i++) {
 				MovableEntity me = LevelRenderer.drawables.get(i);
