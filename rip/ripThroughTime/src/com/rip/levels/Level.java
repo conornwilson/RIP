@@ -61,6 +61,7 @@ public abstract class Level {
 	
 	public Texture timeFreezeOverlay = new Texture(Gdx.files.internal("data/timeFreezeOverlay.png"));
 	public Texture level_complete = new Texture(Gdx.files.internal("data/level_complete.png"));
+	public Texture deadOverlay = new Texture(Gdx.files.internal("data/dead.png"));
 	Texture timebaroutline = new Texture(Gdx.files.internal("data/timebaroutline.png"));
 	Texture timebaroutlineWhite = new Texture(Gdx.files.internal("data/timebaroutlineWhite.png"));
 	Texture timebar = new Texture(Gdx.files.internal("data/timebar.png"));

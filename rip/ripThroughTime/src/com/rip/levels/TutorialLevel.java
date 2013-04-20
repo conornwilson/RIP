@@ -111,11 +111,11 @@ public class TutorialLevel extends Level {
 		Gdx.app.log(RipGame.LOG, "dialogCounter: " + dialogCounter);
 		
 		player.setTime(100f);
-		if (Gdx.input.isKeyPressed(Keys.Q) && !nextPressed) {
+		if (Gdx.input.isKeyPressed(Keys.ANY_KEY) && !nextPressed) {
 			nextPressed = true;
 		}
 		
-		if (nextPressed && !Gdx.input.isKeyPressed(Keys.Q)) {
+		if (nextPressed && !Gdx.input.isKeyPressed(Keys.ANY_KEY)) {
 			nextPressed = false;
 			dialogCounter += 1;
 		}

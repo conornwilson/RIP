@@ -37,6 +37,7 @@ public class Player extends MovableEntity {
 	
 	public boolean hit = false;
 	public boolean scripted = false;
+	public boolean ULT = false;
 
 	boolean ATTACK_ANIMATION = false;
 	
@@ -68,6 +69,19 @@ public class Player extends MovableEntity {
 	protected TextureRegion currentwalkFrame;
 
     float walkTime = 0f;
+    
+    //Walk Animation
+    private static final int ULT_COLS = 1;
+    private static final int ULT_ROWS = 13;
+
+    protected Animation ULTAnimationRight;
+    protected Animation ULTAnimationLeft;
+    protected Texture ULTSheet;
+    protected TextureRegion[] ULTFramesRight;
+    protected TextureRegion[] ULTFramesLeft;
+    protected TextureRegion currentULTFrame;
+
+    float ULTTime = 0f;
     
 	//Kick Animation
     private static final int KICK_COLS = 7;
@@ -161,6 +175,8 @@ public class Player extends MovableEntity {
     
 
 	Random rand = new Random();
+	
+	public int preultX, preultY;
 
 	// Remove as soon as sprite sheets are available
 	protected final Texture PUNCH_RIGHT = new Texture("data/RIP_PUNCH_RIGHT.png");
@@ -426,6 +442,30 @@ public class Player extends MovableEntity {
 		}
 		DEATHAnimationRight = new Animation(0.08f, DEATHFramesRight);
 		DEATHAnimationLeft = new Animation(0.08f, DEATHFramesLeft);
+		
+		//Initiate ULTIMATE Animation
+		ULTSheet = new Texture(Gdx.files.internal("data/ripaultimate.png"));
+		TextureRegion[][] tmpuRight = TextureRegion.split(ULTSheet, ULTSheet.getWidth() / ULT_COLS, ULTSheet.getHeight() / ULT_ROWS);
+		TextureRegion[][] tmpuLeft = TextureRegion.split(ULTSheet, ULTSheet.getWidth() / ULT_COLS, ULTSheet.getHeight() / ULT_ROWS);
+		ULTFramesRight = new TextureRegion[ULT_COLS * ULT_ROWS];
+		ULTFramesLeft = new TextureRegion[ULT_COLS * ULT_ROWS];
+		index = 0;
+		for (int i = 0; i < ULT_ROWS; i++) {
+			for (int j = 0; j < ULT_COLS; j++) {
+				ULTFramesRight[index++] = tmpuRight[i][j];
+			}
+		}
+
+		index = 0;
+		for (int i = 0; i < ULT_ROWS; i++) {
+			for (int j = 0; j < ULT_COLS; j++) {
+				ULTFramesLeft[index] = tmpuLeft[i][j];
+				ULTFramesLeft[index].flip(true, false);
+				index++;
+			}
+		}
+		ULTAnimationRight = new Animation(0.08f, ULTFramesRight);
+		ULTAnimationLeft = new Animation(0.08f, ULTFramesLeft);
 
 		//Set player_animation
 		player_animation = walkAnimationRight;
@@ -668,7 +708,8 @@ public class Player extends MovableEntity {
 			|| player_animation == this.punch2AnimationRight || player_animation == this.punch2AnimationLeft
 			|| player_animation == this.punch3AnimationRight || player_animation == this.punch3AnimationLeft
 			|| player_animation == this.kick3AnimationLeft || player_animation == this.kick3AnimationRight ||
-			player_animation == this.DEATHAnimationLeft || player_animation == this.DEATHAnimationRight) {
+			player_animation == this.DEATHAnimationLeft || player_animation == this.DEATHAnimationRight ||
+			player_animation == this.ULTAnimationLeft || player_animation == this.ULTAnimationRight) {
 			this.currentFrame = player_animation.getKeyFrame(stateTime, false);
 		} else {
 			this.currentFrame = player_animation.getKeyFrame(stateTime, true);
@@ -924,6 +965,20 @@ public class Player extends MovableEntity {
 				}
 			}
 		} else if (this.scripted) {
+		} else if (this.ULT) {
+			if (this.getPlayer_animation().isAnimationFinished(this.getStateTime())) {
+				this.resetUltXY();
+				//handle damage
+				float udamage = 100f / LevelRenderer.enemy_list.size();
+				for (int i = 0; i < LevelRenderer.enemy_list.size(); i++) {
+					Enemy e = LevelRenderer.enemy_list.get(i);
+					if (e.x >= this.x && e.x <= (this.x + 960)) {
+						e.setHealth(e.getHealth() - udamage);
+					}
+				}
+			} else {
+				setCurrentFrame(LevelRenderer.delta);
+			}
 		} else if (this.health <= 0) {
 			Gdx.app.log(RipGame.LOG, "Death!");
 			if (this.player_animation != this.DEATHAnimationLeft && this.player_animation != this.DEATHAnimationRight) {
@@ -1160,6 +1215,8 @@ public class Player extends MovableEntity {
 		}
 	}
 	
+	
+	
 	public void hitBack(int distance) {
 		Sound h = this.getRandomHit_sounds();
 		h.play(1.0f);
@@ -1231,7 +1288,11 @@ public class Player extends MovableEntity {
 			flipTimeFreeze();
 		}
 
-		if (getTimeFreeze() == true && getTime() > 0) {
+		if (Gdx.input.isKeyPressed(Keys.SPACE) && getTime() == 100) {
+			this.time = 0f;
+			this.setUltXY();
+			//ultimate
+		} else if (getTimeFreeze() == true && getTime() > 0) {
 			setTime(getTime() - (25 * LevelRenderer.delta));
 		} else if (Gdx.input.isKeyPressed(Keys.SPACE) && Gdx.input.isKeyPressed(Keys.A) && getTime() > 0 && getX() > LevelRenderer.camPos && getTimeFreeze() == false) {
 			setTime(getTime() - (100 * LevelRenderer.delta));
@@ -1259,27 +1320,54 @@ public class Player extends MovableEntity {
 				}
 			}
 		}
-			/*
-			for (int i = 0; i < LevelRenderer.drawables.size(); i++) {
-				int dx, dy, disX, disY;
-				MovableEntity me = LevelRenderer.drawables.get(i);
-				if (me instanceof Player) {
-					continue;
-				}
-				Enemy e = (Enemy) me;
-				dx = Math.abs(getMiddleX() - e.getMiddleX());
-				dy = Math.abs(getMiddleY() - e.getMiddleY());
-				disX = (int)((e.getWidth()/2) + (getWidth()/2) - 30);
-				disY = (int)((e.getHeight()/2) + (getHeight()/2) - 30);
-				if (dx > disX || dy > disY) {
-					e.track(this);
-				} else {
-					///e.attack();
-				}
-			}*/
+
+	}
+	
+	public void setUltXY() {
+		this.preultX = this.x;
+		this.preultY = this.y;
+		this.x = this.x - 412;
+		this.y = this.y - 9;
+		this.ULT = true;
+		
+		Sound u = Gdx.audio.newSound(Gdx.files.internal("data/Time Ult_01.wav"));
+		u.play();
+		
+		this.stateTime = 0f;
+		switch (this.dir) {
+		case DIR_LEFT:
+			this.player_animation = this.ULTAnimationLeft;
+			break;
+		case DIR_RIGHT:
+			this.player_animation = this.ULTAnimationRight;
+			break;
+		default:
+			break;
 		}
 
 	}
+
+	public void resetUltXY() {
+		this.ULT = false;
+		this.x = this.preultX;
+		this.y = this.preultY;
+		
+		this.stateTime = 0f;
+		switch (this.dir) {
+		case DIR_LEFT:
+			this.player_animation = this.walkAnimationLeft;
+			break;
+		case DIR_RIGHT:
+			this.player_animation = this.walkAnimationRight;
+			break;
+		default:
+			break;
+		}
+		setCurrentFrame(LevelRenderer.delta);
+	}
+		
+
+}
 
 
 

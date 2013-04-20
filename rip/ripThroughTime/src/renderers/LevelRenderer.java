@@ -176,6 +176,10 @@ public class LevelRenderer {
 			warp.stop();
 			this.frozen = false;
 		}
+		
+		if (player.dead) {
+			batch.draw(level.deadOverlay, camPos, 0);
+		}
 
 		drawables.clear();
 		level.checkPause();

@@ -1,5 +1,7 @@
 package com.rip.screens;
 
+import renderers.LevelRenderer;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL10;
@@ -65,47 +67,47 @@ public class LevelSelect implements Screen {
 		style.down = skin.getDrawable("buttonpressed");
 		style.font = black;
 		
-		TutorialLevelButton = new TextButton("Level1_1", style);
-		TutorialLevelButton.setWidth(300);
+		TutorialLevelButton = new TextButton("Tutorial Level", style);
+		TutorialLevelButton.setWidth(250);
 		TutorialLevelButton.setHeight(75);
-		TutorialLevelButton.setX(Gdx.graphics.getWidth() / 2 - 300);
-		TutorialLevelButton.setY(Gdx.graphics.getHeight() /2 - TutorialLevelButton.getHeight() / 2 + 250);
+		TutorialLevelButton.setX(535);
+		TutorialLevelButton.setY(325);
 
 		level1_1Button = new TextButton("Level1_1", style);
-		level1_1Button.setWidth(300);
+		level1_1Button.setWidth(250);
 		level1_1Button.setHeight(75);
-		level1_1Button.setX(Gdx.graphics.getWidth() / 2 - 300);
-		level1_1Button.setY(Gdx.graphics.getHeight() /2 - level1_1Button.getHeight() / 2 + 150);
+		level1_1Button.setX(410);
+		level1_1Button.setY(225);
 
 		level1_2Button = new TextButton("Level1_2", style);
-		level1_2Button.setWidth(300);
+		level1_2Button.setWidth(250);
 		level1_2Button.setHeight(75);
-		level1_2Button.setX(Gdx.graphics.getWidth() / 2 - 300);
-		level1_2Button.setY(Gdx.graphics.getHeight() /2 - level1_1Button.getHeight() / 2 + 50);
+		level1_2Button.setX(410);
+		level1_2Button.setY(125);
 
 		level1_3Button = new TextButton("Level1_3", style);
-		level1_3Button.setWidth(300);
+		level1_3Button.setWidth(250);
 		level1_3Button.setHeight(75);
-		level1_3Button.setX(Gdx.graphics.getWidth() / 2 - 300);
-		level1_3Button.setY(Gdx.graphics.getHeight() /2 - level1_1Button.getHeight() / 2 - 50);
+		level1_3Button.setX(410);
+		level1_3Button.setY(25);
 
 		level1_4Button = new TextButton("Level1_4", style);
-		level1_4Button.setWidth(300);
+		level1_4Button.setWidth(250);
 		level1_4Button.setHeight(75);
-		level1_4Button.setX(Gdx.graphics.getWidth() / 2 + 125);
-		level1_4Button.setY(Gdx.graphics.getHeight() /2 - level1_1Button.getHeight() / 2 + 150);
+		level1_4Button.setX(685);
+		level1_4Button.setY(225);
 
 		level1_5Button = new TextButton("Level1_5", style);
-		level1_5Button.setWidth(300);
+		level1_5Button.setWidth(250);
 		level1_5Button.setHeight(75);
-		level1_5Button.setX(Gdx.graphics.getWidth() / 2 + 125);
-		level1_5Button.setY(Gdx.graphics.getHeight() /2 - level1_1Button.getHeight() / 2 + 50);
+		level1_5Button.setX(685);
+		level1_5Button.setY(125);
 
 		returnButton = new TextButton("Return", style);
-		returnButton.setWidth(300);
+		returnButton.setWidth(250);
 		returnButton.setHeight(75);
-		returnButton.setX(Gdx.graphics.getWidth() / 2 + 125);
-		returnButton.setY(Gdx.graphics.getHeight() /2 - level1_1Button.getHeight() / 2 - 50);
+		returnButton.setX(685);
+		returnButton.setY(25);
 		
 		
 		TutorialLevelButton.addListener(new InputListener() {
@@ -205,7 +207,7 @@ public class LevelSelect implements Screen {
 				game.setScreen(new MainMenu(game));;
 			}
 		});
-
+		stage.addActor(TutorialLevelButton);
 		stage.addActor(level1_1Button);
 		stage.addActor(level1_2Button);
 		stage.addActor(level1_3Button);
