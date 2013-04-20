@@ -179,7 +179,7 @@ public abstract class Enemy extends MovableEntity {
 		if (this.collides_player) {
 			Gdx.app.log(RipGame.LOG, "collides player");
 			this.initiate_attack_chance = (float) Math.random();
-			if (this.initiate_attack_chance >= 0.5f) {
+			if (this.initiate_attack_chance >= 0.5f && (p.getHealth() > 0)) {
 				this.attack(p, e);
 			}
 			this.initiate_attack_chance = 0f;

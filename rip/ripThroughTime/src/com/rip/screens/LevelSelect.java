@@ -24,6 +24,7 @@ public class LevelSelect implements Screen {
 	Skin skin;
 	SpriteBatch batch;
 	TextButton level1_1Button;
+	TextButton TutorialLevelButton;
 	TextButton level1_2Button;
 	TextButton level1_3Button;
 	TextButton level1_4Button;
@@ -63,6 +64,12 @@ public class LevelSelect implements Screen {
 		style.up = skin.getDrawable("buttonnormal");
 		style.down = skin.getDrawable("buttonpressed");
 		style.font = black;
+		
+		TutorialLevelButton = new TextButton("Level1_1", style);
+		TutorialLevelButton.setWidth(300);
+		TutorialLevelButton.setHeight(75);
+		TutorialLevelButton.setX(Gdx.graphics.getWidth() / 2 - 300);
+		TutorialLevelButton.setY(Gdx.graphics.getHeight() /2 - TutorialLevelButton.getHeight() / 2 + 250);
 
 		level1_1Button = new TextButton("Level1_1", style);
 		level1_1Button.setWidth(300);
@@ -99,6 +106,21 @@ public class LevelSelect implements Screen {
 		returnButton.setHeight(75);
 		returnButton.setX(Gdx.graphics.getWidth() / 2 + 125);
 		returnButton.setY(Gdx.graphics.getHeight() /2 - level1_1Button.getHeight() / 2 - 50);
+		
+		
+		TutorialLevelButton.addListener(new InputListener() {
+			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
+				return true;
+			}
+
+			public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
+				Gdx.app.log(RipGame.LOG, "Start Game: pushed");
+//				maintheme.stop();
+//				selectPlay.play();
+
+				game.setScreen(new GameScreen(game, "Tutorial Level"));
+			}
+		});
 
 		level1_1Button.addListener(new InputListener() {
 			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {

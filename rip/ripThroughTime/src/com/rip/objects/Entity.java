@@ -24,9 +24,10 @@ public abstract class Entity {
 		boxset = (this.width * 0.15f);
 		this.bounds = new Rectangle(this.x, this.y, width, height);
 		// HitableBox represents 70% of width of the Entity
+		/*
 		hitableBox = new Rectangle(this.x + boxset, 
 					this.y + (height/2), (width * 0.7f), (height / 2));
-		
+		*/
 	}
 	
 	public Entity(int x, int y, float width, float height, Texture texture) {
@@ -39,8 +40,10 @@ public abstract class Entity {
 		boxset = (this.width * 0.15f);
 		// HitableBox represents 70% of width of the Entity
 		//hitableBox = new Rectangle(this.x, this.y + (height/2), (width * 0.7f), ((height/2) * 0.7f));
+		/*
 		hitableBox = new Rectangle(this.x + boxset, 
 				this.y + (height/2), (width * 0.7f), (height / 2));
+			*/
 		
 	}
 	

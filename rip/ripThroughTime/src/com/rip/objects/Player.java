@@ -18,6 +18,7 @@ import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Rectangle;
 import com.rip.RipGame;
 import com.rip.levels.Level;
+import com.rip.objects.MovableEntity.Directions;
 import com.rip.screens.MainMenu;
 
 public class Player extends MovableEntity {
@@ -30,14 +31,20 @@ public class Player extends MovableEntity {
 	float time;
 	boolean timeFreeze;
 	
+	public boolean dead = false;
+	
 	boolean miss = true;
 	
 	public boolean hit = false;
+	public boolean scripted = false;
 
 	boolean ATTACK_ANIMATION = false;
 	
 	public enum attack_state { PUNCH_ONE, PUNCH_TWO, PUNCH_THREE, 
 			KICK_ONE, KICK_TWO, KICK_THREE, DONE };
+	public enum Attack_Directions { DIR_LEFT, DIR_RIGHT };
+	Attack_Directions attack_dir = Attack_Directions.DIR_RIGHT;
+			
 	public attack_state astate = attack_state.DONE;
 	public attack_state prevstate = attack_state.DONE;
 
@@ -139,6 +146,19 @@ public class Player extends MovableEntity {
 
     float punch3Time = 0f;
     
+    //Death Animation 
+	private static final int DEATH_COLS = 12;
+	private static final int DEATH_ROWS = 1;
+
+	protected Animation DEATHAnimationRight;
+	protected Animation DEATHAnimationLeft;
+	protected Texture DEATHSheet;
+	protected TextureRegion[] DEATHFramesRight;
+	protected TextureRegion[] DEATHFramesLeft;
+	protected TextureRegion currentDEATHFrame;
+
+    float DEATHTime = 0f;
+    
 
 	Random rand = new Random();
 
@@ -148,15 +168,21 @@ public class Player extends MovableEntity {
 	protected final static Texture RIGHT = new Texture("data/RIP_RIGHT.png");
 	protected final Texture LEFT = new Texture("data/RIP_LEFT.png");
 
-	Sound[] punch_sounds = {Gdx.audio.newSound(Gdx.files.internal("data/Punches_01.wav")),
-	                        Gdx.audio.newSound(Gdx.files.internal("data/Punches_02.wav")),
-	                        Gdx.audio.newSound(Gdx.files.internal("data/Punches_03.wav"))};
+	Sound[] punch_sounds = {Gdx.audio.newSound(Gdx.files.internal("data/Cartoon Punches_01.wav")),
+	                        Gdx.audio.newSound(Gdx.files.internal("data/Cartoon Punches_02.wav")),
+	                        Gdx.audio.newSound(Gdx.files.internal("data/Cartoon Punches_03.wav")),
+	                        Gdx.audio.newSound(Gdx.files.internal("data/Cartoon Punches_04.wav"))};
 	
-	Sound[] miss_sounds = {Gdx.audio.newSound(Gdx.files.internal("data/No Hit_01.wav")),
-			Gdx.audio.newSound(Gdx.files.internal("data/No Hit_02.wav")),
-			Gdx.audio.newSound(Gdx.files.internal("data/No Hit_03.wav")),
-			Gdx.audio.newSound(Gdx.files.internal("data/No Hit_04.wav")),
-			Gdx.audio.newSound(Gdx.files.internal("data/No Hit_05.wav"))};
+	Sound[] hit_sounds = {Gdx.audio.newSound(Gdx.files.internal("data/Rip Voice_Grunt_01.wav")),
+            Gdx.audio.newSound(Gdx.files.internal("data/Rip Voice_Grunt_02.wav")),
+            Gdx.audio.newSound(Gdx.files.internal("data/Rip Voice_Grunt_03.wav"))};
+	
+	Sound[] punch_miss_sounds = {Gdx.audio.newSound(Gdx.files.internal("data/No Hit_Punch_01.wav")),
+			Gdx.audio.newSound(Gdx.files.internal("data/No Hit_Punch_02.wav")),
+			Gdx.audio.newSound(Gdx.files.internal("data/No Hit_Punch_Uppercut.wav"))};
+	
+	Sound[] kick_miss_sounds = {Gdx.audio.newSound(Gdx.files.internal("data/No Hit_Kick_01.wav")),
+			Gdx.audio.newSound(Gdx.files.internal("data/No Hit_Kick_02.wav"))};
 	
 	Sound[] kick_sounds = {Gdx.audio.newSound(Gdx.files.internal("data/Cartoon Kicks_01.wav")),
             Gdx.audio.newSound(Gdx.files.internal("data/Cartoon Kicks_02.wav"))};
@@ -177,6 +203,8 @@ public class Player extends MovableEntity {
 		this.punch_damage = 10;
 		this.kick_damage = 15;
 		CreateAnimations();
+		hitableBox = new Rectangle(this.x + boxset, 
+				this.y + (height/2), (width * 0.7f), (height / 2));
 
 	}
 
@@ -186,6 +214,8 @@ public class Player extends MovableEntity {
 		this.punch_damage = 10;
 		this.kick_damage = 15;
 		CreateAnimations();
+		hitableBox = new Rectangle(this.x + boxset, 
+				this.y + (height/2), (width * 0.7f), (height / 2));
 
 	}
 
@@ -372,6 +402,30 @@ public class Player extends MovableEntity {
 		punch3AnimationRight = new Animation(0.07f, punch3FramesRight);
 		punch3AnimationLeft = new Animation(0.07f, punch3FramesLeft);
 
+		
+		//Initiate DEATH Animation
+		DEATHSheet = new Texture(Gdx.files.internal("data/ripfall.png"));
+		TextureRegion[][] tmpdRight = TextureRegion.split(DEATHSheet, DEATHSheet.getWidth() / DEATH_COLS, DEATHSheet.getHeight() / DEATH_ROWS);
+		TextureRegion[][] tmpdLeft = TextureRegion.split(DEATHSheet, DEATHSheet.getWidth() / DEATH_COLS, DEATHSheet.getHeight() / DEATH_ROWS);
+		DEATHFramesRight = new TextureRegion[DEATH_COLS * DEATH_ROWS];
+		DEATHFramesLeft = new TextureRegion[DEATH_COLS * DEATH_ROWS];
+		index = 0;
+		for (int i = 0; i < DEATH_ROWS; i++) {
+			for (int j = 0; j < DEATH_COLS; j++) {
+				DEATHFramesRight[index++] = tmpdRight[i][j];
+			}
+		}
+
+		index = 0;
+		for (int i = 0; i < DEATH_ROWS; i++) {
+			for (int j = 0; j < DEATH_COLS; j++) {
+				DEATHFramesLeft[index] = tmpdLeft[i][j];
+				DEATHFramesLeft[index].flip(true, false);
+				index++;
+			}
+		}
+		DEATHAnimationRight = new Animation(0.08f, DEATHFramesRight);
+		DEATHAnimationLeft = new Animation(0.08f, DEATHFramesLeft);
 
 		//Set player_animation
 		player_animation = walkAnimationRight;
@@ -384,7 +438,7 @@ public class Player extends MovableEntity {
 		return health;
 	}
 
-
+	
 
 	public void setHealth(float health) {
 		this.health = health;
@@ -425,6 +479,16 @@ public class Player extends MovableEntity {
 
 	public void setKick_damage(float kick_damage) {
 		this.kick_damage = kick_damage;
+	}
+
+	
+	
+	public Attack_Directions getAttack_dir() {
+		return attack_dir;
+	}
+
+	public void setAttack_dir(Attack_Directions attack_dir) {
+		this.attack_dir = attack_dir;
 	}
 
 	public Texture getPunch() {
@@ -479,18 +543,20 @@ public class Player extends MovableEntity {
 	}
 	
 	public void makeHit() {
-		this.hit = true;
-		switch (this.dir) {
-		case DIR_LEFT:
-			this.player_animation = this.hitAnimationLeft;
-			break;
-		case DIR_RIGHT:
-			this.player_animation = this.hitAnimationRight;
-			break;
-		default:
-			break;
+		if (this.health > 0) { 
+			this.hit = true;
+			switch (this.dir) {
+			case DIR_LEFT:
+				this.player_animation = this.hitAnimationLeft;
+				break;
+			case DIR_RIGHT:
+				this.player_animation = this.hitAnimationRight;
+				break;
+			default:
+				break;
+			}
+			this.stateTime = 0f;
 		}
-		this.stateTime = 0f;
 	}
 
 	public boolean punches(Rectangle attacker) {
@@ -601,7 +667,8 @@ public class Player extends MovableEntity {
 			|| player_animation == this.punchAnimationLeft || player_animation == this.punchAnimationRight
 			|| player_animation == this.punch2AnimationRight || player_animation == this.punch2AnimationLeft
 			|| player_animation == this.punch3AnimationRight || player_animation == this.punch3AnimationLeft
-			|| player_animation == this.kick3AnimationLeft || player_animation == this.kick3AnimationRight) {
+			|| player_animation == this.kick3AnimationLeft || player_animation == this.kick3AnimationRight ||
+			player_animation == this.DEATHAnimationLeft || player_animation == this.DEATHAnimationRight) {
 			this.currentFrame = player_animation.getKeyFrame(stateTime, false);
 		} else {
 			this.currentFrame = player_animation.getKeyFrame(stateTime, true);
@@ -692,7 +759,7 @@ public class Player extends MovableEntity {
 	public void handleMovement(LevelRenderer lr, Level level, RipGame game) {
 		boolean[] c = collides(LevelRenderer.enemy_list);
 		
-		if (level.isEnd()) {
+		if (level.isEnd() || this.dead) {
 			if (Gdx.input.isKeyPressed(Keys.ENTER)){
 				
 				//game.getScreen().dispose();
@@ -728,11 +795,13 @@ public class Player extends MovableEntity {
 					level.getIn().setWAIT(false);
 					switch(this.getDir()){
 						case DIR_LEFT:
+							this.setAttack_dir(Attack_Directions.DIR_LEFT);
 							this.setPlayer_animation(this.getWalkAnimationLeft());
 							this.setStateTime(0f);
 							this.setCurrentFrame(0f);
 							break;
 						case DIR_RIGHT:
+							this.setAttack_dir(Attack_Directions.DIR_RIGHT);
 							this.setPlayer_animation(this.getWalkAnimationRight());
 							this.setStateTime(0f);
 							this.setCurrentFrame(0f);
@@ -746,7 +815,7 @@ public class Player extends MovableEntity {
 					case PUNCH_ONE:
 						//this.setAstate(attack_state.DONE);
 						this.prevstate = this.astate;
-						switch(this.getDir()){
+						switch(this.getAttack_dir()){
 						case DIR_LEFT:
 							this.setPlayer_animation(this.getPunchAnimationLeft());
 							this.setStateTime(0f);
@@ -763,7 +832,7 @@ public class Player extends MovableEntity {
 					case KICK_ONE:
 						this.prevstate = this.astate;
 						this.setAstate(attack_state.DONE);
-						switch(this.getDir()){
+						switch(this.getAttack_dir()){
 						case DIR_LEFT:
 							this.setPlayer_animation(this.getKickAnimationLeft());
 							this.setStateTime(0f);
@@ -780,7 +849,7 @@ public class Player extends MovableEntity {
 					case PUNCH_TWO:
 						//this.setAstate(attack_state.DONE);
 						this.prevstate = this.astate;
-						switch(this.getDir()){
+						switch(this.getAttack_dir()){
 						case DIR_LEFT:
 							this.setPlayer_animation(this.getPunch2AnimationLeft());
 							this.setStateTime(0f);
@@ -800,7 +869,7 @@ public class Player extends MovableEntity {
 					case PUNCH_THREE:
 						this.prevstate = this.astate;
 						this.setAstate(attack_state.DONE);
-						switch(this.getDir()){
+						switch(this.getAttack_dir()){
 						case DIR_LEFT:
 							this.setPlayer_animation(this.getPunch3AnimationLeft());
 							this.setStateTime(0f);
@@ -817,7 +886,7 @@ public class Player extends MovableEntity {
 					case KICK_THREE:
 						this.prevstate = this.astate;
 						this.setAstate(attack_state.DONE);
-						switch(this.getDir()){
+						switch(this.getAttack_dir()){
 						case DIR_LEFT:
 							this.setPlayer_animation(this.getKick3AnimationLeft());
 							this.setStateTime(0f);
@@ -854,6 +923,45 @@ public class Player extends MovableEntity {
 					break;
 				}
 			}
+		} else if (this.scripted) {
+		} else if (this.health <= 0) {
+			Gdx.app.log(RipGame.LOG, "Death!");
+			if (this.player_animation != this.DEATHAnimationLeft && this.player_animation != this.DEATHAnimationRight) {
+				Gdx.app.log(RipGame.LOG, "Set Death Animation!");
+				this.stateTime = 0f;
+				this.width = 237;
+				this.height = 222;
+				switch (this.dir) {
+				case DIR_LEFT:
+					this.player_animation = this.DEATHAnimationLeft;
+					break;
+				case DIR_RIGHT:
+					this.player_animation = this.DEATHAnimationRight;
+					break;
+				default:
+					break;
+				}
+			} else if (this.getPlayer_animation().isAnimationFinished(this.getStateTime())) {
+				this.dead = true;
+			} else {
+				
+				setCurrentFrame(LevelRenderer.delta);
+				if (this.x > LevelRenderer.camPos && (this.x + this.width) < (LevelRenderer.camPos + LevelRenderer.width)) {
+					Gdx.app.log(RipGame.LOG, "Death on the move!");
+					switch (this.dir) {
+					case DIR_LEFT:
+						this.x += 2;
+						break;
+					case DIR_RIGHT:
+						this.x -= 2;
+						break;
+					default:
+						break;
+					}
+				}
+			}
+		} else if (this.dead) {
+			
 		} else {
 			
 			
@@ -913,7 +1021,7 @@ public class Player extends MovableEntity {
 				e.setHealth(e.getHealth() - this.getPunch_damage());
 				
 				// Cause enemy to be pushed back
-				switch(this.getDir()) {
+				switch(this.getAttack_dir()) {
 				case DIR_LEFT:
 					e.hitBack(-50, enemies);
 					//e.setX(e.getX() - 50);
@@ -928,7 +1036,7 @@ public class Player extends MovableEntity {
 			} 
 		}
 		if (miss) {
-			Sound miss = this.getRandomMiss_sounds();
+			Sound miss = this.getPunchRandomMiss_sounds();
 			miss.play(1.0f);
 			
 		} else {
@@ -948,7 +1056,7 @@ public class Player extends MovableEntity {
 				e.setHealth(e.getHealth() - this.getKick_damage());
 				
 				// Cause enemy to be pushed back
-				switch(this.getDir()) {
+				switch(this.getAttack_dir()) {
 				case DIR_LEFT:
 					e.hitBack(-50, enemies);
 					//e.setX(e.getX() - 50);
@@ -962,7 +1070,7 @@ public class Player extends MovableEntity {
 				} 
 			}
 		} if (miss) {
-			Sound miss = this.getRandomMiss_sounds();
+			Sound miss = this.getRandomKick_sounds();
 			miss.play(1.0f);
 			
 		} else {
@@ -980,9 +1088,19 @@ public class Player extends MovableEntity {
 		return kick_sounds[index];
 	}
 	
-	public Sound getRandomMiss_sounds() {
-		int index = rand.nextInt(miss_sounds.length);
-		return miss_sounds[index];
+	public Sound getPunchRandomMiss_sounds() {
+		int index = rand.nextInt(punch_miss_sounds.length);
+		return punch_miss_sounds[index];
+	}
+	
+	public Sound getKickRandomMiss_sounds() {
+		int index = rand.nextInt(kick_miss_sounds.length);
+		return kick_miss_sounds[index];
+	}
+	
+	public Sound getRandomHit_sounds() {
+		int index = rand.nextInt(hit_sounds.length);
+		return hit_sounds[index];
 	}
 	
 	
@@ -1043,6 +1161,8 @@ public class Player extends MovableEntity {
 	}
 	
 	public void hitBack(int distance) {
+		Sound h = this.getRandomHit_sounds();
+		h.play(1.0f);
 		if (distance == 0) {
 			return;
 		} else if (((distance < 0) && (this.getX() >= LevelRenderer.camPos + 5)) || 
@@ -1052,6 +1172,8 @@ public class Player extends MovableEntity {
 	}
 
 	public void hitBack(int distance, ArrayList<Enemy> e) {
+		Sound h = this.getRandomHit_sounds();
+		h.play(1.0f);
 		if (distance == 0) {
 			return;
 		}
@@ -1126,7 +1248,7 @@ public class Player extends MovableEntity {
 		} else {
 			for (int i = 0; i < LevelRenderer.drawables.size(); i++) {
 				MovableEntity me = LevelRenderer.drawables.get(i);
-				if ((me instanceof Player) || (me instanceof HealthPack)) {
+				if ((me instanceof Player) || (me instanceof HealthPack) || (me instanceof TimePack)) {
 					continue;
 				}
 				else if (me instanceof Lucy) {

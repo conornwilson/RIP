@@ -6,6 +6,8 @@ import java.util.Random;
 import renderers.LevelRenderer;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.Array;
@@ -21,13 +23,16 @@ public class Level_1_5 extends Level {
 	public RipGame game;
 	Player player;
 	LevelRenderer lr;
+	Music boss, boss_intro;
+	Lucy lucy;
 	//ArrayList<Enemy> enemies;
 
 	Random r = new Random();
 
 	BackgroundObject sk1, sk2;
 	
-	boolean checkPoint1;
+	boolean checkPoint1, checkPoint2 = false;
+	float volume = 1.0f;
 
 	Array<BackgroundObject> grounds = new Array<BackgroundObject>(100);
 	Array<BackgroundObject> fog = new Array<BackgroundObject>(100);
@@ -42,9 +47,10 @@ public class Level_1_5 extends Level {
 		levelLength = 14000;
 		levelName = "Level 1   5";
 		levelHudColor = "black";
-		
-		leveltheme = Gdx.audio.newMusic(Gdx.files.internal("data/Prehistoric Boss Battle.mp3"));
-		leveltheme.setLooping(true);
+		this.additional_theme1 = Gdx.audio.newMusic(Gdx.files.internal("data/Prehistoric Boss Battle Intro.mp3"));
+		//leveltheme = Gdx.audio.newMusic(Gdx.files.internal("data/Prehistoric Volcano.mp3"));
+		this.additional_theme2 = Gdx.audio.newMusic(Gdx.files.internal("data/Prehistoric Boss Battle.mp3"));
+
 	}
 
 	@Override
@@ -52,18 +58,44 @@ public class Level_1_5 extends Level {
 		if (getEnemies().isEmpty() && LevelRenderer.move == false && LevelRenderer.camPos < 11500) {
 			LevelRenderer.move = true;
 		}
-		if (LevelRenderer.camPos >= 1500 && checkPoint1 == false) {
-			Gdx.app.log(RipGame.LOG, "checkpoint1");
-			LevelRenderer.move = false;
-			generateLucy();
-			//checkPoint(0,1);
-			checkPoint1 = true;
+
+		if (LevelRenderer.camPos >= 1500 && checkPoint2 == false) {
+			
+			LevelRenderer.player.scripted = true;
+			Gdx.app.log(RipGame.LOG, "checkpoint2");
+			if (LevelRenderer.camPos >= (LevelRenderer.player.getX() - 20) && !this.checkPoint1) {
+				this.checkPoint1 = true;
+				//set player to waiting
+				LevelRenderer.move = false;
+				LevelRenderer.setAdditional_theme1(this.additional_theme1);
+				LevelRenderer.getAdditional_theme1().setVolume(1.0f);
+				LevelRenderer.getAdditional_theme1().play();
+				//this.leveltheme.play();
+				LevelRenderer.getAdditional_theme1().setLooping(false);
+				generateLucy();
+			} else if (LevelRenderer.camPos >= (LevelRenderer.player.getX() - 20)) {
+				if (!(LevelRenderer.getAdditional_theme1().isPlaying())) {
+					LevelRenderer.getAdditional_theme1().stop();
+					LevelRenderer.getAdditional_theme1().dispose();
+					LevelRenderer.setLeveltheme(this.additional_theme2);
+					LevelRenderer.getLeveltheme().play();
+					LevelRenderer.getLeveltheme().setLooping(true);
+					this.checkPoint2 = true;
+					this.lucy.intro = false;
+					this.lucy.waiting = false;
+					LevelRenderer.player.scripted = false;
+				}
+			} else {
+				LevelRenderer.cam.translate(3, 0);
+				LevelRenderer.camPos += 3;
+				this.parallax();
+			}
 		}
 		
 	}
 	
 	public void generateLucy() {
-		Lucy lucy = new Lucy((LevelRenderer.camPos + LevelRenderer.width + 10), 10);
+		lucy = new Lucy((LevelRenderer.camPos + LevelRenderer.width + 10), 10);
 		this.enemies.add(lucy);
 		//this.enemies.add(new Lucy(LevelRenderer.camPos + LevelRenderer.width, 10));
 		

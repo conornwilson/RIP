@@ -40,7 +40,9 @@ public abstract class Level {
 	public String levelHudColor;
 	public Stage stage;
 	
-	Music leveltheme;
+	public Music leveltheme;
+	public Music additional_theme1;
+	public Music additional_theme2;
 	
 	public boolean end = false;
 
@@ -682,7 +684,17 @@ public abstract class Level {
 		healthbar.dispose();
 		player.dispose();
 		enemies.clear();
-		this.leveltheme.dispose();
+		if (this.leveltheme != null) {
+			this.leveltheme.dispose();
+		}
+		
+		if (this.additional_theme1 != null) {
+			this.additional_theme1.dispose();
+		}
+		
+		if (this.additional_theme2 != null) {
+			this.additional_theme2.dispose();
+		}
 	}
 
 }

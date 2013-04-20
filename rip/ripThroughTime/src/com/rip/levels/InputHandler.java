@@ -10,6 +10,7 @@ import com.rip.RipGame;
 import com.rip.objects.MovableEntity.Directions;
 import com.rip.objects.Enemy;
 import com.rip.objects.Player;
+import com.rip.objects.Player.Attack_Directions;
 import com.rip.objects.Player.attack_state;
 
 
@@ -101,22 +102,28 @@ public class InputHandler implements InputProcessor {
 			break;
 		case Keys.A:
 			//player.setTexture(player.getLEFT());
-			if (!player.isATTACK_ANIMATION()) {
+			if (!player.isATTACK_ANIMATION() && (player.getHealth() > 0)) {
 				Gdx.app.log(RipGame.LOG, "IN A");
 				player.setDir(Directions.DIR_LEFT);
+				player.setAttack_dir(Attack_Directions.DIR_LEFT);
 				player.setPlayer_animation(player.getWalkAnimationLeft());
 				player.setStateTime(0f);
 				player.setCurrentFrame(0f);
+			} else {
+				player.setDir(Directions.DIR_LEFT);
 			}
 			break;
 		case Keys.D:
 			//player.setTexture(player.getRIGHT());
-			if (!player.isATTACK_ANIMATION()) {
+			if (!player.isATTACK_ANIMATION() && (player.getHealth() > 0)) {
 				Gdx.app.log(RipGame.LOG, "IN D");
 				player.setDir(Directions.DIR_RIGHT);
+				player.setAttack_dir(Attack_Directions.DIR_RIGHT);
 				player.setPlayer_animation(player.getWalkAnimationRight());
 				player.setStateTime(0f);
 				player.setCurrentFrame(0f);
+			} else {
+				player.setDir(Directions.DIR_RIGHT);
 			}
 			break;
 		default:
@@ -131,7 +138,7 @@ public class InputHandler implements InputProcessor {
 		player = level.getPlayer();
 		switch(keycode) {
 		case Keys.A:
-			if (!player.isATTACK_ANIMATION()) {
+			if (!player.isATTACK_ANIMATION() && (player.getHealth() > 0)) {
 				player.setStateTime(0f);	
 				player.setCurrentFrame(0f);
 			}
@@ -139,20 +146,20 @@ public class InputHandler implements InputProcessor {
 			break;
 		case Keys.D:
 
-			if (!player.isATTACK_ANIMATION()) {
+			if (!player.isATTACK_ANIMATION() && (player.getHealth() > 0)) {
 				player.setStateTime(0f);	
 				player.setCurrentFrame(0f);
 			}
 			
 			break;
 		case Keys.W:
-			if (!player.isATTACK_ANIMATION()) {
+			if (!player.isATTACK_ANIMATION() && (player.getHealth() > 0)) {
 				player.setStateTime(0f);	
 				player.setCurrentFrame(0f);
 			}
 			break;
 		case Keys.S:
-			if (!player.isATTACK_ANIMATION()) {
+			if (!player.isATTACK_ANIMATION() && (player.getHealth() > 0)) {
 				player.setStateTime(0f);	
 				player.setCurrentFrame(0f);
 			}
@@ -160,7 +167,7 @@ public class InputHandler implements InputProcessor {
 			
 			//add state change
 		case Keys.K:
-			switch(player.getDir()) {
+			switch(player.getAttack_dir() ) {
 			case DIR_LEFT:
 				if (player.isATTACK_ANIMATION()){
 					Gdx.app.log(RipGame.LOG, "Punch C-c-combo!");
@@ -199,7 +206,7 @@ public class InputHandler implements InputProcessor {
 			}
 			break;
 			case Keys.L:
-				switch(player.getDir()) {
+				switch(player.getAttack_dir()) {
 				case DIR_LEFT:
 					if (player.isATTACK_ANIMATION()){
 						

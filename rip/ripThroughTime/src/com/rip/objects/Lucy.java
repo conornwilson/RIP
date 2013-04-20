@@ -1,5 +1,7 @@
 package com.rip.objects;
 
+import java.util.ArrayList;
+
 import renderers.LevelRenderer;
 
 import com.badlogic.gdx.Gdx;
@@ -14,12 +16,12 @@ import com.rip.objects.MovableEntity.Directions;
 
 public class Lucy extends Enemy {
 	
-	protected int attack_point_1 = LevelRenderer.camPos + 230;
-	protected int attack_point_2 = LevelRenderer.camPos + 600;
+	protected int attack_point_1 = LevelRenderer.camPos + 270;
+	protected int attack_point_2 = LevelRenderer.camPos + 550;
 	protected int attack_point_3;
 	
-	protected int swipe_damage = 20;
-	protected int hit_damage = 25;
+	protected int swipe_damage = 30;
+	protected int hit_damage = 50;
 	
 	protected Animation lucy_animation;
 	protected TextureRegion currentFrame;
@@ -45,7 +47,28 @@ public class Lucy extends Enemy {
 	protected TextureRegion[] hitFramesLeft;
 	protected TextureRegion currenthitFrame;
 	
+	protected Animation fallAnimationRight;
+	protected Animation fallAnimationLeft;
+	protected Texture fallSheet;
+	protected TextureRegion[] fallFramesRight;
+	protected TextureRegion[] fallFramesLeft;
+	protected TextureRegion currentfallFrame;
+	
+	protected Animation waitAnimationRight;
+	protected Animation waitAnimationLeft;
+	protected Texture waitSheet;
+	protected TextureRegion[] waitFramesRight;
+	protected TextureRegion[] waitFramesLeft;
+	protected TextureRegion currentwaitFrame;
+	
+	protected float stop_health;
+	
 	boolean has_been_seen = false;
+	boolean fallen = false;
+	boolean has_fallen = false;
+	public boolean not_moving = false;
+	public boolean waiting = false;
+	public boolean intro = true;
 	
 	//protected float stateTime = 0f;
 
@@ -58,31 +81,46 @@ public class Lucy extends Enemy {
 	private static final int hit_COLS = 15;
 	private static final int hit_ROWS = 1;
 	
+	private static final int fall_COLS = 4;
+	private static final int fall_ROWS = 1;
+	
+	private static final int wait_COLS = 2;
+	private static final int wait_ROWS = 1;
+	
 	public enum Attack_State {SWIPE, HIT};
 	
 	public Attack_State astate;
 	
-	public int localSPEED = -1;
+	public int localSPEED = -2;
+	
+	public int preattackX, preattackY;
 	
 	//protected Rectangle leftAttackBox, rightAttackBox;
 	public Rectangle leftHitableBox, rightHitableBox;
 	
+	Sound no_hit[] = {Gdx.audio.newSound(Gdx.files.internal("data/Club No Hit_01.wav")),
+			Gdx.audio.newSound(Gdx.files.internal("data/Club No Hit_02.wav"))};
+	
+	Sound swipe1, swipe2, swipe3;
+	
 
 	public Lucy(int x, int y) {
-		super(x, y, 275, 380, -2, 100);
+		super(x, y, 275, 380, -2, 300);
 		create_animations();
 		astate = Attack_State.SWIPE;
 		this.setDir(dir.DIR_LEFT);
-		this.hitableBox = new Rectangle(this.x + this.boxset, this.y, (this.width * 0.7f), this.height);
-		this.leftHitableBox = new Rectangle(this.x + this.boxset, this.y, ((this.width * 0.7f) / 2), this.height);
-		this.rightHitableBox  = new Rectangle(((this.x + this.boxset) + ((this.width * 0.7f) / 2)), this.y, 
-					((this.width * 0.7f) / 2), this.height);
+		this.leftHitableBox = new Rectangle(this.x + 100, this.y, 120, this.height);
+		this.rightHitableBox  = new Rectangle(this.x + 100, this.y, 120, this.height);
 		this.leftAttackBox = new Rectangle(this.x, this.y, (this.width / 2), this.height);
-		this.rightAttackBox = new Rectangle(this.x + (this.width / 2), this.y, (this.width / 2), this.height);
-		Sound s[] = {Gdx.audio.newSound(Gdx.files.internal("data/GorillaGrunt_01.wav")),
-				Gdx.audio.newSound(Gdx.files.internal("data/GorillaGrunt_02.wav")),
-				Gdx.audio.newSound(Gdx.files.internal("data/GorillaGrunt_03.wav"))};
-		this.hit_sounds = s;
+		this.rightAttackBox = new Rectangle((this.x + (this.width / 2)), this.y, (this.width / 2), this.height);
+		Sound hs[] = {Gdx.audio.newSound(Gdx.files.internal("data/Lucy Grunt_01.wav")),
+				Gdx.audio.newSound(Gdx.files.internal("data/Lucy Grunt_02.wav"))};
+		swipe1 = Gdx.audio.newSound(Gdx.files.internal("data/Club Smash_01.wav"));
+		swipe2 = Gdx.audio.newSound(Gdx.files.internal("data/Club Smash_02.wav"));
+		swipe3 = Gdx.audio.newSound(Gdx.files.internal("data/Club Smash_03.wav"));
+		this.hit_sounds = hs;
+		this.stop_health = this.getHealth() + 21;
+		this.hitableBox = this.leftHitableBox;
 	}
 	
 	public void create_animations() {
@@ -146,8 +184,8 @@ public class Lucy extends Enemy {
 			}
 		}
 
-		swipeAnimationRight = new Animation(0.045f, swipeFramesRight);
-		swipeAnimationLeft = new Animation(0.045f, swipeFramesLeft);
+		swipeAnimationRight = new Animation(0.025f, swipeFramesRight);
+		swipeAnimationLeft = new Animation(0.025f, swipeFramesLeft);
 		
 		//Initiate Hit Animation
 		hitSheet = new Texture(Gdx.files.internal("data/lucy_hit.png"));
@@ -175,9 +213,72 @@ public class Lucy extends Enemy {
 				index++;
 			}
 		}
+		
 
-		hitAnimationRight = new Animation(0.075f, hitFramesRight);
-		hitAnimationLeft = new Animation(0.075f, hitFramesLeft);
+		hitAnimationRight = new Animation(0.035f, hitFramesRight);
+		hitAnimationLeft = new Animation(0.035f, hitFramesLeft);
+		
+		//Initiate Fall Animation
+		fallSheet = new Texture(Gdx.files.internal("data/lucy_fall.png"));
+		TextureRegion[][] tmpfRight = TextureRegion.split(fallSheet, fallSheet.getWidth() / fall_COLS, fallSheet.getHeight() / fall_ROWS);
+		TextureRegion[][] tmpfLeft = TextureRegion.split(fallSheet, fallSheet.getWidth() / fall_COLS, fallSheet.getHeight() / fall_ROWS);
+		fallFramesRight = new TextureRegion[fall_COLS * fall_ROWS];
+		fallFramesLeft = new TextureRegion[fall_COLS * fall_ROWS];
+		index = 0;
+		for (int i = 0; i < fall_ROWS; i++) {
+			for (int j = 0; j < fall_COLS; j++) {
+				temp = tmpfLeft[i][j];
+				fallFramesLeft[index] = temp;
+				//walkFramesLeft[index] = temp;
+				index++;
+			}
+		}
+		
+		
+		index = 0;
+		for (int i = 0; i < fall_ROWS; i++) {
+			for (int j = 0; j < fall_COLS; j++) {
+				temp = tmpfRight[i][j];
+				fallFramesRight[index] = temp;
+				fallFramesRight[index].flip(true, false);
+				index++;
+			}
+		}
+		
+
+		fallAnimationRight = new Animation(0.1f, fallFramesRight);
+		fallAnimationLeft = new Animation(0.1f, fallFramesLeft);
+		
+		//Initiate Wait Animation
+		waitSheet = new Texture(Gdx.files.internal("data/lucywait.png"));
+		TextureRegion[][] tmpwtRight = TextureRegion.split(waitSheet, waitSheet.getWidth() / wait_COLS, waitSheet.getHeight() / wait_ROWS);
+		TextureRegion[][] tmpwtLeft = TextureRegion.split(waitSheet, waitSheet.getWidth() / wait_COLS, waitSheet.getHeight() / wait_ROWS);
+		waitFramesRight = new TextureRegion[wait_COLS * wait_ROWS];
+		waitFramesLeft = new TextureRegion[wait_COLS * wait_ROWS];
+		index = 0;
+		for (int i = 0; i < wait_ROWS; i++) {
+			for (int j = 0; j < wait_COLS; j++) {
+				temp = tmpwtLeft[i][j];
+				waitFramesLeft[index] = temp;
+				//walkFramesLeft[index] = temp;
+				index++;
+			}
+		}
+		
+		
+		index = 0;
+		for (int i = 0; i < wait_ROWS; i++) {
+			for (int j = 0; j < wait_COLS; j++) {
+				temp = tmpwtRight[i][j];
+				waitFramesRight[index] = temp;
+				waitFramesRight[index].flip(true, false);
+				index++;
+			}
+		}
+		
+
+		waitAnimationRight = new Animation(0.4f, waitFramesRight);
+		waitAnimationLeft = new Animation(0.4f, waitFramesLeft);
 		
 		
 		lucy_animation = walkAnimationLeft;
@@ -185,24 +286,87 @@ public class Lucy extends Enemy {
 	
 	}
 	
-	
-	public void swipe() {
+	public void attackPosition() {
+		Gdx.app.log(RipGame.LOG, "Attack Postion");
+		Gdx.app.log(RipGame.LOG, Integer.toString(this.x));
+		this.preattackX = this.x;
+		this.preattackY = this.y; 
 		switch (this.dir) {
 		case DIR_LEFT:
-			
+			this.x = this.x - 50;
+			//this.hitableBox.x -= 50;
+			//this.leftAttackBox.x -= 50;
+			//this.rightAttackBox.x -= 50;
+			break;
+		case DIR_RIGHT:
+			this.x = this.x + 50;
+			//this.hitableBox.x += 50;
+			//this.leftAttackBox.x += 50;
+			//this.rightAttackBox.x += 50;
+			break;
+		default:
+			break;
+		}
+		Gdx.app.log(RipGame.LOG, "Post Attack Postion");
+		Gdx.app.log(RipGame.LOG, Integer.toString(this.x));
+	}
+	
+	public void revertPosition() {
+		this.waiting = true;
+		this.x = this.preattackX;
+		this.y = this.preattackY; 
+		Gdx.app.log(RipGame.LOG, "Revert Postion");
+		Gdx.app.log(RipGame.LOG, Integer.toString(this.x));
+		switch (this.dir) {
+		case DIR_LEFT:
+			//this.hitableBox.x += 50;
+			//this.leftAttackBox.x += 50;
+			//this.rightAttackBox.x += 50;
+			this.lucy_animation = this.waitAnimationLeft;
+			break;
+		case DIR_RIGHT:
+			//this.hitableBox.x -= 50;
+			//this.leftAttackBox.x -= 50;
+			//this.rightAttackBox.x -= 50;
+			this.lucy_animation = this.waitAnimationRight;
+			break;
+		default:
+			break;
+		}
+		//this.setCurrentFrame(0f);
+	}
+	
+	
+	
+	public void swipe() {
+		attackPosition();
+		this.stop_health = this.getHealth();
+		this.stateTime = 0f;
+		switch (this.dir) {
+		case DIR_LEFT:
+			this.lucy_animation = this.swipeAnimationLeft;
 			if (Intersector.overlapRectangles(this.leftAttackBox, LevelRenderer.getPlayer().hitableBox)) {
+				this.swipe1.play();
 				Gdx.app.log(RipGame.LOG, "Swipe Left");
 				LevelRenderer.getPlayer().makeHit();
 				LevelRenderer.getPlayer().hitBack(-60);
 				LevelRenderer.getPlayer().setHealth(LevelRenderer.getPlayer().getHealth() - this.swipe_damage);
+			} else {
+				Sound n = this.getRandomNohit_sounds();
+				n.play(1.0f);
 			}
 			
 			break;
 		case DIR_RIGHT:
+			this.lucy_animation = this.swipeAnimationRight;
 			if (Intersector.overlapRectangles(this.rightAttackBox, LevelRenderer.getPlayer().hitableBox)) {
+				this.swipe1.play();
 				LevelRenderer.getPlayer().makeHit();
 				LevelRenderer.getPlayer().hitBack(60);
 				LevelRenderer.getPlayer().setHealth(LevelRenderer.getPlayer().getHealth() - this.swipe_damage);
+			} else {
+				Sound n = this.getRandomNohit_sounds();
+				n.play(1.0f);
 			}
 			break;
 		default:
@@ -216,19 +380,32 @@ public class Lucy extends Enemy {
 
 	
 	public void hit() {
+		attackPosition();
+		this.stop_health = this.getHealth();
+		this.stateTime = 0f;
 		switch (this.dir) {
 		case DIR_LEFT:
+			this.lucy_animation = this.hitAnimationLeft;
 			if (Intersector.overlapRectangles(this.leftAttackBox, LevelRenderer.getPlayer().hitableBox)) {
+				this.swipe2.play();
 				LevelRenderer.getPlayer().makeHit();
 				LevelRenderer.getPlayer().hitBack(-70);
 				LevelRenderer.getPlayer().setHealth(LevelRenderer.getPlayer().getHealth() - this.hit_damage);
+			} else {
+				Sound n = this.getRandomNohit_sounds();
+				n.play(1.0f);
 			}
 			break;
 		case DIR_RIGHT:
+			this.lucy_animation = this.hitAnimationRight;
 			if (Intersector.overlapRectangles(this.rightAttackBox, LevelRenderer.getPlayer().hitableBox)) {
+				this.swipe2.play();
 				LevelRenderer.getPlayer().makeHit();
 				LevelRenderer.getPlayer().hitBack(70);
 				LevelRenderer.getPlayer().setHealth(LevelRenderer.getPlayer().getHealth() - this.hit_damage);
+			} else {
+				Sound n = this.getRandomNohit_sounds();
+				n.play(1.0f);
 			}
 			break;
 		default:
@@ -242,72 +419,100 @@ public class Lucy extends Enemy {
 	}
 	
 	public void update_movements() {
-		if (this.health <= 50) {
-			this.astate = Attack_State.HIT;
+		
+		if (!this.fallen && this.getHealth() <= (this.stop_health - 20)) {
+			this.waiting = false;
+			switch (this.dir) {
+			case DIR_LEFT:
+				this.lucy_animation = this.walkAnimationLeft;
+				break;
+			case DIR_RIGHT:
+				this.lucy_animation = this.walkAnimationRight;
+				break;
+			default:
+				break;
+			}
+		}
+		
+		if (this.fallen && (this.health > 20 && this.health <= 120)) {
+			this.fallen = false;
+			this.stateTime = 0f;
+			switch (this.dir) {
+			case DIR_LEFT:
+				this.lucy_animation = this.walkAnimationLeft;
+				break;
+			case DIR_RIGHT:
+				this.lucy_animation = this.walkAnimationRight;
+				break;
+			default:
+				break;
+			}
 		}
 		
 		if (this.attacking) {
-			//Gdx.app.log(RipGame.LOG, "Attacking");
-			/*
-			if (this.lucy_animation.isAnimationFinished(this.getStateTime())) {
-				switch (this.dir){
+
+		} else {
+			if (this.intro && (this.x <=  LevelRenderer.camPos + 650)) {
+				this.lucy_animation = this.waitAnimationLeft;
+				this.waiting = true;
+				Gdx.app.log(RipGame.LOG, "Intro");
+			}
+			
+			else if (this.fallen) {
+				Gdx.app.log(RipGame.LOG, "Fallen");
+			}
+			else if ((this.health <= 150 && !this.has_fallen) || this.health <= 20) {
+				Gdx.app.log(RipGame.LOG, "Fall");
+				this.fallen = true;
+				this.has_fallen = true;
+				this.astate = Attack_State.HIT;
+				this.stateTime = 0f;
+				
+				switch (this.dir) {
 				case DIR_LEFT:
-					this.lucy_animation = this.walkAnimationLeft;
+					this.lucy_animation = this.fallAnimationLeft;
 					break;
 				case DIR_RIGHT:
-					this.lucy_animation = this.walkAnimationRight;
+					this.lucy_animation = this.fallAnimationRight;
 					break;
 				default:
 					break;
 				}
-			}*/
-		} else {
-			//need to make it a range
-			if ((this.x <= attack_point_1 && this.x >= (this.attack_point_1 - 2)) || 
+				
+				TimePack tp1 = new TimePack((this.x - 30), this.y);
+				LevelRenderer.drawables.add(tp1);
+				LevelRenderer.timepacks.add(tp1);
+				
+				TimePack tp2 = new TimePack(((this.x + (int) this.width) + 30), this.y);
+				LevelRenderer.drawables.add(tp2);
+				LevelRenderer.timepacks.add(tp2);
+				
+			} else if ((this.x <= attack_point_1 && this.x >= (this.attack_point_1 - 2)) || 
 					(this.x <= attack_point_2 && this.x >= (this.attack_point_2 - 2))) {
 				this.attacking = true;
+				this.stateTime = 0;
 				switch (this.dir) {
 				case DIR_LEFT:
 					this.setX(this.getX() - 3);
-					//if (this.leftAttackBox.overlaps(LevelRenderer.getPlayer().hitableBox)) {
-						//Gdx.app.log(RipGame.LOG, "IF Left");
-					Gdx.app.log(RipGame.LOG, "Attack Left");
-					switch (this.astate) {
-					case SWIPE:
-						this.lucy_animation = this.swipeAnimationLeft;
-						swipe();
-						//set animation
-						//attack
-						break;
-					case HIT:
-						this.lucy_animation = this.hitAnimationLeft;
-						hit();
-						break;
-					default:
-						break;
-					}
 					break;
 				case DIR_RIGHT:
 					this.setX(this.getX() + 3);
-					Gdx.app.log(RipGame.LOG, "Attack Right");
-					switch (this.astate) {
-					case SWIPE:
-						this.lucy_animation = this.swipeAnimationRight;
-						swipe();
-						break;
-					case HIT:
-						this.lucy_animation = this.hitAnimationRight;
-						hit();
-						break;
-					default:
-						break;
-					}
 					break;
 				default:
 					break;
-				
 				}
-				this.stateTime = 0;
+				
+				switch (this.astate) {
+				case SWIPE:
+					swipe();
+					break;
+				case HIT:
+					hit();
+					break;
+				default:
+					break;
+				}
+				
 				
 			} else if (this.x <= LevelRenderer.camPos) {
 				//Gdx.app.log(RipGame.LOG, "Hit Wall Left");
@@ -326,7 +531,11 @@ public class Lucy extends Enemy {
 				switchDir();
 				this.lucy_animation = this.walkAnimationLeft;
 				//turn around
-			} else {
+			} else if (!this.waiting) {
+				this.not_moving = false;
+				Gdx.app.log(RipGame.LOG, "Moving Postion");
+				Gdx.app.log(RipGame.LOG, Integer.toString(this.x));
+				//Gdx.app.log(RipGame.LOG, "-20");
 				
 				this.setX(this.getX() + this.localSPEED);
 				this.leftAttackBox.x += this.localSPEED;
@@ -337,6 +546,7 @@ public class Lucy extends Enemy {
 				case DIR_LEFT:
 					if (Intersector.intersectRectangles(this.leftHitableBox, LevelRenderer.getPlayer().hitableBox)) {
 						Gdx.app.log(RipGame.LOG, "IF Left");
+						LevelRenderer.getPlayer().setHealth(LevelRenderer.getPlayer().getHealth() - 1);
 						LevelRenderer.getPlayer().makeHit();
 						LevelRenderer.getPlayer().hitBack(-30);
 						//LevelRenderer.getPlayer().setX(LevelRenderer.getPlayer().getX() + this.localSPEED);
@@ -345,6 +555,7 @@ public class Lucy extends Enemy {
 				case DIR_RIGHT:
 					if (Intersector.intersectRectangles(this.rightHitableBox, LevelRenderer.getPlayer().hitableBox)) {
 						Gdx.app.log(RipGame.LOG, "IF Right");
+						LevelRenderer.getPlayer().setHealth(LevelRenderer.getPlayer().getHealth() - 1);
 						LevelRenderer.getPlayer().makeHit();
 						LevelRenderer.getPlayer().hitBack(30);
 						//LevelRenderer.getPlayer().setX(LevelRenderer.getPlayer().getX() + this.localSPEED);
@@ -354,6 +565,9 @@ public class Lucy extends Enemy {
 					break;
 				}
 				
+			} else {
+				this.not_moving = true;
+				//Gdx.app.log(RipGame.LOG, "Not Moving");
 			}
 		//if collides push back?
 		//else
@@ -364,38 +578,30 @@ public class Lucy extends Enemy {
 		switch(this.dir) {
 		case DIR_LEFT:
 			this.setDir(dir.DIR_RIGHT);
+			this.hitableBox = this.leftHitableBox;
 			break;
 		case DIR_RIGHT:
 			this.setDir(dir.DIR_LEFT);
+			this.hitableBox = this.rightHitableBox;
 			break;
 		default:
 			break;
 		}
 	}
 	
+	public void hitBack(int distance, ArrayList<Enemy> e) {
+		
+	}
+	
 	public void setCurrentFrame(float delta) {
 		this.stateTime += delta;
-		/*
-		if (this.attacking) {
-			if ((this.dir == Directions.DIR_LEFT) && !((lucy_animation == swipeAnimationLeft) ||
-						!(lucy_animation == this.hitAnimationLeft))) {
-				lucy_animation = attackAnimationLeft;
-			} else if ((this.dir == Directions.DIR_RIGHT) && !(lucy_animation == attackAnimationRight)) {
-				lucy_animation = attackAnimationRight;
-			}
-		} else  {
-			 if ((this.dir == Directions.DIR_LEFT) && !(lucy_animation == walkAnimationLeft)) {
-				lucy_animation = walkAnimationLeft;
-			} else if ((this.dir == Directions.DIR_RIGHT) && !(lucy_animation == walkAnimationRight)) {
-				lucy_animation = walkAnimationRight;
-			}
-		}
-		*/
 		//this.currentFrame = player_animation.getKeyFrame(stateTime, true);
 		if (this.lucy_animation == this.swipeAnimationLeft ||
 				this.lucy_animation == this.swipeAnimationRight ||
 				this.lucy_animation == this.hitAnimationLeft ||
-				this.lucy_animation == this.hitAnimationRight) {
+				this.lucy_animation == this.hitAnimationRight ||
+				this.lucy_animation == this.fallAnimationLeft ||
+				this.lucy_animation == this.fallAnimationRight) {
 			//Gdx.app.log(RipGame.LOG, "setAttack");
 			this.currentFrame = this.lucy_animation.getKeyFrame(this.stateTime, false);
 		} else {
@@ -406,8 +612,12 @@ public class Lucy extends Enemy {
 	public Animation getLucy_animation() {
 		return lucy_animation;
 	}
-	
 
+	public Sound getRandomNohit_sounds() {
+		int index = rand.nextInt(this.no_hit.length);
+		return this.no_hit[index];
+	}
+	
 	public void setLucy_animation(Animation lucy_animation) {
 		this.lucy_animation = lucy_animation;
 	}
@@ -430,6 +640,17 @@ public class Lucy extends Enemy {
 
 	public TextureRegion getCurrentFrame() {
 		return currentFrame;
+	}
+	
+	public void setX(int x) {
+		this.x = x;
+		this.bounds.x = x;
+		this.hitableBox.x = x + 100;
+		this.leftHitableBox.x = x + 100;
+		this.rightHitableBox.x = x + 100;
+		this.rightAttackBox.x = x + (this.width / 2);
+		this.leftAttackBox.x = x;
+		
 	}
 
 	

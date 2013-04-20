@@ -8,6 +8,7 @@ import java.util.Random;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -24,14 +25,15 @@ import com.rip.objects.Lucy;
 import com.rip.objects.MovableEntity;
 import com.rip.objects.Player;
 import com.rip.objects.Raptor;
+import com.rip.objects.TimePack;
 
 public class LevelRenderer {
 	//////////UNIVERSAL VARIABLES//////////
-	Level level;
-	SpriteBatch batch;
-	Music leveltheme;
+	public static Level level;
+	public static SpriteBatch batch;
+	private static Music leveltheme, additional_theme1, additional_theme2;
 	RipGame game;
-	ShapeRenderer sr;
+	public static ShapeRenderer sr;
 	public static Player player;
 	public static int width;
 	public int height;
@@ -44,6 +46,7 @@ public class LevelRenderer {
 	public static ArrayList<Enemy> enemy_list;
 	public static ArrayList<HealthPack> healthpacks = new ArrayList<HealthPack>();
 	public static ArrayList<MovableEntity> drawables;
+	public static ArrayList<TimePack> timepacks = new ArrayList<TimePack>();
 	public Random r = new Random();
 	float stateTime = 0f;
 	public static boolean move = true;
@@ -51,6 +54,11 @@ public class LevelRenderer {
 	public static Stage stage;
 	public static boolean pause = false;
 	public boolean frozen;
+	boolean warp_play = false;
+	
+	public static boolean ripMove = true;
+	
+	Sound warp;
 
 	//////////UNIVERSAL TEXTURES//////////
 	Texture playerTexture;
@@ -67,6 +75,7 @@ public class LevelRenderer {
 		sr = new ShapeRenderer();
 
 		drawables = new ArrayList<MovableEntity>();
+		warp = Gdx.audio.newSound(Gdx.files.internal("data/Time Warp_01.wav"));
 	}
 
 	public LevelRenderer(Level level) {
@@ -88,8 +97,20 @@ public class LevelRenderer {
 
 		level.generateBackground();
 		
-		this.leveltheme = level.getLeveltheme();
-		leveltheme.play();
+		// place holder for real sound effects - must be 16bit
+		warp = Gdx.audio.newSound(Gdx.files.internal("data/Time Warp_01.wav"));
+		
+		if (level.additional_theme1 != null) {
+			LevelRenderer.setAdditional_theme1(level.additional_theme1);
+		}
+		if (level.additional_theme2 != null) {
+			LevelRenderer.setAdditional_theme1(level.additional_theme2);
+		}
+		if (level.leveltheme != null) {
+			LevelRenderer.setLeveltheme(level.getLeveltheme());
+			getLeveltheme().play();
+		}
+		
 	}
 
 	public void render() {
@@ -105,6 +126,7 @@ public class LevelRenderer {
 		enemy_list = level.getEnemies();
 		drawables.add(player);
 		drawables.addAll(healthpacks);
+		drawables.addAll(timepacks);
 		drawables.addAll(enemy_list);
 		
 		//sort enemies by Y position for drawling.
@@ -126,7 +148,7 @@ public class LevelRenderer {
 
 		drawDrawables();
 		
-		if (!pause) {
+		if (!pause && ripMove) {
 			player.handleTime(this, level, game);
 
 			player.handleMovement(this, level, game);
@@ -137,15 +159,21 @@ public class LevelRenderer {
 		level.handleCheckPoints(this);
 		
 		if (level.isEnd()) {
-			this.leveltheme.stop();
+			this.getLeveltheme().stop();
 			batch.draw(level.level_complete, camPos, 0);
 		}
 		
 		if (player.getTimeFreeze() == true || Gdx.input.isKeyPressed(Keys.SPACE) && (player.getTime() > 0)) {
+			if (warp_play) {
+				
+			} else {
+				warp.play();
+			}
 			batch.draw(level.timeFreezeOverlay, camPos, 0);
 			batch.draw(player.getCurrentFrame(), player.getX(), player.getY());
 			this.frozen = true;
 		} else {
+			warp.stop();
 			this.frozen = false;
 		}
 
@@ -214,11 +242,20 @@ public class LevelRenderer {
 				if (((HealthPack) me).collides(player)) {
 					healthpacks.remove(me);
 				}
+			} else if (me instanceof TimePack) {
+				batch.draw(me.getTexture(), me.getX(), me.getY());
+				Gdx.app.log(RipGame.LOG, "Timepack draw");
+				if (((TimePack) me).collides(player)) {
+					timepacks.remove(me);
+				}
 			} else if (me instanceof Lucy) {
 				batch.draw(me.getCurrentFrame(), me.getX(), me.getY());
-				sr.rect(me.getX(), me.getY(), (me.getWidth() / 2), me.getHeight());
-				sr.rect(me.getX() + (me.getWidth() / 2), me.getY(), (me.getWidth() / 2), me.getHeight());
-				if (!this.frozen) {
+				//this.x + 50, this.y, (this.width * 0.7f), this.height);
+				sr.rect(((Lucy) me).hitableBox.x, ((Lucy) me).hitableBox.y, ((Lucy) me).hitableBox.width, ((Lucy) me).hitableBox.height);
+				//sr.rect(((Lucy) me).leftHitableBox.x, ((Lucy) me).leftHitableBox.y, ((Lucy) me).leftHitableBox.width, ((Lucy) me).leftHitableBox.height);
+				sr.rect(((Lucy) me).leftAttackBox.x, ((Lucy) me).leftAttackBox.y, ((Lucy) me).leftAttackBox.width, ((Lucy) me).leftAttackBox.height);
+				sr.rect(((Lucy) me).rightAttackBox.x, ((Lucy) me).rightAttackBox.y, ((Lucy) me).rightAttackBox.width, ((Lucy) me).rightAttackBox.height);
+				if (((Lucy) me).waiting || ((!this.frozen) && !((Lucy) me).not_moving)) {
 					((Lucy) me).setCurrentFrame(delta);
 				}
 				if (((Lucy) me).attacking) {
@@ -230,16 +267,7 @@ public class LevelRenderer {
 					//player.setHealth(player.getHealth() - ((Ape) me).getDamage());
 					((Lucy) me).attacking = false;
 					me.setStateTime(0);
-					switch (me.getDir()) {
-					case DIR_LEFT:
-						((Lucy) me).setLucy_animation(((Lucy) me).getWalkAnimationLeft());
-						break;
-					case DIR_RIGHT:
-						((Lucy) me).setLucy_animation(((Lucy) me).getWalkAnimationRight());
-						break;
-					default:
-						break;
-					}
+					((Lucy) me).revertPosition();
 				}
 				
 			} else {
@@ -247,26 +275,38 @@ public class LevelRenderer {
 			}
 			
 		}
-			/*
-			//Gdx.app.log(RipGame.LOG, "Drawables");
-			MovableEntity me = drawables.get(i);
-			if ((me instanceof Player) && player.getTimeFreeze() == false){
-				batch.draw(me.getCurrentFrame(), me.getX(), me.getY());
-			} else if (me instanceof Raptor){
-				batch.draw(me.getCurrentFrame(), me.getX(), me.getY());
-				((Raptor) me).setCurrentFrame(delta);
-			} else {
-				batch.draw(me.getTexture(), me.getX(), me.getY());
-			}
-			//sr.rect(me.hitableBox.x, me.hitableBox.y, me.hitableBox.width, me.hitableBox.height);
-			//sr.rect(me.getX(), me.getY(), me.hitableBox.width, me.hitableBox.height);
-		}*/
+
 	}
 	
 	public static Player getPlayer() {
 		return player;
 	}
 	
+	public static Music getLeveltheme() {
+		return leveltheme;
+	}
+
+	public static void setLeveltheme(Music lt) {
+		leveltheme = lt;
+	}
+	
+
+	public static Music getAdditional_theme1() {
+		return additional_theme1;
+	}
+
+	public static void setAdditional_theme1(Music additional_theme1) {
+		LevelRenderer.additional_theme1 = additional_theme1;
+	}
+
+	public static Music getAdditional_theme2() {
+		return additional_theme2;
+	}
+
+	public static void setAdditional_theme2(Music additional_theme2) {
+		LevelRenderer.additional_theme2 = additional_theme2;
+	}
+
 	public void setLevel(Level level) {
 		this.level = level;
 		level.generateBackground();
@@ -275,7 +315,18 @@ public class LevelRenderer {
 	
 	public void dispose() {
 		this.camPos = 0;
-		leveltheme.dispose();
+		
+		if (leveltheme != null) {
+			leveltheme.dispose();
+		}
+		
+		if (additional_theme1 != null) {
+			additional_theme1.dispose();
+		}
+		
+		if (additional_theme2 != null) {
+			additional_theme2.dispose();
+		}
 		
 	}
 }
