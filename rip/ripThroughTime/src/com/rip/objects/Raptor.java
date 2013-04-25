@@ -126,7 +126,7 @@ public class Raptor extends LowLevelEnemy {
 			} else if ((this.dir == Directions.DIR_RIGHT) && !(raptor_animation == attackAnimationRight)) {
 				raptor_animation = attackAnimationRight;
 			}
-		} else  {
+		} else if (this.getHealth() > 0){
 			 if ((this.dir == Directions.DIR_LEFT) && !(raptor_animation == walkAnimationLeft)) {
 				raptor_animation = walkAnimationLeft;
 			} else if ((this.dir == Directions.DIR_RIGHT) && !(raptor_animation == walkAnimationRight)) {
@@ -135,7 +135,8 @@ public class Raptor extends LowLevelEnemy {
 		}
 		//this.currentFrame = player_animation.getKeyFrame(stateTime, true);
 		if (this.raptor_animation == this.attackAnimationLeft ||
-				this.raptor_animation == this.attackAnimationRight) {
+				this.raptor_animation == this.attackAnimationRight ||
+				this.raptor_animation == this.EXPAnimation) {
 			Gdx.app.log(RipGame.LOG, "setAttack");
 			this.currentFrame = this.raptor_animation.getKeyFrame(this.stateTime, false);
 		} else { 

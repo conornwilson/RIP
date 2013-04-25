@@ -29,14 +29,18 @@ public class InputHandler implements InputProcessor {
 		this.level = level;
 	}
 	
+	
 	@Override
 	public boolean keyDown(int keycode) {
 		// TODO Auto-generated method stub
 		player = level.getPlayer();
 		enemies = level.getEnemies();
 		//this.ATTACK_ANIMATION = player.isATTACK_ANIMATION();
+		if (player.dead) {
+			return true;
+		}
 		switch(keycode){
-		case Keys.K:
+		case Keys.Z:
 			if (player.isATTACK_ANIMATION()){
 				//public enum attack_state { PUNCH_ONE, PUNCH_TWO, PUNCH_THREE, 
 				//KICK_ONE, KICK_TWO, KICK_THREE };
@@ -66,7 +70,7 @@ public class InputHandler implements InputProcessor {
 				break;
 			}
 			break;
-		case Keys.L:
+		case Keys.X:
 			if (player.isATTACK_ANIMATION()){
 				//public enum attack_state { PUNCH_ONE, PUNCH_TWO, PUNCH_THREE, 
 				//KICK_ONE, KICK_TWO, KICK_THREE };
@@ -96,11 +100,11 @@ public class InputHandler implements InputProcessor {
 			}
 			break;
 		
-		case Keys.W:
+		case Keys.DPAD_UP:
 			break;
-		case Keys.S:
+		case Keys.DPAD_DOWN:
 			break;
-		case Keys.A:
+		case Keys.DPAD_LEFT:
 			//player.setTexture(player.getLEFT());
 			if (!player.isATTACK_ANIMATION() && (player.getHealth() > 0)) {
 				Gdx.app.log(RipGame.LOG, "IN A");
@@ -113,7 +117,7 @@ public class InputHandler implements InputProcessor {
 				player.setDir(Directions.DIR_LEFT);
 			}
 			break;
-		case Keys.D:
+		case Keys.DPAD_RIGHT:
 			//player.setTexture(player.getRIGHT());
 			if (!player.isATTACK_ANIMATION() && (player.getHealth() > 0)) {
 				Gdx.app.log(RipGame.LOG, "IN D");
@@ -136,15 +140,18 @@ public class InputHandler implements InputProcessor {
 	public boolean keyUp(int keycode) {
 		// TODO Auto-generated method stub
 		player = level.getPlayer();
+		if (player.dead) {
+			return true;
+		}
 		switch(keycode) {
-		case Keys.A:
+		case Keys.DPAD_LEFT:
 			if (!player.isATTACK_ANIMATION() && (player.getHealth() > 0)) {
 				player.setStateTime(0f);	
 				player.setCurrentFrame(0f);
 			}
 			
 			break;
-		case Keys.D:
+		case Keys.DPAD_RIGHT:
 
 			if (!player.isATTACK_ANIMATION() && (player.getHealth() > 0)) {
 				player.setStateTime(0f);	
@@ -152,13 +159,13 @@ public class InputHandler implements InputProcessor {
 			}
 			
 			break;
-		case Keys.W:
+		case Keys.DPAD_UP:
 			if (!player.isATTACK_ANIMATION() && (player.getHealth() > 0)) {
 				player.setStateTime(0f);	
 				player.setCurrentFrame(0f);
 			}
 			break;
-		case Keys.S:
+		case Keys.DPAD_DOWN:
 			if (!player.isATTACK_ANIMATION() && (player.getHealth() > 0)) {
 				player.setStateTime(0f);	
 				player.setCurrentFrame(0f);
@@ -166,7 +173,7 @@ public class InputHandler implements InputProcessor {
 			break;
 			
 			//add state change
-		case Keys.K:
+		case Keys.Z:
 			switch(player.getAttack_dir() ) {
 			case DIR_LEFT:
 				if (player.isATTACK_ANIMATION()){
@@ -205,7 +212,7 @@ public class InputHandler implements InputProcessor {
 				player.setATTACK_ANIMATION(true);
 			}
 			break;
-			case Keys.L:
+			case Keys.X:
 				switch(player.getAttack_dir()) {
 				case DIR_LEFT:
 					if (player.isATTACK_ANIMATION()){

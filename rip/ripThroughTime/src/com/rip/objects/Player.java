@@ -1,8 +1,6 @@
 
 package com.rip.objects;
 
-
-
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -799,33 +797,72 @@ public class Player extends MovableEntity {
 
 	public void handleMovement(LevelRenderer lr, Level level, RipGame game) {
 		boolean[] c = collides(LevelRenderer.enemy_list);
-		
+
 		if (level.isEnd() || this.dead) {
-			if (Gdx.input.isKeyPressed(Keys.ENTER)){
-				
-				//game.getScreen().dispose();
+			if (Gdx.input.isKeyPressed(Keys.X)){
+				game.setScreen(new MainMenu(game));
+			}
+			if (Gdx.input.isKeyPressed(Keys.Z)){
 				game.setScreen(new MainMenu(game));
 			}
 		}
 
-		if (this.isATTACK_ANIMATION()) {
-			
+		if (this.health <= 0) {
+			Gdx.app.log(RipGame.LOG, "Death!");
+			if (this.player_animation != this.DEATHAnimationLeft && this.player_animation != this.DEATHAnimationRight) {
+				Gdx.app.log(RipGame.LOG, "Set Death Animation!");
+				this.stateTime = 0f;
+				this.width = 237;
+				this.height = 222;
+				switch (this.dir) {
+				case DIR_LEFT:
+					this.player_animation = this.DEATHAnimationLeft;
+					break;
+				case DIR_RIGHT:
+					this.player_animation = this.DEATHAnimationRight;
+					break;
+				default:
+					break;
+				}
+			} else if (this.getPlayer_animation().isAnimationFinished(this.getStateTime())) {
+				this.dead = true;
+			} else {
+
+				setCurrentFrame(LevelRenderer.delta);
+				if (this.x > LevelRenderer.camPos && (this.x + this.width) < (LevelRenderer.camPos + LevelRenderer.width)) {
+					Gdx.app.log(RipGame.LOG, "Death on the move!");
+					switch (this.dir) {
+					case DIR_LEFT:
+						this.x += 2;
+						break;
+					case DIR_RIGHT:
+						this.x -= 2;
+						break;
+					default:
+						break;
+					}
+				}
+			}
+		} else if (this.dead) {
+
+		} else if (this.isATTACK_ANIMATION()) {
+
 			this.setCurrentFrame(LevelRenderer.delta);
 			level.getIn().setWAIT(true);
 			if (this.getPlayer_animation().isAnimationFinished(this.getStateTime())) {
 				this.hit = false;
 				for (int i = 0; i < LevelRenderer.enemy_list.size(); i++) {
 					Enemy e = LevelRenderer.enemy_list.get(i);
-						if (e.getHealth() <= 0)	{
-							
-							LevelRenderer.enemy_list.remove(i);
-							if (e.HealthDrop) {
-								HealthPack hp = e.getHealthDrop();
-								LevelRenderer.drawables.add(hp);
-								LevelRenderer.healthpacks.add(hp);
-							}
-							LevelRenderer.drawables.remove(e);
+					if (e.dead == true)	{
+
+						LevelRenderer.enemy_list.remove(i);
+						if (e.HealthDrop) {
+							HealthPack hp = e.getHealthDrop();
+							LevelRenderer.drawables.add(hp);
+							LevelRenderer.healthpacks.add(hp);
 						}
+						LevelRenderer.drawables.remove(e);
+					}
 				} 
 				if (this.astate == attack_state.DONE || this.astate == this.prevstate) {
 					this.astate = attack_state.DONE;
@@ -835,20 +872,20 @@ public class Player extends MovableEntity {
 					//this.setATTACK_ANIMATION(false);
 					level.getIn().setWAIT(false);
 					switch(this.getDir()){
-						case DIR_LEFT:
-							this.setAttack_dir(Attack_Directions.DIR_LEFT);
-							this.setPlayer_animation(this.getWalkAnimationLeft());
-							this.setStateTime(0f);
-							this.setCurrentFrame(0f);
-							break;
-						case DIR_RIGHT:
-							this.setAttack_dir(Attack_Directions.DIR_RIGHT);
-							this.setPlayer_animation(this.getWalkAnimationRight());
-							this.setStateTime(0f);
-							this.setCurrentFrame(0f);
-							break;
+					case DIR_LEFT:
+						this.setAttack_dir(Attack_Directions.DIR_LEFT);
+						this.setPlayer_animation(this.getWalkAnimationLeft());
+						this.setStateTime(0f);
+						this.setCurrentFrame(0f);
+						break;
+					case DIR_RIGHT:
+						this.setAttack_dir(Attack_Directions.DIR_RIGHT);
+						this.setPlayer_animation(this.getWalkAnimationRight());
+						this.setStateTime(0f);
+						this.setCurrentFrame(0f);
+						break;
 					}
-						
+
 					Gdx.app.log(RipGame.LOG, "ANIMATION OVER");
 				} else {
 					Gdx.app.log(RipGame.LOG, "Combo");
@@ -979,61 +1016,22 @@ public class Player extends MovableEntity {
 			} else {
 				setCurrentFrame(LevelRenderer.delta);
 			}
-		} else if (this.health <= 0) {
-			Gdx.app.log(RipGame.LOG, "Death!");
-			if (this.player_animation != this.DEATHAnimationLeft && this.player_animation != this.DEATHAnimationRight) {
-				Gdx.app.log(RipGame.LOG, "Set Death Animation!");
-				this.stateTime = 0f;
-				this.width = 237;
-				this.height = 222;
-				switch (this.dir) {
-				case DIR_LEFT:
-					this.player_animation = this.DEATHAnimationLeft;
-					break;
-				case DIR_RIGHT:
-					this.player_animation = this.DEATHAnimationRight;
-					break;
-				default:
-					break;
-				}
-			} else if (this.getPlayer_animation().isAnimationFinished(this.getStateTime())) {
-				this.dead = true;
-			} else {
-				
-				setCurrentFrame(LevelRenderer.delta);
-				if (this.x > LevelRenderer.camPos && (this.x + this.width) < (LevelRenderer.camPos + LevelRenderer.width)) {
-					Gdx.app.log(RipGame.LOG, "Death on the move!");
-					switch (this.dir) {
-					case DIR_LEFT:
-						this.x += 2;
-						break;
-					case DIR_RIGHT:
-						this.x -= 2;
-						break;
-					default:
-						break;
-					}
-				}
-			}
-		} else if (this.dead) {
-			
+
 		} else {
-			
-			
-			if(Gdx.input.isKeyPressed(Keys.A) && !c[2] && (getDir() == Directions.DIR_LEFT)) {
+			if(Gdx.input.isKeyPressed(Keys.DPAD_LEFT) && !c[2] && (getDir() == Directions.DIR_LEFT)) {
 				if (getX() > LevelRenderer.camPos) {
 					setX((getX() - getSPEED()));
 					this.setCurrentFrame(LevelRenderer.delta);
 				}
 			}
-	
-			else if(Gdx.input.isKeyPressed(Keys.D) && !c[3] && (getDir() == Directions.DIR_RIGHT)) { 
-	
+
+			else if(Gdx.input.isKeyPressed(Keys.DPAD_RIGHT) && !c[3] && (getDir() == Directions.DIR_RIGHT)) { 
+
 				if (getX() + getWidth() < LevelRenderer.camPos + RipGame.WIDTH) {
 					setX((getX() + getSPEED()));
 					setCurrentFrame(LevelRenderer.delta);
 				}
-	
+
 				if (LevelRenderer.move && (getX()) - LevelRenderer.camPos > 450) {
 					//moves camera along level. 
 					LevelRenderer.cam.translate(3, 0);
@@ -1041,18 +1039,18 @@ public class Player extends MovableEntity {
 					//background parallax
 					level.parallax();
 				}
-	
+
 			}
-			else if(Gdx.input.isKeyPressed(Keys.W) && !c[0]) {
+			else if(Gdx.input.isKeyPressed(Keys.DPAD_UP) && !c[0]) {
 				if (getY() >= LevelRenderer.Y_LIMIT) {
 					setY(getY());
-	
+
 				} else {
 					setY(getY() + 2);
 				}
 				setCurrentFrame(LevelRenderer.delta);
 			}
-			else if(Gdx.input.isKeyPressed(Keys.S) && !c[1]) { 
+			else if(Gdx.input.isKeyPressed(Keys.DPAD_DOWN) && !c[1]) { 
 				if (getY() <= 0) {
 					setY(getY());
 				} else {
@@ -1062,7 +1060,7 @@ public class Player extends MovableEntity {
 			}
 		}
 	}
-	
+
 	
 	public void handlePunch(ArrayList<Enemy> enemies) {
 		for (int i = 0; i < enemies.size(); i++) {
@@ -1125,7 +1123,7 @@ public class Player extends MovableEntity {
 				} 
 			}
 		} if (miss) {
-			Sound miss = this.getRandomKick_sounds();
+			Sound miss = this.getKickRandomMiss_sounds();
 			miss.play(1.0f);
 			
 		} else {
@@ -1288,24 +1286,30 @@ public class Player extends MovableEntity {
 			flipTimeFreeze();
 		}
 
-		if (Gdx.input.isKeyPressed(Keys.SPACE) && getTime() == 100) {
+		if (Gdx.input.isKeyPressed(Keys.SHIFT_LEFT) && getTime() == 100) {
 			this.time = 0f;
 			this.setUltXY();
 			//ultimate
+		} else if (this.ULT) {
+			
 		} else if (getTimeFreeze() == true && getTime() > 0) {
 			setTime(getTime() - (25 * LevelRenderer.delta));
-		} else if (Gdx.input.isKeyPressed(Keys.SPACE) && Gdx.input.isKeyPressed(Keys.A) && getTime() > 0 && getX() > LevelRenderer.camPos && getTimeFreeze() == false) {
+		} else if (Gdx.input.isKeyPressed(Keys.SHIFT_LEFT) && Gdx.input.isKeyPressed(Keys.DPAD_LEFT) && getTime() > 0 && getX() > LevelRenderer.camPos && getTimeFreeze() == false) {
 			setTime(getTime() - (100 * LevelRenderer.delta));
 			setX(getX() - 20);
-		} else if (Gdx.input.isKeyPressed(Keys.SPACE) && Gdx.input.isKeyPressed(Keys.D) && getTime() > 0 && getX() < LevelRenderer.camPos + RipGame.WIDTH - getWidth() && getTimeFreeze() == false) {
+		} else if (Gdx.input.isKeyPressed(Keys.SHIFT_LEFT) && Gdx.input.isKeyPressed(Keys.DPAD_RIGHT) && getTime() > 0 && getX() < LevelRenderer.camPos + RipGame.WIDTH - getWidth() && getTimeFreeze() == false) {
 			setTime(getTime() - (100 * LevelRenderer.delta));
 			setX(getX() + 20);
-		} else if (Gdx.input.isKeyPressed(Keys.SPACE) && Gdx.input.isKeyPressed(Keys.W) && getTime() > 0 && getX() < LevelRenderer.camPos + RipGame.WIDTH - getWidth() && getTimeFreeze() == false) {
-			setTime(getTime() - (100 * LevelRenderer.delta));
-			setY(getY() + 10);
-		} else if (Gdx.input.isKeyPressed(Keys.SPACE) && Gdx.input.isKeyPressed(Keys.S) && getTime() > 0 && getX() < LevelRenderer.camPos + RipGame.WIDTH - getWidth() && getTimeFreeze() == false) {
-			setTime(getTime() - (100 * LevelRenderer.delta));
-			setY(getY() - 10);
+		} else if (Gdx.input.isKeyPressed(Keys.SHIFT_LEFT) && Gdx.input.isKeyPressed(Keys.DPAD_UP) && getTime() > 0 && getX() < LevelRenderer.camPos + RipGame.WIDTH - getWidth() && getTimeFreeze() == false) {
+			if (this.getY() <= (LevelRenderer.Y_LIMIT - 10)) {
+				setTime(getTime() - (100 * LevelRenderer.delta));
+				setY(getY() + 10);
+			}
+		} else if (Gdx.input.isKeyPressed(Keys.SHIFT_LEFT) && Gdx.input.isKeyPressed(Keys.DPAD_DOWN) && getTime() > 0 && getX() < LevelRenderer.camPos + RipGame.WIDTH - getWidth() && getTimeFreeze() == false) {
+			if (this.getY() >= 10) {
+				setTime(getTime() - (100 * LevelRenderer.delta));
+				setY(getY() - 10);
+			}
 		} else {
 			for (int i = 0; i < LevelRenderer.drawables.size(); i++) {
 				MovableEntity me = LevelRenderer.drawables.get(i);

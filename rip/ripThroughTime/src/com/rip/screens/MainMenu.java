@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.GL10;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
@@ -28,6 +29,7 @@ public class MainMenu implements Screen {
 	TextButton startButton;
 	TextButton optionsButton;
 	TextButton creditsButton;
+	Texture title = new Texture(Gdx.files.internal("data/mainmenu.png"));
 
 	Music maintheme;
 	Music selectPlay;
@@ -41,6 +43,7 @@ public class MainMenu implements Screen {
 
 		selectPlay = Gdx.audio.newMusic(Gdx.files.internal("data/Main Menu Select.mp3"));
 		selectPlay.setLooping(false);
+		
 
 	}
 
@@ -54,18 +57,21 @@ public class MainMenu implements Screen {
 		//maintheme.play();
 
 		batch.begin();
-			white.draw(batch, "Rip Through Time", Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2);
-			stage.draw();
+			//white.draw(batch, "Rip Through Time", Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2);
+			batch.draw(title, 0, 0);
+			
 		batch.end();
+		stage.draw();
 	}
 
 	@Override
 	public void resize(int width, int height) {
 		if (stage == null) {
-			stage = new Stage(width, height, true);
+			stage = new Stage(width, 330, true);
 		}
 		stage.clear();
 		Gdx.input.setInputProcessor(stage);
+
 
 		TextButtonStyle style = new TextButtonStyle();
 		style.up = skin.getDrawable("buttonnormal");
@@ -73,20 +79,20 @@ public class MainMenu implements Screen {
 		style.font = black;
 
 		startButton = new TextButton("Start Game", style);
-		startButton.setWidth(300);
-		startButton.setHeight(75);
+		startButton.setWidth(200);
+		startButton.setHeight(50);
 		startButton.setX(Gdx.graphics.getWidth() / 2 + 125);
-		startButton.setY(Gdx.graphics.getHeight() /2 - startButton.getHeight() / 2 + 50);
+		startButton.setY(Gdx.graphics.getHeight() /2 - startButton.getHeight() / 2 - 30);
 
 		optionsButton = new TextButton("Options", style);
-		optionsButton.setWidth(300);
-		optionsButton.setHeight(75);
+		optionsButton.setWidth(200);
+		optionsButton.setHeight(50);
 		optionsButton.setX(Gdx.graphics.getWidth()/2 + 125);
-		optionsButton.setY(Gdx.graphics.getHeight()/2 - optionsButton.getHeight() / 2 - 50);
+		optionsButton.setY(Gdx.graphics.getHeight()/2 - optionsButton.getHeight() / 2 - 90);
 
 		creditsButton = new TextButton("Credits", style);
-		creditsButton.setWidth(300);
-		creditsButton.setHeight(75);
+		creditsButton.setWidth(200);
+		creditsButton.setHeight(50);
 		creditsButton.setX(Gdx.graphics.getWidth() / 2 + 125);
 		creditsButton.setY(Gdx.graphics.getHeight() / 2 - startButton.getHeight() / 2 - 150);
 
@@ -123,7 +129,6 @@ public class MainMenu implements Screen {
 				Gdx.app.log(RipGame.LOG, "Credits: pushed");
 			}
 		});
-
 		stage.addActor(startButton);
 		stage.addActor(optionsButton);
 		stage.addActor(creditsButton);

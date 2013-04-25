@@ -129,6 +129,8 @@ public class LevelRenderer {
 		drawables.addAll(timepacks);
 		drawables.addAll(enemy_list);
 		
+		//Gdx.app.log(RipGame.LOG, Integer.toString(this.enemy_list.size()));
+		
 		//sort enemies by Y position for drawling.
 		Collections.sort(drawables, new Comparator<MovableEntity>() {
 			public int compare(MovableEntity a, MovableEntity b) {
@@ -150,8 +152,20 @@ public class LevelRenderer {
 		
 		if (!pause && ripMove) {
 			player.handleTime(this, level, game);
-
 			player.handleMovement(this, level, game);
+			if (player.getTimeFreeze() == true || Gdx.input.isKeyPressed(Keys.SHIFT_LEFT) && !player.ULT) {
+				if (warp_play) {
+					
+				} else {
+					warp.play();
+				}
+				batch.draw(level.timeFreezeOverlay, camPos, 0);
+				batch.draw(player.getCurrentFrame(), player.getX(), player.getY());
+				this.frozen = true;
+			} else {
+				warp.stop();
+				this.frozen = false;
+			}
 		}
 
 		level.drawHud(batch, level.levelHudColor, this);
@@ -161,20 +175,7 @@ public class LevelRenderer {
 		if (level.isEnd()) {
 			this.getLeveltheme().stop();
 			batch.draw(level.level_complete, camPos, 0);
-		}
-		
-		if (player.getTimeFreeze() == true || Gdx.input.isKeyPressed(Keys.SPACE) && (player.getTime() > 0)) {
-			if (warp_play) {
-				
-			} else {
-				warp.play();
-			}
-			batch.draw(level.timeFreezeOverlay, camPos, 0);
-			batch.draw(player.getCurrentFrame(), player.getX(), player.getY());
-			this.frozen = true;
-		} else {
-			warp.stop();
-			this.frozen = false;
+			
 		}
 		
 		if (player.dead) {
@@ -219,6 +220,16 @@ public class LevelRenderer {
 						break;
 					}
 				}
+				 if (((Raptor) me).getHealth() <= 0) {
+						if (((Raptor) me).getRaptor_animation() == ((Raptor) me).getEXPAnimation()) {
+							if (((Raptor) me).getRaptor_animation().isAnimationFinished(me.getStateTime())) {
+								((Raptor) me).dead = true;
+							}
+						} else {
+							me.setStateTime(0f);
+							((Raptor) me).setRaptor_animation(((Raptor) me).getEXPAnimation());
+						}
+					}
 			} else if (me instanceof Ape) {
 				batch.draw(me.getCurrentFrame(), me.getX(), me.getY());
 				if (!this.frozen) {
@@ -226,8 +237,6 @@ public class LevelRenderer {
 				}
 				if (((Ape) me).attacking && 
 							((Ape) me).getApe_animation().isAnimationFinished(me.getStateTime())) {
-					//Gdx.app.log(RipGame.LOG, "Attack End");
-					//player.setHealth(player.getHealth() - ((Ape) me).getDamage());
 					((Ape) me).attacking = false;
 					me.setStateTime(0);
 					switch (me.getDir()) {
@@ -240,6 +249,18 @@ public class LevelRenderer {
 					default:
 						break;
 					}
+				}  
+				if (((Ape) me).getHealth() <= 0) {
+					Gdx.app.log(RipGame.LOG, "Set Dead Animation");
+					if (((Ape) me).getApe_animation() == ((Ape) me).getEXPAnimation()) {
+						Gdx.app.log(RipGame.LOG, "Set Dead Animation ==");
+						if (((Ape) me).getApe_animation().isAnimationFinished(me.getStateTime())) {
+							((Ape) me).dead = true;
+						}
+					} else {
+						me.setStateTime(0f);
+						((Ape) me).setApe_animation(((Ape) me).getEXPAnimation());
+					}
 				}
 			} else if (me instanceof HealthPack) {
 				batch.draw(me.getTexture(), me.getX(), me.getY());
@@ -248,9 +269,10 @@ public class LevelRenderer {
 				}
 			} else if (me instanceof TimePack) {
 				batch.draw(me.getTexture(), me.getX(), me.getY());
-				Gdx.app.log(RipGame.LOG, "Timepack draw");
+				//Gdx.app.log(RipGame.LOG, "Timepack draw");
 				if (((TimePack) me).collides(player)) {
 					timepacks.remove(me);
+					drawables.remove(me);
 				}
 			} else if (me instanceof Lucy) {
 				batch.draw(me.getCurrentFrame(), me.getX(), me.getY());
@@ -259,7 +281,7 @@ public class LevelRenderer {
 				//sr.rect(((Lucy) me).leftHitableBox.x, ((Lucy) me).leftHitableBox.y, ((Lucy) me).leftHitableBox.width, ((Lucy) me).leftHitableBox.height);
 				sr.rect(((Lucy) me).leftAttackBox.x, ((Lucy) me).leftAttackBox.y, ((Lucy) me).leftAttackBox.width, ((Lucy) me).leftAttackBox.height);
 				sr.rect(((Lucy) me).rightAttackBox.x, ((Lucy) me).rightAttackBox.y, ((Lucy) me).rightAttackBox.width, ((Lucy) me).rightAttackBox.height);
-				if (((Lucy) me).waiting || ((!this.frozen) && !((Lucy) me).not_moving)) {
+				if (((Lucy) me).waiting || ((!this.frozen) && !((Lucy) me).not_moving) || ((Lucy) me).isFallen()) {
 					((Lucy) me).setCurrentFrame(delta);
 				}
 				if (((Lucy) me).attacking) {
@@ -267,11 +289,18 @@ public class LevelRenderer {
 				}
 				if (((Lucy) me).attacking && 
 							((Lucy) me).getLucy_animation().isAnimationFinished(me.getStateTime())) {
-					//Gdx.app.log(RipGame.LOG, "Lucy Attack End");
-					//player.setHealth(player.getHealth() - ((Ape) me).getDamage());
 					((Lucy) me).attacking = false;
 					me.setStateTime(0);
 					((Lucy) me).revertPosition();
+				} if (((Lucy) me).getHealth() <= 0) {
+					if (((Lucy) me).getLucy_animation() == ((Lucy) me).getEXPAnimation()) {
+						if (((Lucy) me).getLucy_animation().isAnimationFinished(me.getStateTime())) {
+							((Lucy) me).dead = true;
+						}
+					} else {
+						me.setStateTime(0f);
+						((Lucy) me).setLucy_animation(((Lucy) me).getEXPAnimation());
+					}
 				}
 				
 			} else {

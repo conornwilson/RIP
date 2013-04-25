@@ -27,8 +27,10 @@ public class TimePack extends MovableEntity{
 			//p.setHealth(p.getHealth() + this.health_increase);
 			p.setTime(p.getTime() + this.time_increase);
 			pickup.play();
-			Sound v = this.getRandomVocal_sounds();
-			v.play(1.0f);
+			if ((float) Math.random() >= .5) {
+				Sound v = this.getRandomVocal_sounds();
+				v.play(1.0f);
+			}
 			return true;
 		} else {
 			return false;

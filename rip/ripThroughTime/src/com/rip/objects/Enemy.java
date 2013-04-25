@@ -6,6 +6,8 @@ import java.util.Random;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Rectangle;
 import com.rip.RipGame;
@@ -22,6 +24,8 @@ public abstract class Enemy extends MovableEntity {
 	public boolean attacking = false;
 	float attack_chance;
 	float initiate_attack_chance;
+	
+	public boolean dead = false;
 	
 	protected float totalHealth;
 	
@@ -49,6 +53,15 @@ public abstract class Enemy extends MovableEntity {
 	boolean Collides_Right = false;
 	boolean Collides_Up = false;
 	boolean Collides_down = false;
+	
+	//Explosion Animation
+	private static final int EXP_COLS = 3;
+	private static final int EXP_ROWS = 1;
+	
+	protected Animation EXPAnimation;
+	protected Texture EXPSheet;
+	protected TextureRegion[] EXPFrames;
+	protected TextureRegion currentEXPFrame;
 
 	
 	public Enemy(int x, int y, float width, float height, Texture texture,
@@ -58,6 +71,7 @@ public abstract class Enemy extends MovableEntity {
 		collides_player = false;
 		make_flanks();
 		make_drop();
+		make_expanimation();
 		//hitableBox = new Rectangle(x, y, width, height);
 	}
 	
@@ -67,7 +81,29 @@ public abstract class Enemy extends MovableEntity {
 		collides_player = false;
 		make_flanks();
 		make_drop();
+		make_expanimation();
 		//hitableBox = new Rectangle(x, y, width, height);
+	}
+	
+	public void make_expanimation() {
+		int index;
+
+		//Initiate EXP Animation
+		TextureRegion temp;
+		EXPSheet = new Texture(Gdx.files.internal("data/explosion.png"));
+		TextureRegion[][] tmpe = TextureRegion.split(EXPSheet, EXPSheet.getWidth() / EXP_COLS, EXPSheet.getHeight() / EXP_ROWS);
+		EXPFrames = new TextureRegion[EXP_COLS * EXP_ROWS];
+		index = 0;
+		for (int i = 0; i < EXP_ROWS; i++) {
+			for (int j = 0; j < EXP_COLS; j++) {
+				temp = tmpe[i][j];
+				EXPFrames[index] = temp;
+				//EXPFramesLeft[index] = temp;
+				index++;
+			}
+		}
+		
+		EXPAnimation = new Animation(0.08f, EXPFrames);
 	}
 
 	public void make_drop() {
@@ -148,21 +184,27 @@ public abstract class Enemy extends MovableEntity {
 	}
 	
 	public void track(Player p, ArrayList<Enemy> e) {
+		
+		if (this.getHealth() <= 0) {
+			return;
+		}
 
 		if (backtrack) {
 			backtrack();
 			//Gdx.app.log(RipGame.LOG, "backtrack started . . .");
 			return;
 		}
+		
+		int breakChance = r.nextInt(25);
+		if (breakChance == 1 && this.health <= this.totalHealth / 2) {
+			backtrack = true;
+			btX = -1;
+			btY = -1;
+		}
 
 		if (this.attacking) {
 			//Gdx.app.log(RipGame.LOG, "attacking");
-			int breakChance = r.nextInt(5);
-			if (breakChance == 1 && this.health <= this.totalHealth / 2) {
-				backtrack = true;
-				btX = -1;
-				btY = -1;
-			}
+			
 			if (backtrack && btX == -1 && btY == -1) {
 				if (dir == Directions.DIR_RIGHT) {
 					btX = p.getX() - (r.nextInt(800 - 500) + 500);
@@ -228,53 +270,15 @@ public abstract class Enemy extends MovableEntity {
 		}
 	}
 
+	
+	public Animation getEXPAnimation() {
+		return EXPAnimation;
+	}
 
-	
-	/*
-	public void track(Player p, ArrayList<Enemy> e) {
-		
-		if (this.attacking) {
-			Gdx.app.log(RipGame.LOG, "attacking");
-			return;
-		}
-		
-		//Gdx.app.log(RipGame.LOG, "track");
-		update_collisions(e);
-		if (this.collides_player) {
-			Gdx.app.log(RipGame.LOG, "collides player");
-			this.initiate_attack_chance = (float) Math.random();
-			if (this.initiate_attack_chance >= 0.5f) {
-				this.attack(p, e);
-			}
-			this.initiate_attack_chance = 0f;
-			return;
-		} 
-		if ((p.getY() > this.y) && !(this.Collides_Up)) {
-			direct_movement(p);
-		} else if (p.getY() > this.y) {
-			if (!(this.Collides_down)) {
-				flank(p);
-			} else {
-				return;
-			}
-		}
-		// If enemy can go directly at player, do so
-		else if ((p.getX() < this.x) && !(this.Collides_Left)) {
-			direct_movement(p);
-		// If enemy can go directly at player, do so
-		} else if ((p.getX() > this.x) && !(this.Collides_Right)) {
-			direct_movement(p);
-		// If down is not blocked, flank
-		} else if (!(this.Collides_down)) {
-			flank(p);
-		// Else, stay still
-		} else {
-			//Gdx.app.log(RipGame.LOG, "else");
-			return;
-		}
-		return;
-	} */
-	
+	public void setEXPAnimation(Animation eXPAnimation) {
+		EXPAnimation = eXPAnimation;
+	}
+
 	public void update_collisions(ArrayList<Enemy> e) {
 		this.Collides_down = false;
 		this.Collides_Left = false;

@@ -130,7 +130,7 @@ public class SuperApe extends Ape {
 			} else if ((this.dir == Directions.DIR_RIGHT) && !(ape_animation == attackAnimationRight)) {
 				ape_animation = attackAnimationRight;
 			}
-		} else  {
+		} else if (this.getHealth() > 0) {
 			 if ((this.dir == Directions.DIR_LEFT) && !(ape_animation == walkAnimationLeft)) {
 				ape_animation = walkAnimationLeft;
 			} else if ((this.dir == Directions.DIR_RIGHT) && !(ape_animation == walkAnimationRight)) {
@@ -139,7 +139,8 @@ public class SuperApe extends Ape {
 		}
 		//this.currentFrame = player_animation.getKeyFrame(stateTime, true);
 		if (this.ape_animation == this.attackAnimationLeft ||
-				this.ape_animation == this.attackAnimationRight) {
+				this.ape_animation == this.attackAnimationRight ||
+				this.ape_animation == this.EXPAnimation) {
 			Gdx.app.log(RipGame.LOG, "setAttack");
 			this.currentFrame = this.ape_animation.getKeyFrame(this.stateTime, false);
 		} else { 

@@ -60,15 +60,15 @@ public abstract class Level {
 	//////////HUD OBJECTS//////////
 	
 	public Texture timeFreezeOverlay = new Texture(Gdx.files.internal("data/timeFreezeOverlay.png"));
-	public Texture level_complete = new Texture(Gdx.files.internal("data/level_complete.png"));
+	public Texture level_complete = new Texture(Gdx.files.internal("data/end.png"));
 	public Texture deadOverlay = new Texture(Gdx.files.internal("data/dead.png"));
+	public Texture pauseOverlay = new Texture(Gdx.files.internal("data/pause.png"));
 	Texture timebaroutline = new Texture(Gdx.files.internal("data/timebaroutline.png"));
 	Texture timebaroutlineWhite = new Texture(Gdx.files.internal("data/timebaroutlineWhite.png"));
 	Texture timebar = new Texture(Gdx.files.internal("data/timebar.png"));
 	Texture healthbaroutline = new Texture(Gdx.files.internal("data/healthbaroutline.png"));
 	Texture healthbaroutlineWhite = new Texture(Gdx.files.internal("data/healthbaroutlineWhite.png"));
 	Texture healthbar = new Texture(Gdx.files.internal("data/healthbar.png"));
-	Texture pauseOverlay = new Texture(Gdx.files.internal("data/pauseOverlay.png"));
 	Texture timeFreezeLine = new Texture(Gdx.files.internal("data/timeLine.png"));
 	BitmapFont font = new BitmapFont(Gdx.files.internal("data/arcadeFontBlack18.fnt"),false);
 	BitmapFont fontBig = new BitmapFont(Gdx.files.internal("data/arcadeFontBlack32.fnt"),false);
@@ -238,28 +238,7 @@ public abstract class Level {
 			}
 
 		}
-		/*
-		int buffer = 200;
-		Random r = new Random();
-		int rightside;
-		int leftside;
-		boolean lr;
-		
-		for (int i = 0; i < num; i++) {
-		lr = r.nextBoolean();
-			if (lr) {
-			rightside = LevelRenderer.camPos + RipGame.WIDTH;
-			Ape ape = new Ape(LevelRenderer.camPos + RipGame.WIDTH + buffer, r.nextInt(LevelRenderer.Y_LIMIT));
-			ape.spawnPoint = true;
-			LevelRenderer.enemy_list.add(ape);
-			buffer += 200;
-			} else {
-			leftside = LevelRenderer.camPos;
-			LevelRenderer.enemy_list.add(new Ape(LevelRenderer.camPos - buffer, r.nextInt(LevelRenderer.Y_LIMIT)));
-			buffer += 200;
-			}
-		}
-		*/
+
 	}
 
 	public void spawnSuperApe(int num) {
@@ -321,28 +300,7 @@ public abstract class Level {
 			}
 
 		}
-		/*
-		int buffer = 200;
-		Random r = new Random();
-		int rightside;
-		int leftside;
-		boolean lr;
-		
-		for (int i = 0; i < num; i++) {
-			lr = r.nextBoolean();
-			if (lr) {
-			rightside = LevelRenderer.camPos + RipGame.WIDTH;
-			SuperApe ape = new SuperApe(LevelRenderer.camPos + RipGame.WIDTH + buffer, r.nextInt(LevelRenderer.Y_LIMIT));
-			ape.spawnPoint = true;
-			LevelRenderer.enemy_list.add(ape);
-			buffer += 200;
-			} else {
-			leftside = LevelRenderer.camPos;
-			LevelRenderer.enemy_list.add(new SuperApe(LevelRenderer.camPos - buffer, r.nextInt(LevelRenderer.Y_LIMIT)));
-			buffer += 200;
-			}
-		}
-		*/
+
 	}
 
 	public void spawnRedRaptor(int num) {
@@ -404,28 +362,7 @@ public abstract class Level {
 			}
 
 		}
-		/*
-		int buffer = 200;
-		Random r = new Random();
-		int rightside;
-		int leftside;
-		boolean lr;
 		
-		for (int i = 0; i < num; i++) {
-			lr = r.nextBoolean();
-			if (lr) {
-			rightside = LevelRenderer.camPos + RipGame.WIDTH;
-			RedRaptor raptor = new RedRaptor(LevelRenderer.camPos + RipGame.WIDTH + buffer, r.nextInt(LevelRenderer.Y_LIMIT));
-			raptor.spawnPoint = true;
-			LevelRenderer.enemy_list.add(raptor);
-			buffer += 200;
-			} else {
-			leftside = LevelRenderer.camPos;
-			LevelRenderer.enemy_list.add(new RedRaptor(LevelRenderer.camPos - buffer, r.nextInt(LevelRenderer.Y_LIMIT)));
-			buffer += 200;
-			}
-		}
-		*/
 	}
 
 	public void spawnGoldenRaptor() {
@@ -492,29 +429,7 @@ public abstract class Level {
 			}
 
 		}
-		/*
-		int buffer = 200;
-		Random r = new Random();
-		int rightside;
-		int leftside;
-		boolean lr;
-		
-		for (int i = 0; i < num; i++) {
-			lr = r.nextBoolean();
-			if (lr) {
-			rightside = LevelRenderer.camPos + RipGame.WIDTH;
-			Raptor raptor = new Raptor(LevelRenderer.camPos + RipGame.WIDTH + buffer, r.nextInt(LevelRenderer.Y_LIMIT));
-			raptor.spawnPoint = true;
-			LevelRenderer.enemy_list.add(raptor);
-			buffer += 200;
-			
-			} else {
-			leftside = LevelRenderer.camPos;
-			LevelRenderer.enemy_list.add(new Raptor(LevelRenderer.camPos - buffer , r.nextInt(LevelRenderer.Y_LIMIT)));
-			buffer += 200;
-			}
-		} 
-		*/
+	
 	}
 
 	public void createPauseMenu() {
@@ -593,70 +508,6 @@ public abstract class Level {
 		}
 	}
 	
-	/*
-	public int[] checkPoint(int numOfEnemiesRap, int numOfEnemiesApe) {
-		Random r = new Random();
-		int rightside;
-		int leftside;
-		boolean lr;
-		int x;
-		int y;
-		int xmin_right, xmax_right, xmin_left, xmax_left;
-		int ymin, ymax;
-		
-		//avoid initiating with overlap
-		ymax = LevelRenderer.Y_LIMIT;
-		ymin = LevelRenderer.Y_LIMIT - 87;
-		
-		xmin_right = LevelRenderer.camPos + RipGame.WIDTH + 100;
-		xmax_right = xmin_right + 224;
-		
-		xmax_left = LevelRenderer.camPos - 100;
-		xmin_left = xmax_left - 224;
-		
-		for (int i = 0; i < numOfEnemiesRap; i++) {
-			lr = r.nextBoolean();
-			if (lr) {
-				rightside = LevelRenderer.camPos + RipGame.WIDTH;
-				x = generateXY(xmin_right, xmax_right);
-				y = generateXY(ymin, ymax);
-				
-				ymin -= 87;
-				ymax -= 87;
-				
-				if (ymax <= LevelRenderer.Y_LIMIT - 300) {
-					ymax = LevelRenderer.Y_LIMIT;
-					ymin = LevelRenderer.Y_LIMIT - 87;
-				}
-				
-				xmax_right += 224;
-				xmin_right += 224;
-				
-				enemies.add(new Raptor(x, y));
-			} else {
-				leftside = LevelRenderer.camPos;
-				x = generateXY(xmin_right, xmax_right);
-				y = generateXY(ymin, ymax);
-				
-				ymin -= 87;
-				ymax -= 87;
-				
-				if (ymax <= LevelRenderer.Y_LIMIT - 300) {
-					ymax = LevelRenderer.Y_LIMIT;
-					ymin = LevelRenderer.Y_LIMIT - 87;
-				}
-				
-				xmax_left -= 224;
-				xmin_left -= 224;
-				enemies.add(new Raptor(x, y));
-				
-			}
-
-		}
-	}
-
-	*/
-	
 	
 	public int generateXY(int min, int max) {
 		//Min + (int)(Math.random() * ((Max - Min) + 1))
@@ -699,56 +550,4 @@ public abstract class Level {
 	}
 
 }
-
-
-
-
-
-
-
-
-
-/*
-package com.rip.levels;
-
-import renderers.LevelRender;
-//import com.badlogic.gdx.Gdx;
-import com.rip.RipGame;
-import com.rip.objects.Player;
-
-public abstract class Level {
-
-	
-	RipGame game;
-	Player player;
-	LevelRender lr;
-		
-	public Level(RipGame game, Player player) {
-			this.game = game;
-			this.player = player;
-//			Gdx.input.setInputProcessor(new InputHandler(this));
-	}
-		
-	public Player getPlayer(){
-		return player;
-	}
-	
-	public void update() {
-		player.update();
-	}
-
-	public void setRenderer(LevelRender lr) {
-		this.lr = lr;
-	}
-	
-	public LevelRender getRenderer() {
-		return lr;
-	}
-	
-	public void dispose() {
-		
-	}	
-	
-}
-*/
 

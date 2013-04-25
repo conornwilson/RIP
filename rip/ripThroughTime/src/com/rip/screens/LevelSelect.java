@@ -5,6 +5,7 @@ import renderers.LevelRenderer;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL10;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
@@ -32,6 +33,7 @@ public class LevelSelect implements Screen {
 	TextButton level1_4Button;
 	TextButton level1_5Button;
 	TextButton returnButton;
+	Texture title = new Texture(Gdx.files.internal("data/levelselect.png"));
 
 	public LevelSelect(RipGame game) {
 		this.game = game;
@@ -47,8 +49,10 @@ public class LevelSelect implements Screen {
 		stage.act(delta);
 
 		batch.begin();
-			stage.draw();
+			batch.draw(title, 0, 0);
 		batch.end();
+		
+		stage.draw();
 
 	}
 

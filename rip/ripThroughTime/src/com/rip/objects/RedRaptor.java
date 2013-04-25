@@ -80,7 +80,7 @@ public class RedRaptor extends MidLevelEnemy {
 		walkAnimationLeft = new Animation(0.075f, walkFramesLeft);
 		
 		//Initiate Attack Animation
-		attackSheet = new Texture(Gdx.files.internal("data/red_raptor_bite.png"));
+		attackSheet = new Texture(Gdx.files.internal("data/red_raptor_bite .png"));
 		TextureRegion[][] tmpaRight = TextureRegion.split(attackSheet, attackSheet.getWidth() / ATTACK_COLS, attackSheet.getHeight() / ATTACK_ROWS);
 		TextureRegion[][] tmpaLeft = TextureRegion.split(attackSheet, attackSheet.getWidth() / ATTACK_COLS, attackSheet.getHeight() / ATTACK_ROWS);
 		attackFramesRight = new TextureRegion[ATTACK_COLS * ATTACK_ROWS];
@@ -123,7 +123,7 @@ public class RedRaptor extends MidLevelEnemy {
 			} else if ((this.dir == Directions.DIR_RIGHT) && !(raptor_animation == attackAnimationRight)) {
 				raptor_animation = attackAnimationRight;
 			}
-		} else  {
+		} else if (this.getHealth() > 0) {
 			 if ((this.dir == Directions.DIR_LEFT) && !(raptor_animation == walkAnimationLeft)) {
 				raptor_animation = walkAnimationLeft;
 			} else if ((this.dir == Directions.DIR_RIGHT) && !(raptor_animation == walkAnimationRight)) {
@@ -132,7 +132,8 @@ public class RedRaptor extends MidLevelEnemy {
 		}
 		//this.currentFrame = player_animation.getKeyFrame(stateTime, true);
 		if (this.raptor_animation == this.attackAnimationLeft ||
-				this.raptor_animation == this.attackAnimationRight) {
+				this.raptor_animation == this.attackAnimationRight ||
+				this.raptor_animation == this.EXPAnimation) {
 			Gdx.app.log(RipGame.LOG, "setAttack");
 			this.currentFrame = this.raptor_animation.getKeyFrame(this.stateTime, false);
 		} else { 

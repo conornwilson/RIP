@@ -8,14 +8,14 @@ public abstract class MidLevelEnemy extends Enemy {
 			Texture texture, int SPEED) {
 		super(x, y, width, height, texture, SPEED, 45);
 
-		this.health = 45;
+		this.health = 35;
 		this.damage = 15;
 	}
 	
 	public MidLevelEnemy(int x, int y, float width, float height, int SPEED) {
 		super(x, y, width, height, SPEED, 45);
 		
-		this.health = 45;
+		this.health = 35;
 		this.damage = 15;
 	}
 

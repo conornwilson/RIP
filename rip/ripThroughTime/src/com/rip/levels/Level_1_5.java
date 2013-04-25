@@ -31,7 +31,7 @@ public class Level_1_5 extends Level {
 
 	BackgroundObject sk1, sk2;
 	
-	boolean checkPoint1, checkPoint2 = false;
+	boolean checkPoint1, checkPoint2, levelComplete = false;
 	float volume = 1.0f;
 
 	Array<BackgroundObject> grounds = new Array<BackgroundObject>(100);
@@ -55,43 +55,54 @@ public class Level_1_5 extends Level {
 
 	@Override
 	public void handleCheckPoints(LevelRenderer lr) {
-		if (getEnemies().isEmpty() && LevelRenderer.move == false && LevelRenderer.camPos < 11500) {
-			LevelRenderer.move = true;
-		}
+		if (levelComplete && this.getEnemies().size() == 0) {
 
-		if (LevelRenderer.camPos >= 1500 && checkPoint2 == false) {
-			
-			LevelRenderer.player.scripted = true;
-			Gdx.app.log(RipGame.LOG, "checkpoint2");
-			if (LevelRenderer.camPos >= (LevelRenderer.player.getX() - 20) && !this.checkPoint1) {
-				this.checkPoint1 = true;
-				//set player to waiting
-				LevelRenderer.move = false;
-				LevelRenderer.setAdditional_theme1(this.additional_theme1);
-				LevelRenderer.getAdditional_theme1().setVolume(1.0f);
-				LevelRenderer.getAdditional_theme1().play();
-				//this.leveltheme.play();
-				LevelRenderer.getAdditional_theme1().setLooping(false);
-				generateLucy();
-			} else if (LevelRenderer.camPos >= (LevelRenderer.player.getX() - 20)) {
-				if (!(LevelRenderer.getAdditional_theme1().isPlaying())) {
-					LevelRenderer.getAdditional_theme1().stop();
-					LevelRenderer.getAdditional_theme1().dispose();
-					LevelRenderer.setLeveltheme(this.additional_theme2);
-					LevelRenderer.getLeveltheme().play();
-					LevelRenderer.getLeveltheme().setLooping(true);
-					this.checkPoint2 = true;
-					this.lucy.intro = false;
-					this.lucy.waiting = false;
-					LevelRenderer.player.scripted = false;
+			this.end = true;
+			LevelRenderer.move = false;
+			Gdx.app.log(RipGame.LOG, "End level 1_5");
+		} else {
+
+			if (getEnemies().isEmpty() && LevelRenderer.move == false && LevelRenderer.camPos < 11500) {
+				LevelRenderer.move = true;
+			}
+
+			if (LevelRenderer.camPos >= 1500 && checkPoint2 == false) {
+
+				LevelRenderer.player.scripted = true;
+
+				if (LevelRenderer.camPos >= (LevelRenderer.player.getX() - 20) && !this.checkPoint1) {
+					Gdx.app.log(RipGame.LOG, "levelcomplete");
+					this.checkPoint1 = true;
+					//set player to waiting
+					LevelRenderer.move = false;
+					LevelRenderer.setAdditional_theme1(this.additional_theme1);
+					LevelRenderer.getAdditional_theme1().setVolume(1.0f);
+					LevelRenderer.getAdditional_theme1().play();
+					//this.leveltheme.play();
+					LevelRenderer.getAdditional_theme1().setLooping(false);
+					generateLucy();
+					levelComplete = true;
+				} else if (LevelRenderer.camPos >= (LevelRenderer.player.getX() - 20)) {
+					if (!(LevelRenderer.getAdditional_theme1().isPlaying())) {
+						LevelRenderer.getAdditional_theme1().stop();
+						LevelRenderer.getAdditional_theme1().dispose();
+						LevelRenderer.setLeveltheme(this.additional_theme2);
+						LevelRenderer.getLeveltheme().play();
+						LevelRenderer.getLeveltheme().setLooping(true);
+						this.checkPoint2 = true;
+						this.lucy.intro = false;
+						this.lucy.waiting = false;
+						LevelRenderer.player.scripted = false;
+					}
+
+				} else {
+					LevelRenderer.cam.translate(3, 0);
+					LevelRenderer.camPos += 3;
+					this.parallax();
 				}
-			} else {
-				LevelRenderer.cam.translate(3, 0);
-				LevelRenderer.camPos += 3;
-				this.parallax();
 			}
 		}
-		
+
 	}
 	
 	public void generateLucy() {

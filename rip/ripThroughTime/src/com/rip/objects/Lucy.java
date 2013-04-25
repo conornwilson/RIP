@@ -64,7 +64,7 @@ public class Lucy extends Enemy {
 	protected float stop_health;
 	
 	boolean has_been_seen = false;
-	boolean fallen = false;
+	private boolean fallen = false;
 	boolean has_fallen = false;
 	public boolean not_moving = false;
 	public boolean waiting = false;
@@ -110,7 +110,7 @@ public class Lucy extends Enemy {
 		astate = Attack_State.SWIPE;
 		this.setDir(dir.DIR_LEFT);
 		this.leftHitableBox = new Rectangle(this.x + 100, this.y, 120, this.height);
-		this.rightHitableBox  = new Rectangle(this.x + 100, this.y, 120, this.height);
+		this.rightHitableBox  = new Rectangle(this.x + 60, this.y, 120, this.height);
 		this.leftAttackBox = new Rectangle(this.x, this.y, (this.width / 2), this.height);
 		this.rightAttackBox = new Rectangle((this.x + (this.width / 2)), this.y, (this.width / 2), this.height);
 		Sound hs[] = {Gdx.audio.newSound(Gdx.files.internal("data/Lucy Grunt_01.wav")),
@@ -319,16 +319,12 @@ public class Lucy extends Enemy {
 		Gdx.app.log(RipGame.LOG, Integer.toString(this.x));
 		switch (this.dir) {
 		case DIR_LEFT:
-			//this.hitableBox.x += 50;
-			//this.leftAttackBox.x += 50;
-			//this.rightAttackBox.x += 50;
 			this.lucy_animation = this.waitAnimationLeft;
+			this.hitableBox = this.leftHitableBox;
 			break;
 		case DIR_RIGHT:
-			//this.hitableBox.x -= 50;
-			//this.leftAttackBox.x -= 50;
-			//this.rightAttackBox.x -= 50;
 			this.lucy_animation = this.waitAnimationRight;
+			this.hitableBox = this.rightHitableBox;
 			break;
 		default:
 			break;
@@ -420,7 +416,7 @@ public class Lucy extends Enemy {
 	
 	public void update_movements() {
 		
-		if (!this.fallen && this.getHealth() <= (this.stop_health - 20)) {
+		if (!this.isFallen() && this.getHealth() <= (this.stop_health - 20)) {
 			this.waiting = false;
 			switch (this.dir) {
 			case DIR_LEFT:
@@ -434,8 +430,9 @@ public class Lucy extends Enemy {
 			}
 		}
 		
-		if (this.fallen && (this.health > 20 && this.health <= 120)) {
-			this.fallen = false;
+		if (this.isFallen() && (this.health > 30 && this.health <= 150)) {
+			Gdx.app.log(RipGame.LOG, "Get back up!");
+			this.setFallen(false);
 			this.stateTime = 0f;
 			switch (this.dir) {
 			case DIR_LEFT:
@@ -458,12 +455,12 @@ public class Lucy extends Enemy {
 				Gdx.app.log(RipGame.LOG, "Intro");
 			}
 			
-			else if (this.fallen) {
+			else if (this.isFallen()) {
 				Gdx.app.log(RipGame.LOG, "Fallen");
 			}
-			else if ((this.health <= 150 && !this.has_fallen) || this.health <= 20) {
+			else if ((this.health <= 180 && !this.has_fallen) || this.health <= 30) {
 				Gdx.app.log(RipGame.LOG, "Fall");
-				this.fallen = true;
+				this.setFallen(true);
 				this.has_fallen = true;
 				this.astate = Attack_State.HIT;
 				this.stateTime = 0f;
@@ -533,10 +530,6 @@ public class Lucy extends Enemy {
 				//turn around
 			} else if (!this.waiting) {
 				this.not_moving = false;
-				Gdx.app.log(RipGame.LOG, "Moving Postion");
-				Gdx.app.log(RipGame.LOG, Integer.toString(this.x));
-				//Gdx.app.log(RipGame.LOG, "-20");
-				
 				this.setX(this.getX() + this.localSPEED);
 				this.leftAttackBox.x += this.localSPEED;
 				this.rightAttackBox.x += this.localSPEED;
@@ -578,10 +571,12 @@ public class Lucy extends Enemy {
 		switch(this.dir) {
 		case DIR_LEFT:
 			this.setDir(dir.DIR_RIGHT);
+			this.leftHitableBox = new Rectangle(this.x + 100, this.y, 120, this.height);
 			this.hitableBox = this.leftHitableBox;
 			break;
 		case DIR_RIGHT:
 			this.setDir(dir.DIR_LEFT);
+			this.rightHitableBox  = new Rectangle(this.x + 60, this.y, 120, this.height);
 			this.hitableBox = this.rightHitableBox;
 			break;
 		default:
@@ -601,7 +596,8 @@ public class Lucy extends Enemy {
 				this.lucy_animation == this.hitAnimationLeft ||
 				this.lucy_animation == this.hitAnimationRight ||
 				this.lucy_animation == this.fallAnimationLeft ||
-				this.lucy_animation == this.fallAnimationRight) {
+				this.lucy_animation == this.fallAnimationRight ||
+				this.lucy_animation == this.EXPAnimation) {
 			//Gdx.app.log(RipGame.LOG, "setAttack");
 			this.currentFrame = this.lucy_animation.getKeyFrame(this.stateTime, false);
 		} else {
@@ -647,10 +643,18 @@ public class Lucy extends Enemy {
 		this.bounds.x = x;
 		this.hitableBox.x = x + 100;
 		this.leftHitableBox.x = x + 100;
-		this.rightHitableBox.x = x + 100;
+		this.rightHitableBox.x = x + 60;
 		this.rightAttackBox.x = x + (this.width / 2);
 		this.leftAttackBox.x = x;
 		
+	}
+
+	public boolean isFallen() {
+		return fallen;
+	}
+
+	public void setFallen(boolean fallen) {
+		this.fallen = fallen;
 	}
 
 	
