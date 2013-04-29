@@ -5,6 +5,7 @@ import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Rectangle;
 import com.rip.RipGame;
 
 
@@ -43,6 +44,8 @@ public class RedRaptor extends MidLevelEnemy {
 				Gdx.audio.newSound(Gdx.files.internal("data/RapterGrunt_02.wav")),
 				Gdx.audio.newSound(Gdx.files.internal("data/RapterGrunt_03.wav"))};
 		this.hit_sounds = s;
+		this.hitableBox = new Rectangle(this.x + boxset, 
+				this.y + (height/3), (width * 0.7f), (height / 3));
 	}
 	
 	public void create_animations(){
@@ -130,6 +133,11 @@ public class RedRaptor extends MidLevelEnemy {
 				raptor_animation = walkAnimationRight;
 			}
 		}
+		else if (this.getHealth() <= 0 && this.exploding){
+			if  (!(raptor_animation == this.EXPAnimation)) {
+				raptor_animation = this.EXPAnimation;
+			}
+		}
 		//this.currentFrame = player_animation.getKeyFrame(stateTime, true);
 		if (this.raptor_animation == this.attackAnimationLeft ||
 				this.raptor_animation == this.attackAnimationRight ||
@@ -171,6 +179,13 @@ public class RedRaptor extends MidLevelEnemy {
 
 	public void setStateTime(float stateTime) {
 		this.stateTime = stateTime;
+	}
+	
+	public void dispose() {
+		this.walkSheet.dispose();
+		this.attackSheet.dispose();
+		
+		super.dispose();
 	}
 	
 	

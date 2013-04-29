@@ -58,7 +58,7 @@ public class SplashScreen implements Screen {
 		splashTexture1 = new Texture("data/hoosierGamesSplash.png");
 		splashTexture1.setFilter(TextureFilter.Linear, TextureFilter.Linear);
 		
-		splashTexture2 = new Texture("data/saturdayKnightsSplash.png");
+		splashTexture2 = new Texture("data/skLogo.png");
 		splashTexture2.setFilter(TextureFilter.Linear, TextureFilter.Linear);
 		
 		splashSprite1 = new Sprite(splashTexture1);

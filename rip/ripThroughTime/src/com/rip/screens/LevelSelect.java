@@ -15,6 +15,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton.TextButtonStyle;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.rip.RipGame;
 
 public class LevelSelect implements Screen {
@@ -77,31 +78,31 @@ public class LevelSelect implements Screen {
 		TutorialLevelButton.setX(535);
 		TutorialLevelButton.setY(325);
 
-		level1_1Button = new TextButton("Level1_1", style);
+		level1_1Button = new TextButton("Level 1", style);
 		level1_1Button.setWidth(250);
 		level1_1Button.setHeight(75);
 		level1_1Button.setX(410);
 		level1_1Button.setY(225);
 
-		level1_2Button = new TextButton("Level1_2", style);
+		level1_2Button = new TextButton("Level 2", style);
 		level1_2Button.setWidth(250);
 		level1_2Button.setHeight(75);
 		level1_2Button.setX(410);
 		level1_2Button.setY(125);
 
-		level1_3Button = new TextButton("Level1_3", style);
+		level1_3Button = new TextButton("Level 3", style);
 		level1_3Button.setWidth(250);
 		level1_3Button.setHeight(75);
 		level1_3Button.setX(410);
 		level1_3Button.setY(25);
 
-		level1_4Button = new TextButton("Level1_4", style);
+		level1_4Button = new TextButton("Level 4", style);
 		level1_4Button.setWidth(250);
 		level1_4Button.setHeight(75);
 		level1_4Button.setX(685);
 		level1_4Button.setY(225);
 
-		level1_5Button = new TextButton("Level1_5", style);
+		level1_5Button = new TextButton("Level 5", style);
 		level1_5Button.setWidth(250);
 		level1_5Button.setHeight(75);
 		level1_5Button.setX(685);
@@ -115,6 +116,16 @@ public class LevelSelect implements Screen {
 		
 		
 		TutorialLevelButton.addListener(new InputListener() {
+			public void enter (InputEvent event, float x, float y, int pointer, Actor formActor) {
+				TutorialLevelButton.setY(322);
+				TutorialLevelButton.setHeight(81);
+			}
+			
+			public void exit (InputEvent event, float x, float y, int pointer, Actor formActor) {
+				TutorialLevelButton.setY(325);
+				TutorialLevelButton.setHeight(75);
+			}
+			
 			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
 				return true;
 			}
@@ -129,6 +140,16 @@ public class LevelSelect implements Screen {
 		});
 
 		level1_1Button.addListener(new InputListener() {
+			public void enter (InputEvent event, float x, float y, int pointer, Actor formActor) {
+				level1_1Button.setY(222);
+				level1_1Button.setHeight(81);
+			}
+			
+			public void exit (InputEvent event, float x, float y, int pointer, Actor formActor) {
+				level1_1Button.setY(225);
+				level1_1Button.setHeight(75);
+			}
+			
 			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
 				return true;
 			}
@@ -137,12 +158,23 @@ public class LevelSelect implements Screen {
 				Gdx.app.log(RipGame.LOG, "Start Game: pushed");
 //				maintheme.stop();
 //				selectPlay.play();
-
+				
+				//game.setScreen(new Level_1_1Screen(game));
 				game.setScreen(new GameScreen(game, "level1_1"));
 			}
 		});
 
 		level1_2Button.addListener(new InputListener() {
+			public void enter (InputEvent event, float x, float y, int pointer, Actor formActor) {
+				level1_2Button.setY(122);
+				level1_2Button.setHeight(81);
+			}
+			
+			public void exit (InputEvent event, float x, float y, int pointer, Actor formActor) {
+				level1_2Button.setY(125);
+				level1_2Button.setHeight(75);
+			}
+			
 			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
 				return true;
 			}
@@ -157,6 +189,16 @@ public class LevelSelect implements Screen {
 		});
 
 		level1_3Button.addListener(new InputListener() {
+			public void enter (InputEvent event, float x, float y, int pointer, Actor formActor) {
+				level1_3Button.setY(22);
+				level1_3Button.setHeight(81);
+			}
+			
+			public void exit (InputEvent event, float x, float y, int pointer, Actor formActor) {
+				level1_3Button.setY(25);
+				level1_3Button.setHeight(75);
+			}
+			
 			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
 				return true;
 			}
@@ -171,6 +213,16 @@ public class LevelSelect implements Screen {
 		});
 
 		level1_4Button.addListener(new InputListener() {
+			public void enter (InputEvent event, float x, float y, int pointer, Actor formActor) {
+				level1_4Button.setY(222);
+				level1_4Button.setHeight(81);
+			}
+			
+			public void exit (InputEvent event, float x, float y, int pointer, Actor formActor) {
+				level1_4Button.setY(225);
+				level1_4Button.setHeight(75);
+			}
+			
 			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
 				return true;
 			}
@@ -185,6 +237,16 @@ public class LevelSelect implements Screen {
 		});
 
 		level1_5Button.addListener(new InputListener() {
+			public void enter (InputEvent event, float x, float y, int pointer, Actor formActor) {
+				level1_5Button.setY(122);
+				level1_5Button.setHeight(81);
+			}
+			
+			public void exit (InputEvent event, float x, float y, int pointer, Actor formActor) {
+				level1_5Button.setY(125);
+				level1_5Button.setHeight(75);
+			}
+			
 			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
 				return true;
 			}
@@ -199,6 +261,16 @@ public class LevelSelect implements Screen {
 		});
 
 		returnButton.addListener(new InputListener() {
+			public void enter (InputEvent event, float x, float y, int pointer, Actor formActor) {
+				returnButton.setY(22);
+				returnButton.setHeight(81);
+			}
+			
+			public void exit (InputEvent event, float x, float y, int pointer, Actor formActor) {
+				returnButton.setY(25);
+				returnButton.setHeight(75);
+			}
+			
 			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
 				return true;
 			}
@@ -235,6 +307,7 @@ public class LevelSelect implements Screen {
 	@Override
 	public void hide() {
 		// TODO Auto-generated method stub
+		this.dispose();
 
 	}
 
@@ -258,6 +331,7 @@ public class LevelSelect implements Screen {
 		white.dispose();
 		black.dispose();
 		stage.dispose();
+		title.dispose();
 
 	}
 

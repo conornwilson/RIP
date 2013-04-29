@@ -137,6 +137,11 @@ public class SuperApe extends Ape {
 				ape_animation = walkAnimationRight;
 			}
 		}
+		else if (this.getHealth() <= 0 && this.exploding){
+			if  (!(ape_animation == this.EXPAnimation)) {
+				ape_animation = this.EXPAnimation;
+			}
+		}
 		//this.currentFrame = player_animation.getKeyFrame(stateTime, true);
 		if (this.ape_animation == this.attackAnimationLeft ||
 				this.ape_animation == this.attackAnimationRight ||
@@ -167,6 +172,13 @@ public class SuperApe extends Ape {
 
 	public void setApe_animation(Animation ape_animation) {
 		this.ape_animation = ape_animation;
+	}
+	
+	public void dispose() {
+		this.walkSheet.dispose();
+		this.attackSheet.dispose();
+		
+		super.dispose();
 	}
 	
 	

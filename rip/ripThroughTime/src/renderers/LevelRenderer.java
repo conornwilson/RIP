@@ -18,20 +18,24 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.rip.RipGame;
 import com.rip.levels.Level;
+import com.rip.levels.Level_1_1;
+import com.rip.levels.Level_1_2;
 import com.rip.objects.Ape;
 import com.rip.objects.Enemy;
+import com.rip.objects.GoldenRaptor;
 import com.rip.objects.HealthPack;
 import com.rip.objects.Lucy;
 import com.rip.objects.MovableEntity;
 import com.rip.objects.Player;
 import com.rip.objects.Raptor;
+import com.rip.objects.RedRaptor;
 import com.rip.objects.TimePack;
 
 public class LevelRenderer {
 	//////////UNIVERSAL VARIABLES//////////
 	public static Level level;
 	public static SpriteBatch batch;
-	private static Music leveltheme, additional_theme1, additional_theme2;
+	private static Music leveltheme, additional_theme1, additional_theme2, beatlevel;
 	RipGame game;
 	public static ShapeRenderer sr;
 	public static Player player;
@@ -64,6 +68,7 @@ public class LevelRenderer {
 	Texture playerTexture;
 
 	public LevelRenderer() {
+		Gdx.app.log(RipGame.LOG, "New Level Renderer");
 		width = 960;
 		height = 480;
 
@@ -72,13 +77,14 @@ public class LevelRenderer {
 
 		batch = new SpriteBatch();
 
-		sr = new ShapeRenderer();
+		//sr = new ShapeRenderer();
 
 		drawables = new ArrayList<MovableEntity>();
 		warp = Gdx.audio.newSound(Gdx.files.internal("data/Time Warp_01.wav"));
 	}
 
 	public LevelRenderer(Level level) {
+		Gdx.app.log(RipGame.LOG, "New Level Renderer");
 		this.level = level;
 		level.setRenderer(this);
 
@@ -90,14 +96,14 @@ public class LevelRenderer {
 
 		batch = new SpriteBatch();
 
-		sr = new ShapeRenderer();
+		// = new ShapeRenderer();
 
 		drawables = new ArrayList<MovableEntity>();
 		game = level.game;
 
 		level.generateBackground();
 		
-		// place holder for real sound effects - must be 16bit
+		
 		warp = Gdx.audio.newSound(Gdx.files.internal("data/Time Warp_01.wav"));
 		
 		if (level.additional_theme1 != null) {
@@ -109,6 +115,10 @@ public class LevelRenderer {
 		if (level.leveltheme != null) {
 			LevelRenderer.setLeveltheme(level.getLeveltheme());
 			getLeveltheme().play();
+		}
+		
+		if (level.beatlevel != null) {
+			LevelRenderer.setBeatlevel(level.beatlevel);
 		}
 		
 	}
@@ -124,6 +134,22 @@ public class LevelRenderer {
 
 		player = level.getPlayer();
 		enemy_list = level.getEnemies();
+		
+		/*
+		for (int i = 0; i < this.enemy_list.size(); i++) {
+			Enemy e = this.enemy_list.get(i);
+			if (e.dead == true)	{
+
+				level.getEnemies().remove(i);
+				if (e.HealthDrop) {
+					HealthPack hp = e.getHealthDrop();
+					//this.drawables.add(hp);
+					this.healthpacks.add(hp);
+				}
+				//this.drawables.remove(e);
+			}
+		} 
+		*/
 		drawables.add(player);
 		drawables.addAll(healthpacks);
 		drawables.addAll(timepacks);
@@ -137,14 +163,16 @@ public class LevelRenderer {
 				return a.getY() >= b.getY() ? -1 : 1;
 			}
 		});
+		
 
 		cam.update();
 
 		batch.setProjectionMatrix(cam.combined);
-		sr.setProjectionMatrix(cam.combined);
+		//sr.setProjectionMatrix(cam.combined);
 
 		batch.begin();
-		sr.begin(ShapeType.Rectangle);
+		Gdx.app.log(RipGame.LOG, "Batch Begin");
+		//sr.begin(ShapeType.Rectangle);
 
 		level.drawBackground(batch);
 
@@ -179,14 +207,15 @@ public class LevelRenderer {
 		}
 		
 		if (player.dead) {
+			this.getLeveltheme().stop();
 			batch.draw(level.deadOverlay, camPos, 0);
 		}
 
 		drawables.clear();
-		level.checkPause();
+		//level.checkPause();
 
 		batch.end();
-		sr.end();
+		//sr.end();
 
 	}
 
@@ -196,8 +225,8 @@ public class LevelRenderer {
 			//sr.rect(me.hitableBox.x, me.hitableBox.y, me.hitableBox.width, me.hitableBox.height);
 			if ((me instanceof Player) && player.getTimeFreeze() == false){
 				batch.draw(me.getCurrentFrame(), me.getX(), me.getY());
-				sr.rect(player.punchBoxLeft.x, player.punchBoxLeft.y, player.punchBoxLeft.width, player.punchBoxLeft.height);
-				sr.rect(player.punchBoxRight.x, player.punchBoxRight.y, player.punchBoxRight.width, player.punchBoxRight.height);
+				//sr.rect(player.punchBoxLeft.x, player.punchBoxLeft.y, player.punchBoxLeft.width, player.punchBoxLeft.height);
+				//sr.rect(player.punchBoxRight.x, player.punchBoxRight.y, player.punchBoxRight.width, player.punchBoxRight.height);
 			} else if (me instanceof Raptor){
 				batch.draw(me.getCurrentFrame(), me.getX(), me.getY());
 				if (!this.frozen) {
@@ -226,14 +255,88 @@ public class LevelRenderer {
 								((Raptor) me).dead = true;
 							}
 						} else {
+							((Raptor) me).exploding = true;
+							((Raptor) me).attacking = false;
 							me.setStateTime(0f);
 							((Raptor) me).setRaptor_animation(((Raptor) me).getEXPAnimation());
+						}
+					}
+				 
+			} else if (me instanceof RedRaptor){
+				batch.draw(me.getCurrentFrame(), me.getX(), me.getY());
+				if (!this.frozen) {
+					((RedRaptor) me).setCurrentFrame(delta);
+				}
+				if (((RedRaptor) me).attacking && 
+							((RedRaptor) me).getRaptor_animation().isAnimationFinished(me.getStateTime())) {
+					//Gdx.app.log(RipGame.LOG, "Attack End");
+					//player.setHealth(player.getHealth() - ((Raptor) me).getDamage());
+					((RedRaptor) me).attacking = false;
+					me.setStateTime(0);
+					switch (me.getDir()) {
+					case DIR_LEFT:
+						((RedRaptor) me).setRaptor_animation(((RedRaptor) me).getWalkAnimationLeft());
+						break;
+					case DIR_RIGHT:
+						((RedRaptor) me).setRaptor_animation(((RedRaptor) me).getWalkAnimationRight());
+						break;
+					default:
+						break;
+					}
+				}
+				 if (((RedRaptor) me).getHealth() <= 0) {
+						if (((RedRaptor) me).getRaptor_animation() == ((RedRaptor) me).getEXPAnimation()) {
+							if (((RedRaptor) me).getRaptor_animation().isAnimationFinished(me.getStateTime())) {
+								((RedRaptor) me).dead = true;
+							}
+						} else {
+							((RedRaptor) me).attacking = false;
+							((RedRaptor) me).exploding = true;
+							me.setStateTime(0f);
+							((RedRaptor) me).setRaptor_animation(((RedRaptor) me).getEXPAnimation());
+						}
+					}
+				 
+			} else if (me instanceof GoldenRaptor){
+				batch.draw(me.getCurrentFrame(), me.getX(), me.getY());
+				if (!this.frozen) {
+					((GoldenRaptor) me).setCurrentFrame(delta);
+				}
+				if (((GoldenRaptor) me).attacking && 
+							((GoldenRaptor) me).getRaptor_animation().isAnimationFinished(me.getStateTime())) {
+					//Gdx.app.log(RipGame.LOG, "Attack End");
+					//player.setHealth(player.getHealth() - ((Raptor) me).getDamage());
+					((GoldenRaptor) me).attacking = false;
+					me.setStateTime(0);
+					switch (me.getDir()) {
+					case DIR_LEFT:
+						((GoldenRaptor) me).setRaptor_animation(((GoldenRaptor) me).getWalkAnimationLeft());
+						break;
+					case DIR_RIGHT:
+						((GoldenRaptor) me).setRaptor_animation(((GoldenRaptor) me).getWalkAnimationRight());
+						break;
+					default:
+						break;
+					}
+				}
+				 if (((GoldenRaptor) me).getHealth() <= 0) {
+						if (((GoldenRaptor) me).getRaptor_animation() == ((GoldenRaptor) me).getEXPAnimation()) {
+							if (((GoldenRaptor) me).getRaptor_animation().isAnimationFinished(me.getStateTime())) {
+								((GoldenRaptor) me).dead = true;
+							}
+						} else {
+							((GoldenRaptor) me).exploding = true;
+							((GoldenRaptor) me).attacking = false;
+							me.setStateTime(0f);
+							((GoldenRaptor) me).setRaptor_animation(((GoldenRaptor) me).getEXPAnimation());
 						}
 					}
 			} else if (me instanceof Ape) {
 				batch.draw(me.getCurrentFrame(), me.getX(), me.getY());
 				if (!this.frozen) {
 					((Ape) me).setCurrentFrame(delta);
+				} else {
+					Gdx.app.log(RipGame.LOG, "Ape Frozen");
 				}
 				if (((Ape) me).attacking && 
 							((Ape) me).getApe_animation().isAnimationFinished(me.getStateTime())) {
@@ -251,13 +354,16 @@ public class LevelRenderer {
 					}
 				}  
 				if (((Ape) me).getHealth() <= 0) {
-					Gdx.app.log(RipGame.LOG, "Set Dead Animation");
+					
 					if (((Ape) me).getApe_animation() == ((Ape) me).getEXPAnimation()) {
-						Gdx.app.log(RipGame.LOG, "Set Dead Animation ==");
 						if (((Ape) me).getApe_animation().isAnimationFinished(me.getStateTime())) {
+							Gdx.app.log(RipGame.LOG, "Dead Finished");
 							((Ape) me).dead = true;
 						}
 					} else {
+						Gdx.app.log(RipGame.LOG, "Set Dead Animation");
+						((Ape) me).exploding = true;
+						((Ape) me).attacking = false;
 						me.setStateTime(0f);
 						((Ape) me).setApe_animation(((Ape) me).getEXPAnimation());
 					}
@@ -277,10 +383,10 @@ public class LevelRenderer {
 			} else if (me instanceof Lucy) {
 				batch.draw(me.getCurrentFrame(), me.getX(), me.getY());
 				//this.x + 50, this.y, (this.width * 0.7f), this.height);
-				sr.rect(((Lucy) me).hitableBox.x, ((Lucy) me).hitableBox.y, ((Lucy) me).hitableBox.width, ((Lucy) me).hitableBox.height);
+				//sr.rect(((Lucy) me).hitableBox.x, ((Lucy) me).hitableBox.y, ((Lucy) me).hitableBox.width, ((Lucy) me).hitableBox.height);
 				//sr.rect(((Lucy) me).leftHitableBox.x, ((Lucy) me).leftHitableBox.y, ((Lucy) me).leftHitableBox.width, ((Lucy) me).leftHitableBox.height);
-				sr.rect(((Lucy) me).leftAttackBox.x, ((Lucy) me).leftAttackBox.y, ((Lucy) me).leftAttackBox.width, ((Lucy) me).leftAttackBox.height);
-				sr.rect(((Lucy) me).rightAttackBox.x, ((Lucy) me).rightAttackBox.y, ((Lucy) me).rightAttackBox.width, ((Lucy) me).rightAttackBox.height);
+				//sr.rect(((Lucy) me).leftAttackBox.x, ((Lucy) me).leftAttackBox.y, ((Lucy) me).leftAttackBox.width, ((Lucy) me).leftAttackBox.height);
+				//sr.rect(((Lucy) me).rightAttackBox.x, ((Lucy) me).rightAttackBox.y, ((Lucy) me).rightAttackBox.width, ((Lucy) me).rightAttackBox.height);
 				if (((Lucy) me).waiting || ((!this.frozen) && !((Lucy) me).not_moving) || ((Lucy) me).isFallen()) {
 					((Lucy) me).setCurrentFrame(delta);
 				}
@@ -298,6 +404,7 @@ public class LevelRenderer {
 							((Lucy) me).dead = true;
 						}
 					} else {
+						((Lucy) me).attacking = false;
 						me.setStateTime(0f);
 						((Lucy) me).setLucy_animation(((Lucy) me).getEXPAnimation());
 					}
@@ -346,8 +453,24 @@ public class LevelRenderer {
 	}
 	
 	
+	public static Music getBeatlevel() {
+		return beatlevel;
+	}
+
+	public static void setBeatlevel(Music beatlevel) {
+		LevelRenderer.beatlevel = beatlevel;
+	}
+
 	public void dispose() {
+		Gdx.app.log(RipGame.LOG, "LevelRenderer Dispose");
 		this.camPos = 0;
+		drawables.clear();
+		this.healthpacks.clear();
+		this.timepacks.clear();
+		this.enemy_list.clear();
+		
+		//this.batch.dispose();
+		
 		
 		if (leveltheme != null) {
 			leveltheme.dispose();

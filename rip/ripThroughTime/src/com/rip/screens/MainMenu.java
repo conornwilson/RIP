@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -27,8 +28,9 @@ public class MainMenu implements Screen {
 	Skin skin;
 	SpriteBatch batch;
 	TextButton startButton;
-	TextButton optionsButton;
+	TextButton selectButton;
 	TextButton creditsButton;
+	TextButton quitButton;
 	Texture title = new Texture(Gdx.files.internal("data/mainmenu.png"));
 
 	Music maintheme;
@@ -79,24 +81,40 @@ public class MainMenu implements Screen {
 		style.font = black;
 
 		startButton = new TextButton("Start Game", style);
-		startButton.setWidth(200);
+		startButton.setWidth(250);
 		startButton.setHeight(50);
 		startButton.setX(Gdx.graphics.getWidth() / 2 + 125);
-		startButton.setY(Gdx.graphics.getHeight() /2 - startButton.getHeight() / 2 - 30);
+		startButton.setY(Gdx.graphics.getHeight() /2 - startButton.getHeight() / 2 - 10);
 
-		optionsButton = new TextButton("Options", style);
-		optionsButton.setWidth(200);
-		optionsButton.setHeight(50);
-		optionsButton.setX(Gdx.graphics.getWidth()/2 + 125);
-		optionsButton.setY(Gdx.graphics.getHeight()/2 - optionsButton.getHeight() / 2 - 90);
+		selectButton = new TextButton("Level Select", style);
+		selectButton.setWidth(250);
+		selectButton.setHeight(50);
+		selectButton.setX(Gdx.graphics.getWidth()/2 + 125);
+		selectButton.setY(Gdx.graphics.getHeight()/2 - selectButton.getHeight() / 2 - 70);
 
 		creditsButton = new TextButton("Credits", style);
-		creditsButton.setWidth(200);
+		creditsButton.setWidth(250);
 		creditsButton.setHeight(50);
 		creditsButton.setX(Gdx.graphics.getWidth() / 2 + 125);
-		creditsButton.setY(Gdx.graphics.getHeight() / 2 - startButton.getHeight() / 2 - 150);
+		creditsButton.setY(Gdx.graphics.getHeight() / 2 - creditsButton.getHeight() / 2 - 130);
+		
+		quitButton = new TextButton("Quit", style);
+		quitButton.setWidth(250);
+		quitButton.setHeight(50);
+		quitButton.setX(Gdx.graphics.getWidth() / 2 + 125);
+		quitButton.setY(Gdx.graphics.getHeight() / 2 - quitButton.getHeight() / 2 - 190);
 
 		startButton.addListener(new InputListener() {
+			public void enter (InputEvent event, float x, float y, int pointer, Actor formActor) {
+				startButton.setY(startButton.getY() - 1);
+				startButton.setHeight(52);
+			}
+			
+			public void exit (InputEvent event, float x, float y, int pointer, Actor formActor) {
+				startButton.setY(Gdx.graphics.getHeight() /2 - startButton.getHeight() / 2 - 10);
+				startButton.setHeight(50);
+			}
+			
 			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
 				return true;
 			}
@@ -106,21 +124,45 @@ public class MainMenu implements Screen {
 				maintheme.stop();
 				selectPlay.play();
 
-				game.setScreen(new LevelSelect(game));
+				game.setScreen(new GameScreen(game, "Tutorial Level"));
+				//game.setScreen(new GameScreen(game, "level1_1"));
 			}
 		});
 
-		optionsButton.addListener(new InputListener() {
+		selectButton.addListener(new InputListener() {
+			public void enter (InputEvent event, float x, float y, int pointer, Actor formActor) {
+				selectButton.setY(selectButton.getY() - 1);
+				selectButton.setHeight(52);
+			}
+			
+			public void exit (InputEvent event, float x, float y, int pointer, Actor formActor) {
+				selectButton.setY(Gdx.graphics.getHeight()/2 - selectButton.getHeight() / 2 - 70);
+				selectButton.setHeight(50);
+			}
+			
 			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
 				return true;
 			}
 
 			public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
-				Gdx.app.log(RipGame.LOG, "Options: pushed");
+				Gdx.app.log(RipGame.LOG, "select: pushed");
+				maintheme.stop();
+				selectPlay.play();
+				game.setScreen(new LevelSelect(game));
 			}
 		});
 
 		creditsButton.addListener(new InputListener() {
+			public void enter (InputEvent event, float x, float y, int pointer, Actor formActor) {
+				creditsButton.setY(creditsButton.getY() - 1);
+				creditsButton.setHeight(52);
+			}
+			
+			public void exit (InputEvent event, float x, float y, int pointer, Actor formActor) {
+				creditsButton.setY(Gdx.graphics.getHeight() / 2 - creditsButton.getHeight() / 2 - 130);
+				creditsButton.setHeight(50);
+			}
+			
 			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
 				return true;
 			}
@@ -129,9 +171,35 @@ public class MainMenu implements Screen {
 				Gdx.app.log(RipGame.LOG, "Credits: pushed");
 			}
 		});
+		
+		quitButton.addListener(new InputListener() {
+			public void enter (InputEvent event, float x, float y, int pointer, Actor formActor) {
+				quitButton.setY(quitButton.getY() - 1);
+				quitButton.setHeight(52);
+			}
+			
+			public void exit (InputEvent event, float x, float y, int pointer, Actor formActor) {
+				quitButton.setY(Gdx.graphics.getHeight() / 2 - quitButton.getHeight() / 2 - 190);
+				quitButton.setHeight(50);
+			}
+			
+			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
+				return true;
+			}
+
+			public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
+				maintheme.stop();
+				selectPlay.play();
+				Gdx.app.log(RipGame.LOG, "Quit: pushed");
+				Gdx.app.exit();
+			}
+		});
+		
+		
 		stage.addActor(startButton);
-		stage.addActor(optionsButton);
+		stage.addActor(selectButton);
 		stage.addActor(creditsButton);
+		stage.addActor(quitButton);
 	}
 
 	@Override
@@ -169,6 +237,7 @@ public class MainMenu implements Screen {
 		white.dispose();
 		black.dispose();
 		stage.dispose();
+		title.dispose();
 
 		selectPlay.dispose();
 		maintheme.dispose();
