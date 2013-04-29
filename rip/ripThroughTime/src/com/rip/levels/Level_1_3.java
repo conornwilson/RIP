@@ -42,10 +42,17 @@ public class Level_1_3 extends Level {
 	boolean cp1Wave1, cp1Wave2 = false;
 	boolean cp2Wave1, cp2Wave2, cp2Wave3 = false;
 	boolean cp3Wave1, cp3Wave2, cp3Wave3 = false;
-	boolean end = false;
+	//boolean end = false;
 	float spawnChance = 0;
 	boolean spawnToggle = false;
 	boolean randomSpawnToggle = false;
+	
+	boolean goldenspawned = false;
+	
+	Pixmap ground1, ground2, ground3, ground4, tree1, tree2, tree3, tree4,
+	tree5, tree6, tree7, tree8, bush1, bush2, bush3, bush4,
+	volcano1, volcano2, cloud1, cloud2, cloud3, cloud4, debris1, debris2,
+	debris3, fog1, fog2, fog3, fog4, s;
 
 	public Level_1_3(RipGame game) {
 		super(game);
@@ -59,10 +66,17 @@ public class Level_1_3 extends Level {
 		
 		leveltheme = Gdx.audio.newMusic(Gdx.files.internal("data/Prehistoric Main.mp3"));
 		leveltheme.setLooping(true);
+		
+		beatlevel = Gdx.audio.newMusic(Gdx.files.internal("data/Beat Level.mp3"));
+		beatlevel.setLooping(false);
 	}
 
 	@Override
 	public void handleCheckPoints(LevelRenderer lr) {
+		if (this.goldenspawned) {
+			this.drawGRHealth();
+		}
+		
 		if (getEnemies().isEmpty() && LevelRenderer.move == false && LevelRenderer.camPos < 11500) {
 			LevelRenderer.move = true;
 		}
@@ -75,45 +89,57 @@ public class Level_1_3 extends Level {
 
 		if (LevelRenderer.camPos >= 1000 && !checkPoint1 && !cp1Wave1) {
 			LevelRenderer.move = false;
-			spawnApe(3);
+			newSpawnPoint();
+			this.spawnGoldenRaptor();
+			this.goldenspawned = true;
+			//spawnApe(3);
 			cp1Wave1 = true;
 		} else if (getEnemies().size() <= 1 && cp1Wave1 && !cp1Wave2) {
 			LevelRenderer.move = false;
-			spawnApe(5);
+			newSpawnPoint();
+			spawnApe(4);
 			cp1Wave2 = true;
 			checkPoint1 = true;
 		} else if (LevelRenderer.camPos >= 4000 && !checkPoint2 && !cp2Wave1) {
 			LevelRenderer.move = false;
-			spawnRaptor(3);
+			newSpawnPoint();
+			spawnRaptor(2);
 			cp2Wave1 = true;
 		} else if (getEnemies().size() <= 2 && cp2Wave1 && !cp2Wave2) {
 			LevelRenderer.move = false;
+			newSpawnPoint();
 			spawnRaptor(3);
 			cp2Wave2 = true;
 		} else if (getEnemies().isEmpty() && cp2Wave2 && !cp2Wave3) {
 			LevelRenderer.move = false;
+			newSpawnPoint();
 			spawnRedRaptor(1);
 			cp2Wave3 = true;
 			checkPoint3 = true;
 		} else if (LevelRenderer.camPos >= 8000 && !checkPoint3 && !cp3Wave1) {
 			LevelRenderer.move = false;
+			newSpawnPoint();
 			spawnApe(2);
 			spawnRaptor(1);
 			cp3Wave1 = true;
 		} else if (getEnemies().isEmpty() && cp3Wave1 && !cp3Wave2) {
 			LevelRenderer.move = false;
+			newSpawnPoint();
 			spawnApe(2);
 			spawnRaptor(1);
 			spawnRedRaptor(2);
 			cp3Wave2 = true;
 		} else if (getEnemies().size() <= 1 && cp3Wave2 && !cp3Wave3) {
 			LevelRenderer.move = false;
-			spawnApe(5);
+			newSpawnPoint();
+			spawnApe(3);
 			spawnRedRaptor(2);
 			cp3Wave3 = true;
 			checkPoint3 = true;
 		} else if (LevelRenderer.camPos >= 9000 && !miniBoss) {
 			LevelRenderer.move = false;
+			newSpawnPoint();
+			this.goldenspawned = true;
 			spawnGoldenRaptor();
 			miniBoss = true;
 		} else if (getEnemies().isEmpty() && miniBoss) {
@@ -121,10 +147,13 @@ public class Level_1_3 extends Level {
 			levelComplete = true;
 		} else if (checkPoint1 && !checkPoint3 && randomSpawnToggle) {
 			if (player.getHealth() > player.getTotalHealth() * .75) {
+				newSpawnPoint();
 				randomSpawn(5, 3);
 			} else if (player.getHealth() > player.getTotalHealth() * .25) {
+				newSpawnPoint();
 				randomSpawn(12, 5);
 			} else {
+				newSpawnPoint();
 				randomSpawn(20, 7);
 			}
 		}
@@ -132,6 +161,7 @@ public class Level_1_3 extends Level {
 		if (levelComplete && this.getEnemies().size() == 0) {
 			//end level.
 			this.end = true;
+			lr.getBeatlevel().play();
 			LevelRenderer.move = false;
 			Gdx.app.log(RipGame.LOG, "Level 1_3 Complete.");
 		}
@@ -170,10 +200,10 @@ public class Level_1_3 extends Level {
 
 	@Override
 	public void generateBackground() {
-		Pixmap ground1 = new Pixmap(Gdx.files.internal("level1_3/ground1.png"));
-		Pixmap ground2 = new Pixmap(Gdx.files.internal("level1_3/ground2.png"));
-		Pixmap ground3 = new Pixmap(Gdx.files.internal("level1_3/ground3.png"));
-		Pixmap ground4 = new Pixmap(Gdx.files.internal("level1_3/ground4.png"));
+		ground1 = new Pixmap(Gdx.files.internal("level1_3/ground1.png"));
+		ground2 = new Pixmap(Gdx.files.internal("level1_3/ground2.png"));
+		ground3 = new Pixmap(Gdx.files.internal("level1_3/ground3.png"));
+		ground4 = new Pixmap(Gdx.files.internal("level1_3/ground4.png"));
 		Array<Pixmap> groundPix = new Array<Pixmap>();
 		groundPix.add(ground1);
 		groundPix.add(ground2);
@@ -190,19 +220,19 @@ public class Level_1_3 extends Level {
 
 
 		//sky -- doesn't ever move.
-		Pixmap s = new Pixmap(Gdx.files.internal("level1_3/sky.png"));
+		s = new Pixmap(Gdx.files.internal("level1_3/sky.png"));
 		sk = new BackgroundObject(s,0,0);
 
 
 		//random tree objects.
-		Pixmap tree1 = new Pixmap(Gdx.files.internal("level1_3/tree1.png"));
-		Pixmap tree2 = new Pixmap(Gdx.files.internal("level1_3/tree2.png"));
-		Pixmap tree3 = new Pixmap(Gdx.files.internal("level1_3/tree3.png"));
-		Pixmap tree4 = new Pixmap(Gdx.files.internal("level1_3/tree4.png"));
-		Pixmap tree5 = new Pixmap(Gdx.files.internal("level1_3/tree5.png"));
-		Pixmap tree6 = new Pixmap(Gdx.files.internal("level1_3/tree6.png"));
-		Pixmap tree7 = new Pixmap(Gdx.files.internal("level1_3/tree7.png"));
-		Pixmap tree8 = new Pixmap(Gdx.files.internal("level1_3/tree8.png"));
+		tree1 = new Pixmap(Gdx.files.internal("level1_3/tree1.png"));
+		tree2 = new Pixmap(Gdx.files.internal("level1_3/tree2.png"));
+		tree3 = new Pixmap(Gdx.files.internal("level1_3/tree3.png"));
+		tree4 = new Pixmap(Gdx.files.internal("level1_3/tree4.png"));
+		tree5 = new Pixmap(Gdx.files.internal("level1_3/tree5.png"));
+		tree6 = new Pixmap(Gdx.files.internal("level1_3/tree6.png"));
+		tree7 = new Pixmap(Gdx.files.internal("level1_3/tree7.png"));
+		tree8 = new Pixmap(Gdx.files.internal("level1_3/tree8.png"));
 		Array<Pixmap> treesPix = new Array<Pixmap>();
 		treesPix.add(tree1);
 		treesPix.add(tree2);
@@ -223,10 +253,10 @@ public class Level_1_3 extends Level {
 		}
 
 		//random bush objects.
-		Pixmap bush1 = new Pixmap(Gdx.files.internal("level1_3/flower1.png"));
-		Pixmap bush2 = new Pixmap(Gdx.files.internal("level1_3/flower2.png"));
-		Pixmap bush3 = new Pixmap(Gdx.files.internal("level1_3/flower3.png"));
-		Pixmap bush4 = new Pixmap(Gdx.files.internal("level1_3/flower4.png"));
+		bush1 = new Pixmap(Gdx.files.internal("level1_3/flower1.png"));
+		bush2 = new Pixmap(Gdx.files.internal("level1_3/flower2.png"));
+		bush3 = new Pixmap(Gdx.files.internal("level1_3/flower3.png"));
+		bush4 = new Pixmap(Gdx.files.internal("level1_3/flower4.png"));
 		Array<Pixmap> bushPix = new Array<Pixmap>();
 		bushPix.add(bush1);
 		bushPix.add(bush2);
@@ -243,8 +273,8 @@ public class Level_1_3 extends Level {
 		}
 
 		//random volcano objects
-		Pixmap volcano1 = new Pixmap(Gdx.files.internal("level1_3/mountainbig.png"));
-		Pixmap volcano2 = new Pixmap(Gdx.files.internal("level1_3/mountainsmall.png"));
+		volcano1 = new Pixmap(Gdx.files.internal("level1_3/mountainbig.png"));
+		volcano2 = new Pixmap(Gdx.files.internal("level1_3/mountainsmall.png"));
 		Array<Pixmap> volcanoPix = new Array<Pixmap>();
 		volcanoPix.add(volcano1);
 		volcanoPix.add(volcano2);
@@ -259,10 +289,10 @@ public class Level_1_3 extends Level {
 		}
 
 		//random cloud objects
-		Pixmap cloud1 = new Pixmap(Gdx.files.internal("level1_3/cloud1.png"));
-		Pixmap cloud2 = new Pixmap(Gdx.files.internal("level1_3/cloud2.png"));
-		Pixmap cloud3 = new Pixmap(Gdx.files.internal("level1_3/cloud3.png"));
-		Pixmap cloud4 = new Pixmap(Gdx.files.internal("level1_3/cloud4.png"));
+		cloud1 = new Pixmap(Gdx.files.internal("level1_3/cloud1.png"));
+		cloud2 = new Pixmap(Gdx.files.internal("level1_3/cloud2.png"));
+		cloud3 = new Pixmap(Gdx.files.internal("level1_3/cloud3.png"));
+		cloud4 = new Pixmap(Gdx.files.internal("level1_3/cloud4.png"));
 		Array<Pixmap> cloudPix = new Array<Pixmap>();
 		cloudPix.add(cloud1);
 		cloudPix.add(cloud2);
@@ -279,9 +309,9 @@ public class Level_1_3 extends Level {
 		}
 
 		//random debris objects
-		Pixmap debris1 = new Pixmap(Gdx.files.internal("level1_3/smallgrass.png"));
-		Pixmap debris2 = new Pixmap(Gdx.files.internal("level1_3/smallrock1.png"));
-		Pixmap debris3 = new Pixmap(Gdx.files.internal("level1_3/smallrock2.png"));
+		debris1 = new Pixmap(Gdx.files.internal("level1_3/smallgrass.png"));
+		debris2 = new Pixmap(Gdx.files.internal("level1_3/smallrock1.png"));
+		debris3 = new Pixmap(Gdx.files.internal("level1_3/smallrock2.png"));
 		Array<Pixmap> debrisPix = new Array<Pixmap>();
 		debrisPix.add(debris1);
 		debrisPix.add(debris2);
@@ -297,10 +327,10 @@ public class Level_1_3 extends Level {
 		}
 
 		//fog objects
-		Pixmap fog1 = new Pixmap(Gdx.files.internal("level1_3/fog1.png"));
-		Pixmap fog2 = new Pixmap(Gdx.files.internal("level1_3/fog2.png"));
-		Pixmap fog3 = new Pixmap(Gdx.files.internal("level1_3/fog3.png"));
-		Pixmap fog4 = new Pixmap(Gdx.files.internal("level1_3/fog4.png"));
+		fog1 = new Pixmap(Gdx.files.internal("level1_3/fog1.png"));
+		fog2 = new Pixmap(Gdx.files.internal("level1_3/fog2.png"));
+		fog3 = new Pixmap(Gdx.files.internal("level1_3/fog3.png"));
+		fog4 = new Pixmap(Gdx.files.internal("level1_3/fog4.png"));
 		Array<Pixmap> fogPix = new Array<Pixmap>();
 		fogPix.add(fog1);
 		fogPix.add(fog2);
@@ -394,6 +424,56 @@ public class Level_1_3 extends Level {
 			i.setX(i.getX() + 0.25f);
 		}
 
+	}
+	
+	public void drawGRHealth() {
+		LevelRenderer.batch.draw(healthbar, LevelRenderer.camPos + 680 + 3, 450, goldenraptor.getHealth()* 1.25f, 15);
+		LevelRenderer.batch.draw(healthbaroutline, LevelRenderer.camPos + 680, 450 - 3, 206, 21);
+		fontBig.draw(LevelRenderer.batch, "Golden     Raptor", LevelRenderer.camPos + 400, 464);
+	}
+	
+	public void dispose() {
+		/*
+		ground1.dispose(); 
+		ground2.dispose(); 
+		ground3.dispose();
+		ground4.dispose(); 
+		tree1.dispose(); 
+		tree2.dispose(); 
+		tree3.dispose(); 
+		tree4.dispose();
+		tree5.dispose(); 
+		tree6.dispose(); 
+		tree7.dispose(); 
+		tree8.dispose();  
+		bush1.dispose(); 
+		bush2.dispose();
+		bush3.dispose();
+		bush4.dispose();
+		volcano1.dispose();
+		volcano2.dispose();
+		cloud1.dispose();
+		cloud2.dispose();
+		cloud3.dispose();
+		cloud4.dispose(); 
+		debris1.dispose(); 
+		debris2.dispose();
+		debris3.dispose(); 
+		fog1.dispose(); 
+		fog2.dispose(); 
+		fog3.dispose(); 
+		fog4.dispose();
+		s.dispose();
+		*/
+		grounds.clear();
+		trees.clear();
+		bushes.clear();
+		volcanos.clear();
+		clouds.clear();
+		debris.clear();
+		fog.clear();
+		
+		super.dispose();
 	}
 
 }

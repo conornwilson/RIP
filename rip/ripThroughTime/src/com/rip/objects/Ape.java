@@ -137,14 +137,19 @@ public class Ape extends LowLevelEnemy {
 				ape_animation = walkAnimationRight;
 			}
 		}
+		else if (this.getHealth() <= 0 && this.exploding){
+			if  (!(ape_animation == this.EXPAnimation)) {
+				ape_animation = this.EXPAnimation;
+			}
+		}
 		//this.currentFrame = player_animation.getKeyFrame(stateTime, true);
 		if (this.ape_animation == this.attackAnimationLeft ||
 				this.ape_animation == this.attackAnimationRight ||
 				this.ape_animation == this.EXPAnimation) {
-			Gdx.app.log(RipGame.LOG, "setAttack");
+			//Gdx.app.log(RipGame.LOG, "setAttack");
 			this.currentFrame = this.ape_animation.getKeyFrame(this.stateTime, false);
 		} else { 
-			Gdx.app.log(RipGame.LOG, "setAttackTrue");
+			//Gdx.app.log(RipGame.LOG, "setAttackTrue");
 			this.currentFrame = this.ape_animation.getKeyFrame(this.stateTime, true);
 		}
 	}
@@ -168,6 +173,13 @@ public class Ape extends LowLevelEnemy {
 
 	public void setApe_animation(Animation ape_animation) {
 		this.ape_animation = ape_animation;
+	}
+	
+	public void dispose() {
+		this.walkSheet.dispose();
+		this.attackSheet.dispose();
+		
+		super.dispose();
 	}
 	
 	

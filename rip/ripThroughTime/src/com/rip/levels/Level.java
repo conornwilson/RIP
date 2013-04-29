@@ -38,17 +38,30 @@ public abstract class Level {
 	public int levelLength;
 	public String levelName;
 	public String levelHudColor;
-	public Stage stage;
+	//public Stage stage;
 	
 	public Music leveltheme;
 	public Music additional_theme1;
 	public Music additional_theme2;
+	public Music beatlevel;
 	
 	public boolean end = false;
 
 	Random r = new Random();
 	
+	int rightside;
+	int leftside;
+	boolean leftright;
+	int x;
+	int y;
+	int xmin_right, xmax_right, xmin_left, xmax_left;
+	int ymin, ymax;
+	
+	GoldenRaptor goldenraptor;
+	
+	
 	//////////PAUSE ITEMS//////////
+	/*
 	BitmapFont black;
 	BitmapFont white;
 	TextureAtlas atlas;
@@ -56,6 +69,7 @@ public abstract class Level {
 	TextButton resumeButton;
 	TextButton mainMenuButton;
 	TextButton quitButton;
+	*/
 
 	//////////HUD OBJECTS//////////
 	
@@ -158,15 +172,15 @@ public abstract class Level {
 		}
 
 		if (color == "black") {
-			font.draw(batch, levelName, LevelRenderer.camPos + 800, 470);
-			font.draw(batch, "Time:     " + (int)LevelRenderer.levelTime, LevelRenderer.camPos + 800, 450);
-			font.draw(batch, "Score:     " + LevelRenderer.levelScore, LevelRenderer.camPos + 800, 430);
+			//font.draw(batch, levelName, LevelRenderer.camPos + 800, 470);
+			//font.draw(batch, "Time:     " + (int)LevelRenderer.levelTime, LevelRenderer.camPos + 800, 450);
+			//font.draw(batch, "Score:     " + LevelRenderer.levelScore, LevelRenderer.camPos + 800, 430);
 			batch.draw(healthbaroutline, LevelRenderer.camPos + 25 - 3, 450 - 3, 206, 21);
 			batch.draw(timebaroutline, LevelRenderer.camPos + 25 - 3, 425 - 3, 206, 21);
 		} else if (color == "white") {
-			fontWhite.draw(batch, levelName, LevelRenderer.camPos + 800, 470);
-			fontWhite.draw(batch, "Time:     " + (int)LevelRenderer.levelTime, LevelRenderer.camPos + 800, 450);
-			fontWhite.draw(batch, "Score:     " + LevelRenderer.levelScore, LevelRenderer.camPos + 800, 430);
+			//fontWhite.draw(batch, levelName, LevelRenderer.camPos + 800, 470);
+			//fontWhite.draw(batch, "Time:     " + (int)LevelRenderer.levelTime, LevelRenderer.camPos + 800, 450);
+			//fontWhite.draw(batch, "Score:     " + LevelRenderer.levelScore, LevelRenderer.camPos + 800, 430);
 			batch.draw(healthbaroutlineWhite, LevelRenderer.camPos + 25 - 3, 450 - 3, 206, 21);
 			batch.draw(timebaroutlineWhite, LevelRenderer.camPos + 25 - 3, 425 - 3, 206, 21);
 
@@ -178,12 +192,27 @@ public abstract class Level {
 	}
 	
 	/////////Enemy Spawning Functions//////////
+	
+	
+	public void newSpawnPoint() {
+		this.r = new Random();
+		this.ymax = LevelRenderer.Y_LIMIT;
+		this.ymin = LevelRenderer.Y_LIMIT - 87;
+		
+		this.xmin_right = LevelRenderer.camPos + RipGame.WIDTH + 200;
+		this.xmax_right = xmin_right + 224;
+		
+		this.xmax_left = LevelRenderer.camPos - 100;
+		this.xmin_left = xmax_left - 224;
+	}
+	
 
 	public void spawnApe(int num) {
+		/*
 		Random r = new Random();
 		int rightside;
 		int leftside;
-		boolean lr;
+		boolean leftright;
 		int x;
 		int y;
 		int xmin_right, xmax_right, xmin_left, xmax_left;
@@ -193,46 +222,52 @@ public abstract class Level {
 		ymax = LevelRenderer.Y_LIMIT;
 		ymin = LevelRenderer.Y_LIMIT - 87;
 		
-		xmin_right = LevelRenderer.camPos + RipGame.WIDTH + 100;
+		xmin_right = LevelRenderer.camPos + RipGame.WIDTH + 200;
 		xmax_right = xmin_right + 224;
 		
 		xmax_left = LevelRenderer.camPos - 100;
 		xmin_left = xmax_left - 224;
+		*/
 		
 		for (int i = 0; i < num; i++) {
-			lr = r.nextBoolean();
-			if (lr) {
+			if ((float) Math.random() <= .75) {
+				Gdx.app.log(RipGame.LOG, "right******************");
 				rightside = LevelRenderer.camPos + RipGame.WIDTH;
 				x = generateXY(xmin_right, xmax_right);
 				y = generateXY(ymin, ymax);
 				
 				ymin -= 87;
-				ymax -= 87;
+				ymax -= 88;
 				
 				if (ymax <= LevelRenderer.Y_LIMIT - 300) {
 					ymax = LevelRenderer.Y_LIMIT;
 					ymin = LevelRenderer.Y_LIMIT - 87;
+					
+					xmax_right += 224;
+					xmin_right += 224;
 				}
 				
-				xmax_right += 224;
-				xmin_right += 224;
+				
 				
 				enemies.add(new Ape(x, y));
 			} else {
+				Gdx.app.log(RipGame.LOG, "left******************");
 				leftside = LevelRenderer.camPos;
-				x = generateXY(xmin_right, xmax_right);
+				x = generateXY(xmin_left, xmax_left);
 				y = generateXY(ymin, ymax);
 				
 				ymin -= 87;
-				ymax -= 87;
+				ymax -= 88;
 				
 				if (ymax <= LevelRenderer.Y_LIMIT - 300) {
 					ymax = LevelRenderer.Y_LIMIT;
 					ymin = LevelRenderer.Y_LIMIT - 87;
+					
+					xmax_left -= 224;
+					xmin_left -= 224;
 				}
 				
-				xmax_left -= 224;
-				xmin_left -= 224;
+				
 				enemies.add(new Ape(x, y));
 				
 			}
@@ -242,59 +277,43 @@ public abstract class Level {
 	}
 
 	public void spawnSuperApe(int num) {
-		Random r = new Random();
-		int rightside;
-		int leftside;
-		boolean lr;
-		int x;
-		int y;
-		int xmin_right, xmax_right, xmin_left, xmax_left;
-		int ymin, ymax;
-		
-		//avoid initiating with overlap
-		ymax = LevelRenderer.Y_LIMIT;
-		ymin = LevelRenderer.Y_LIMIT - 87;
-		
-		xmin_right = LevelRenderer.camPos + RipGame.WIDTH + 100;
-		xmax_right = xmin_right + 224;
-		
-		xmax_left = LevelRenderer.camPos - 100;
-		xmin_left = xmax_left - 224;
-		
 		for (int i = 0; i < num; i++) {
-			lr = r.nextBoolean();
-			if (lr) {
+			if ((float) Math.random() <= .75) {
 				rightside = LevelRenderer.camPos + RipGame.WIDTH;
 				x = generateXY(xmin_right, xmax_right);
 				y = generateXY(ymin, ymax);
 				
 				ymin -= 87;
-				ymax -= 87;
+				ymax -= 88;
 				
 				if (ymax <= LevelRenderer.Y_LIMIT - 300) {
 					ymax = LevelRenderer.Y_LIMIT;
 					ymin = LevelRenderer.Y_LIMIT - 87;
+					
+					xmax_right += 224;
+					xmin_right += 224;
 				}
 				
-				xmax_right += 224;
-				xmin_right += 224;
+				
 				
 				enemies.add(new SuperApe(x, y));
 			} else {
 				leftside = LevelRenderer.camPos;
-				x = generateXY(xmin_right, xmax_right);
+				x = generateXY(xmin_left, xmax_left);
 				y = generateXY(ymin, ymax);
 				
 				ymin -= 87;
-				ymax -= 87;
+				ymax -= 88;
 				
 				if (ymax <= LevelRenderer.Y_LIMIT - 300) {
 					ymax = LevelRenderer.Y_LIMIT;
 					ymin = LevelRenderer.Y_LIMIT - 87;
+					
+					xmax_left -= 224;
+					xmin_left -= 224;
 				}
 				
-				xmax_left -= 224;
-				xmin_left -= 224;
+				
 				enemies.add(new SuperApe(x, y));
 				
 			}
@@ -304,59 +323,44 @@ public abstract class Level {
 	}
 
 	public void spawnRedRaptor(int num) {
-		Random r = new Random();
-		int rightside;
-		int leftside;
-		boolean lr;
-		int x;
-		int y;
-		int xmin_right, xmax_right, xmin_left, xmax_left;
-		int ymin, ymax;
-		
-		//avoid initiating with overlap
-		ymax = LevelRenderer.Y_LIMIT;
-		ymin = LevelRenderer.Y_LIMIT - 87;
-		
-		xmin_right = LevelRenderer.camPos + RipGame.WIDTH + 100;
-		xmax_right = xmin_right + 224;
-		
-		xmax_left = LevelRenderer.camPos - 100;
-		xmin_left = xmax_left - 224;
 		
 		for (int i = 0; i < num; i++) {
-			lr = r.nextBoolean();
-			if (lr) {
+			if ((float) Math.random() <= .75) {
 				rightside = LevelRenderer.camPos + RipGame.WIDTH;
 				x = generateXY(xmin_right, xmax_right);
 				y = generateXY(ymin, ymax);
 				
 				ymin -= 87;
-				ymax -= 87;
+				ymax -= 88;
 				
 				if (ymax <= LevelRenderer.Y_LIMIT - 300) {
 					ymax = LevelRenderer.Y_LIMIT;
 					ymin = LevelRenderer.Y_LIMIT - 87;
+					
+					xmax_right += 224;
+					xmin_right += 224;
 				}
 				
-				xmax_right += 224;
-				xmin_right += 224;
+				
 				
 				enemies.add(new RedRaptor(x, y));
 			} else {
 				leftside = LevelRenderer.camPos;
-				x = generateXY(xmin_right, xmax_right);
+				x = generateXY(xmin_left, xmax_left);
 				y = generateXY(ymin, ymax);
 				
 				ymin -= 87;
-				ymax -= 87;
+				ymax -= 88;
 				
 				if (ymax <= LevelRenderer.Y_LIMIT - 300) {
 					ymax = LevelRenderer.Y_LIMIT;
 					ymin = LevelRenderer.Y_LIMIT - 87;
+					
+					xmax_left -= 224;
+					xmin_left -= 224;
 				}
 				
-				xmax_left -= 224;
-				xmin_left -= 224;
+				
 				enemies.add(new RedRaptor(x, y));
 				
 			}
@@ -366,64 +370,48 @@ public abstract class Level {
 	}
 
 	public void spawnGoldenRaptor() {
-		GoldenRaptor raptor = new GoldenRaptor(LevelRenderer.camPos + RipGame.WIDTH + 200, 140, this);
-		LevelRenderer.enemy_list.add(raptor);
+		//fix this
+		goldenraptor = new GoldenRaptor(LevelRenderer.camPos + RipGame.WIDTH + 300, 140, this);
+		LevelRenderer.enemy_list.add(goldenraptor);
 	}
 
 	public void spawnRaptor(int num) {
-		Random r = new Random();
-		int rightside;
-		int leftside;
-		boolean lr;
-		int x;
-		int y;
-		int xmin_right, xmax_right, xmin_left, xmax_left;
-		int ymin, ymax;
-		
-		//avoid initiating with overlap
-		ymax = LevelRenderer.Y_LIMIT;
-		ymin = LevelRenderer.Y_LIMIT - 87;
-		
-		xmin_right = LevelRenderer.camPos + RipGame.WIDTH + 100;
-		xmax_right = xmin_right + 224;
-		
-		xmax_left = LevelRenderer.camPos - 100;
-		xmin_left = xmax_left - 224;
 		
 		for (int i = 0; i < num; i++) {
-			lr = r.nextBoolean();
-			if (lr) {
+			if ((float) Math.random() <= .75) {
 				rightside = LevelRenderer.camPos + RipGame.WIDTH;
 				x = generateXY(xmin_right, xmax_right);
 				y = generateXY(ymin, ymax);
 				
 				ymin -= 87;
-				ymax -= 87;
+				ymax -= 88;
 				
 				if (ymax <= LevelRenderer.Y_LIMIT - 300) {
 					ymax = LevelRenderer.Y_LIMIT;
 					ymin = LevelRenderer.Y_LIMIT - 87;
+					
+					xmax_right += 224;
+					xmin_right += 224;
 				}
-				
-				xmax_right += 224;
-				xmin_right += 224;
 				
 				enemies.add(new Raptor(x, y));
 			} else {
 				leftside = LevelRenderer.camPos;
-				x = generateXY(xmin_right, xmax_right);
+				x = generateXY(xmin_left, xmax_left);
 				y = generateXY(ymin, ymax);
 				
 				ymin -= 87;
-				ymax -= 87;
+				ymax -= 88;
 				
 				if (ymax <= LevelRenderer.Y_LIMIT - 300) {
 					ymax = LevelRenderer.Y_LIMIT;
 					ymin = LevelRenderer.Y_LIMIT - 87;
+					
+					xmax_left -= 224;
+					xmin_left -= 224;
 				}
 				
-				xmax_left -= 224;
-				xmin_left -= 224;
+				
 				enemies.add(new Raptor(x, y));
 				
 			}
@@ -431,7 +419,7 @@ public abstract class Level {
 		}
 	
 	}
-
+/*
 	public void createPauseMenu() {
 		stage = new Stage(960, 480, true);
 		
@@ -507,7 +495,7 @@ public abstract class Level {
 		stage.draw();
 		}
 	}
-	
+	*/
 	
 	public int generateXY(int min, int max) {
 		//Min + (int)(Math.random() * ((Max - Min) + 1))
@@ -520,7 +508,14 @@ public abstract class Level {
 	
 
 	public void dispose() {
+		Gdx.app.log(RipGame.LOG, "Level Dispose");
+		player.dispose();
+		//lr.dispose();
+		this.enemies.clear();
 		this.timeFreezeOverlay.dispose();
+		this.level_complete.dispose();
+		this.deadOverlay.dispose();
+		this.pauseOverlay.dispose();
 		this.level_complete.dispose();
 		this.timebaroutline.dispose();
 		this.timebar.dispose();
@@ -528,13 +523,19 @@ public abstract class Level {
 		this.healthbar.dispose();
 		
 		
+		this.font.dispose();
+		this.fontBig.dispose();
+		this.fontBigWhite.dispose();
+		this.fontWhite.dispose();
+		//this.atlas.dispose();
+		//this.stage.dispose();
+		
 		timeFreezeOverlay.dispose();
 		level_complete.dispose();
 		timebaroutline.dispose();
 		timebar.dispose();
 		healthbaroutline.dispose();
 		healthbar.dispose();
-		player.dispose();
 		enemies.clear();
 		if (this.leveltheme != null) {
 			this.leveltheme.dispose();
@@ -546,6 +547,10 @@ public abstract class Level {
 		
 		if (this.additional_theme2 != null) {
 			this.additional_theme2.dispose();
+		}
+		
+		if (this.beatlevel != null) {
+			this.beatlevel.dispose();
 		}
 	}
 

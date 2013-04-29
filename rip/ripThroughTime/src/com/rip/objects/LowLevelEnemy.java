@@ -10,6 +10,7 @@ public abstract class LowLevelEnemy extends Enemy {
 		
 		this.health = 25;
 		this.damage = 10;
+		this.totalHealth = health;
 	}
 	
 	public LowLevelEnemy(int x, int y, float width, float height, int SPEED) {
@@ -17,6 +18,11 @@ public abstract class LowLevelEnemy extends Enemy {
 		
 		this.health = 25;
 		this.damage = 10;
+		this.totalHealth = health;
+	}
+	
+	public void dispose() {
+		super.dispose();
 	}
 
 }

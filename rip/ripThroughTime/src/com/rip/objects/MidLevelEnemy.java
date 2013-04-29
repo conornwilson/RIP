@@ -10,6 +10,7 @@ public abstract class MidLevelEnemy extends Enemy {
 
 		this.health = 35;
 		this.damage = 15;
+		this.totalHealth = health;
 	}
 	
 	public MidLevelEnemy(int x, int y, float width, float height, int SPEED) {
@@ -17,6 +18,7 @@ public abstract class MidLevelEnemy extends Enemy {
 		
 		this.health = 35;
 		this.damage = 15;
+		this.totalHealth = health;
 	}
 
 }

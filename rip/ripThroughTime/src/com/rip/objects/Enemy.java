@@ -26,6 +26,7 @@ public abstract class Enemy extends MovableEntity {
 	float initiate_attack_chance;
 	
 	public boolean dead = false;
+	public boolean exploding = false;
 	
 	protected float totalHealth;
 	
@@ -121,10 +122,10 @@ public abstract class Enemy extends MovableEntity {
 	}
 	
 	public void make_flanks() {
-		if (r.nextBoolean()) {
+		if ((float) Math.random() <= .85) {
 			flank = false;
 		} else {
-			Gdx.app.log(RipGame.LOG, "flank true");
+			Gdx.app.log(RipGame.LOG, "flank true **********");
 			flank = true;
 			trackX = 0;
 			trackY = 0;
@@ -184,7 +185,7 @@ public abstract class Enemy extends MovableEntity {
 	}
 	
 	public void track(Player p, ArrayList<Enemy> e) {
-		
+
 		if (this.getHealth() <= 0) {
 			return;
 		}
@@ -194,24 +195,22 @@ public abstract class Enemy extends MovableEntity {
 			//Gdx.app.log(RipGame.LOG, "backtrack started . . .");
 			return;
 		}
-		
-		int breakChance = r.nextInt(25);
-		if (breakChance == 1 && this.health <= this.totalHealth / 2) {
-			backtrack = true;
-			btX = -1;
-			btY = -1;
-		}
 
 		if (this.attacking) {
 			//Gdx.app.log(RipGame.LOG, "attacking");
-			
-			if (backtrack && btX == -1 && btY == -1) {
+			int breakChance = r.nextInt(23);
+			if (breakChance == 1 && this.health <= this.totalHealth * 0.75f) {
+				backtrack = true;
+				btX = -1;
+				btY = -1;
+			}
+			if (backtrack && btX == -1 && btY == -1) { 
+				btY = r.nextInt(180);
 				if (dir == Directions.DIR_RIGHT) {
-					btX = p.getX() - (r.nextInt(800 - 500) + 500);
+					btX = p.getX() - (r.nextInt(1000 - 600) + 600);
 				} else if (dir == Directions.DIR_LEFT) {
-					btX = p.getX() + (r.nextInt(800 - 500) + 500);
+					btX = p.getX() + (r.nextInt(1000 - 600) + 600);
 				}
-				btY = p.getY();
 			}
 			return;
 		}
@@ -221,16 +220,18 @@ public abstract class Enemy extends MovableEntity {
 		if (this.collides_player) {
 			Gdx.app.log(RipGame.LOG, "collides player");
 			this.initiate_attack_chance = (float) Math.random();
-			if (this.initiate_attack_chance >= 0.5f && (p.getHealth() > 0)) {
+			if (this.initiate_attack_chance >= 0.5f) {
 				this.attack(p, e);
 			}
 			this.initiate_attack_chance = 0f;
 			return;
-		}
+		} 
 		if ((p.getY() > this.y) && !(this.Collides_Up)) {
 			direct_movement(p);
 		} else if (p.getY() > this.y) {
+			Gdx.app.log(RipGame.LOG, "MaybeFlank******************");
 			if (!(this.Collides_down)) {
+				Gdx.app.log(RipGame.LOG, "Flank******************");
 				flank(p);
 			} else {
 				return;
@@ -244,6 +245,7 @@ public abstract class Enemy extends MovableEntity {
 			direct_movement(p);
 			// If down is not blocked, flank
 		} else if (!(this.Collides_down)) {
+			Gdx.app.log(RipGame.LOG, "Flank-2******************");
 			flank(p);
 			// Else, stay still
 		} else {
@@ -254,6 +256,7 @@ public abstract class Enemy extends MovableEntity {
 	}
 
 	public void backtrack() {
+		Gdx.app.log(RipGame.LOG, "BackTrack called******************");
 		int dx = btX - x;
 		int dy = btY - y;
 
@@ -341,15 +344,12 @@ public abstract class Enemy extends MovableEntity {
 				}
 	
 				if (pY > 180) { pY = 180; }
-	
+				
+				/// Why is this not working?
 				dx = pX - x;
 				dy = pY - y;
 				
-				if (dx > 0) {
-					dir = Directions.DIR_RIGHT;
-				} else if (dx < 0) {
-					dir = Directions.DIR_LEFT;
-				}
+				flankDir(dx);
 	
 				this.setX(this.getX() + (int)((dx - this.SPEED) * LevelRenderer.delta));
 				if ((dy > 0) && (this.Collides_Up)) {
@@ -365,19 +365,20 @@ public abstract class Enemy extends MovableEntity {
 					Gdx.app.log(RipGame.LOG, "flank Initiated");
 	
 					trackX = p.getX();
-					trackY = p.getY() - (r.nextInt(400-200) + 200);
+					trackY = p.getY() - (r.nextInt(400-200) + 200); //(r.nextInt(100) + r.nextInt(100));
 					Gdx.app.log(RipGame.LOG, "trackX: " + trackX + " trackY: " + trackY );
 					Gdx.app.log(RipGame.LOG, "playerX: " + p.getX() + " playerY: " + p.getY() );
 				} else if (flankPoint1 == false) {
 					dx = trackX - x;
 					dy = trackY - y;
+					flankDir(dx);
 					this.setX(this.getX() + (int)((dx - this.SPEED + 2) * LevelRenderer.delta));
 					this.setY(this.getY() + (int)((dy - this.SPEED + 2) * LevelRenderer.delta));
 					if (x <= trackX + this.width + 10 && x >= trackX - this.width + 10 && y <= trackY + this.height + 10 && y >= trackY - this.height + 10 ) {
 						flankPoint1 = true;
 						Gdx.app.log(RipGame.LOG, "flankPoin1 = " + flankPoint1);
 						if (spawnPoint) {
-							trackX = p.getX() - (r.nextInt(500-300) + 300);
+							trackX = p.getX() -  (r.nextInt(500-300) + 300);
 							trackY = p.getY();
 						} else {
 							trackX = p.getX() + (r.nextInt(500-300) + 300);
@@ -387,6 +388,7 @@ public abstract class Enemy extends MovableEntity {
 				} else if (flankPoint2 == false) {
 					dx = trackX - x;
 					dy = trackY - y;
+					flankDir(dx);
 					setX(getX() + (int)((dx - SPEED + 2) * LevelRenderer.delta));
 					setY(getY() + (int)((dy - SPEED + 2) * LevelRenderer.delta));
 					if (x <= trackX + this.width + 10 && x >= trackX - this.width + 10 && y <= trackY + this.height + 10 && y >= trackY - this.height + 10 ) {
@@ -397,6 +399,14 @@ public abstract class Enemy extends MovableEntity {
 				} 
 			}
 		}
+	
+	public void flankDir(int dx) {
+		if (dx > 0) {
+			dir = Directions.DIR_RIGHT;
+		} else if (dx < 0) {
+			dir = Directions.DIR_LEFT;
+		}
+	}
 	
 	public void hitBack(int distance, ArrayList<Enemy> e) {
 		if (distance == 0) {
@@ -532,6 +542,10 @@ public abstract class Enemy extends MovableEntity {
 		Collides_down = collides_down;
 	}
 	
+	public void dispose() {
+		this.EXPSheet.dispose();
+		super.dispose();
+	}
 	
 	
 

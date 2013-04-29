@@ -50,6 +50,9 @@ public class Level_1_5 extends Level {
 		this.additional_theme1 = Gdx.audio.newMusic(Gdx.files.internal("data/Prehistoric Boss Battle Intro.mp3"));
 		//leveltheme = Gdx.audio.newMusic(Gdx.files.internal("data/Prehistoric Volcano.mp3"));
 		this.additional_theme2 = Gdx.audio.newMusic(Gdx.files.internal("data/Prehistoric Boss Battle.mp3"));
+		
+		beatlevel = Gdx.audio.newMusic(Gdx.files.internal("data/Beat Boss.mp3"));
+		beatlevel.setLooping(false);
 
 	}
 
@@ -61,6 +64,9 @@ public class Level_1_5 extends Level {
 			LevelRenderer.move = false;
 			Gdx.app.log(RipGame.LOG, "End level 1_5");
 		} else {
+			if (levelComplete) {
+				this.drawLucyHealth();
+			}
 
 			if (getEnemies().isEmpty() && LevelRenderer.move == false && LevelRenderer.camPos < 11500) {
 				LevelRenderer.move = true;
@@ -81,6 +87,7 @@ public class Level_1_5 extends Level {
 					//this.leveltheme.play();
 					LevelRenderer.getAdditional_theme1().setLooping(false);
 					generateLucy();
+					
 					levelComplete = true;
 				} else if (LevelRenderer.camPos >= (LevelRenderer.player.getX() - 20)) {
 					if (!(LevelRenderer.getAdditional_theme1().isPlaying())) {
@@ -319,9 +326,23 @@ public class Level_1_5 extends Level {
 		}
 
 	}
+	
+
+	public void drawLucyHealth() {
+		LevelRenderer.batch.draw(healthbar, LevelRenderer.camPos + 720 + 3, 450, lucy.getHealth()*.66f, 15);
+		LevelRenderer.batch.draw(healthbaroutline, LevelRenderer.camPos + 720, 450 - 3, 206, 21);
+		fontBig.draw(LevelRenderer.batch, "Lucy", LevelRenderer.camPos + 640, 464);
+	}
 
 	public void dispose() {
 		//leveltheme.dispose();
+		this.grounds.clear();
+		this.fog.clear();
+		this.debris.clear();
+		this.bones.clear();
+		this.trees.clear();
+		this.treesFg.clear();
+		this.volcanos.clear();
 		super.dispose();
 
 	}

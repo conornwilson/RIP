@@ -54,7 +54,7 @@ public class GoldenRaptor extends Raptor {
 				Gdx.audio.newSound(Gdx.files.internal("data/RapterGrunt_03.wav"))};
 		this.hit_sounds = s;
 		this.level = level;
-		totalHealth = 200;
+		totalHealth = 150;
 		this.health = totalHealth;
 		this.damage = 20;
 	}
@@ -141,6 +141,11 @@ public class GoldenRaptor extends Raptor {
 				raptor_animation = walkAnimationLeft;
 			} else if ((this.dir == Directions.DIR_RIGHT) && !(raptor_animation == walkAnimationRight)) {
 				raptor_animation = walkAnimationRight;
+			}
+		}
+		else if (this.getHealth() <= 0 && this.exploding){
+			if  (!(raptor_animation == this.EXPAnimation)) {
+				raptor_animation = this.EXPAnimation;
 			}
 		}
 		//this.currentFrame = player_animation.getKeyFrame(stateTime, true);
@@ -286,17 +291,27 @@ public class GoldenRaptor extends Raptor {
 			backtrack = false;
 			trackToggle = true;
 			if (!wave1) {
+				level.newSpawnPoint();
 				level.spawnRaptor(2);
 				level.spawnRedRaptor(2);
 				wave1 = true;
 			} else if (wave1 && !wave2) {
+				level.newSpawnPoint();
 				level.spawnRaptor(3);
 				level.spawnRedRaptor(2);
 				wave2 = true;
 			} else if (wave2 && !wave3) {
+				level.newSpawnPoint();
 				level.spawnRedRaptor(4);
 				wave3 = true;
 			}
 		}
+	}
+	
+	public void dispose() {
+		this.walkSheet.dispose();
+		this.attackSheet.dispose();
+		
+		super.dispose();
 	}
 }

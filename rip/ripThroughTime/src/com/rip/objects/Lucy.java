@@ -656,6 +656,16 @@ public class Lucy extends Enemy {
 	public void setFallen(boolean fallen) {
 		this.fallen = fallen;
 	}
+	
+	public void dispose() {
+		this.walkSheet.dispose();
+		this.swipeSheet.dispose();
+		this.hitSheet.dispose();
+		this.waitSheet.dispose();
+		this.fallSheet.dispose();
+		
+		super.dispose();
+	}
 
 	
 	

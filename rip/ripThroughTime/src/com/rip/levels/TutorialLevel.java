@@ -37,20 +37,13 @@ public class TutorialLevel extends Level {
 	Texture ripTalk4 = new Texture("tutorialLevel/ripTalk4.png");
 	Texture ripTalk5 = new Texture("tutorialLevel/ripTalk5.png");
 	Texture ripTalk6 = new Texture("tutorialLevel/ripTalk6.png");
-	Texture ripTalk7_1 = new Texture("tutorialLevel/ripTalk7-1.png");
-	Texture ripTalk7_2 = new Texture("tutorialLevel/ripTalk7-2.png");
+	Texture ripTalk7 = new Texture("tutorialLevel/ripTalk7.png");
 	Texture ripTalk8 = new Texture("tutorialLevel/ripTalk8.png");
 	Texture ripTalk9 = new Texture("tutorialLevel/ripTalk9.png");
-	Texture ripTalk10_1 = new Texture("tutorialLevel/ripTalk10-1.png");
-	Texture ripTalk10_2 = new Texture("tutorialLevel/ripTalk10-2.png");
-	Texture ripTalk10_3 = new Texture("tutorialLevel/ripTalk10-3.png");
-	Texture ripTalk11 = new Texture("tutorialLevel/ripTalk11.png");
-	Texture ripTalk12 = new Texture("tutorialLevel/ripTalk12.png");
+	
 	
 	Texture vanTalk1 = new Texture("tutorialLevel/vanTalk1.png");
-	Texture vanTalk2_1 = new Texture("tutorialLevel/vanTalk2-1.png");
-	Texture vanTalk2_2 = new Texture("tutorialLevel/vanTalk2-2.png");
-	Texture vanTalk2_3 = new Texture("tutorialLevel/vanTalk2-3.png");
+	Texture vanTalk2 = new Texture("tutorialLevel/vanTalk2.png");
 	Texture vanTalk3 = new Texture("tutorialLevel/vanTalk3.png");
 	Texture vanTalk4 = new Texture("tutorialLevel/vanTalk4.png");
 	Texture vanTalk5 = new Texture("tutorialLevel/vanTalk5.png");
@@ -58,20 +51,30 @@ public class TutorialLevel extends Level {
 	Texture vanTalk7 = new Texture("tutorialLevel/vanTalk7.png");
 	Texture vanTalk8 = new Texture("tutorialLevel/vanTalk8.png");
 	Texture vanTalk9 = new Texture("tutorialLevel/vanTalk9.png");
-	Texture vanTalk10_1 = new Texture("tutorialLevel/vanTalk10-1.png");
-	Texture vanTalk10_2 = new Texture("tutorialLevel/vanTalk10-2.png");
+	Texture vanTalk10 = new Texture("tutorialLevel/vanTalk10.png");
 	Texture vanTalk11 = new Texture("tutorialLevel/vanTalk11.png");
 	Texture vanTalk12 = new Texture("tutorialLevel/vanTalk12.png");
 	Texture vanTalk13 = new Texture("tutorialLevel/vanTalk13.png");
 	Texture vanTalk14 = new Texture("tutorialLevel/vanTalk14.png");
 	Texture vanTalk15 = new Texture("tutorialLevel/vanTalk15.png");
 	Texture vanTalk16 = new Texture("tutorialLevel/vanTalk16.png");
+	Texture vanTalk17 = new Texture("tutorialLevel/vanTalk17.png");
+	Texture vanTalk18 = new Texture("tutorialLevel/vanTalk18.png");
+	Texture vanTalk19 = new Texture("tutorialLevel/vanTalk19.png");
+	Texture vanTalk20 = new Texture("tutorialLevel/vanTalk20.png");
+	Texture vanTalk21 = new Texture("tutorialLevel/vanTalk21.png");
+	Texture vanTalk22 = new Texture("tutorialLevel/vanTalk22.png");
+	Texture vanTalk23 = new Texture("tutorialLevel/vanTalk23.png");
+	Texture vanTalk24 = new Texture("tutorialLevel/vanTalk24.png");
 	
-	Texture punchDir = new Texture("tutorialLevel/PunchDirections.png");
-	Texture kickDir = new Texture("tutorialLevel/KickDirections.png");
-	Texture punchComboDir = new Texture("tutorialLevel/PunchComboDirections.png");
-	Texture kickComboDir = new Texture("tutorialLevel/KickComboDirections.png");
-	Texture timeDir = new Texture("tutorialLevel/TimeDirections.png");
+	
+	Texture punchDir = new Texture("tutorialLevel/punchDir.png");
+	Texture kickDir = new Texture("tutorialLevel/kickDir.png");
+	Texture punchComboDir = new Texture("tutorialLevel/punchComboDir.png");
+	Texture kickComboDir = new Texture("tutorialLevel/kickComboDir.png");
+	Texture timeWarpDir = new Texture("tutorialLevel/timeWarpDir.png");
+	Texture timeBlastDir = new Texture("tutorialLevel/timeBlastDir.png");
+	
 	
 	
 	Rectangle clockHitBox = new Rectangle(600, 100, clock1.getWidth(), clock1.getHeight());
@@ -81,9 +84,13 @@ public class TutorialLevel extends Level {
 	Array<BackgroundObject> clouds = new Array<BackgroundObject>(100);
 	Array<BackgroundObject> watches = new Array<BackgroundObject>(100);
 	
+	boolean drawHUD = false;
+	
 	int dialogCounter;
 	float timer;
-	boolean punch, kick, combo, combo1, combo2, timePower, levelComplete = false;
+	boolean punch, kick, combos, combo1, combo2, timeWarp, timeBlast, levelComplete = false;
+	
+	float timeAttackTimer;
 	
 	Boolean nextPressed = false;
 	
@@ -96,10 +103,11 @@ public class TutorialLevel extends Level {
 		leveltheme.setLooping(true);
 		
 		levelLength = 2000;
-		levelName = "";
-		levelHudColor = "";
+		levelName = "tutorial";
+		levelHudColor = "black";
 		
 		dialogCounter = 1;
+		timeAttackTimer = 0;
 	}
 	
 	@Override
@@ -110,19 +118,19 @@ public class TutorialLevel extends Level {
 		
 		Gdx.app.log(RipGame.LOG, "dialogCounter: " + dialogCounter);
 		
-		player.setTime(100f);
-		if (Gdx.input.isKeyPressed(Keys.ANY_KEY) && !nextPressed) {
+		
+		if (Gdx.input.isKeyPressed(Keys.ENTER) && !nextPressed) {
 			nextPressed = true;
 		}
 		
-		if (nextPressed && !Gdx.input.isKeyPressed(Keys.ANY_KEY)) {
+		if (nextPressed && !Gdx.input.isKeyPressed(Keys.ENTER)) {
 			nextPressed = false;
 			dialogCounter += 1;
 		}
 		
 		if (!punch && timer >= 3) {
-			//first set of dialog.
 			LevelRenderer.ripMove = false;
+			drawHUD = false;
 			if (!nextPressed && dialogCounter == 1) {
 				LevelRenderer.batch.draw(ripTalk, 20, RipGame.HEIGHT - ripTalk.getHeight() - 20);
 				LevelRenderer.batch.draw(ripTalk1, 40 + ripTalk.getWidth(), RipGame.HEIGHT - ripTalk.getHeight() - 20);
@@ -132,34 +140,35 @@ public class TutorialLevel extends Level {
 			} else if (!nextPressed && dialogCounter == 3) {
 				LevelRenderer.batch.draw(ripTalk, 20, RipGame.HEIGHT - ripTalk.getHeight() - 20);
 				LevelRenderer.batch.draw(ripTalk2, 40 + ripTalk.getWidth(), RipGame.HEIGHT - ripTalk.getHeight() - 20);
-			} else if (!nextPressed && dialogCounter == 4) {
+			}  else if (!nextPressed && dialogCounter == 4) {
 				LevelRenderer.batch.draw(vanTalk, RipGame.WIDTH - vanTalk.getWidth() - 20, RipGame.HEIGHT - vanTalk.getHeight() - 20);
-				LevelRenderer.batch.draw(vanTalk2_1, RipGame.WIDTH - vanTalk.getWidth() - 40 - vanTalk1.getWidth(), RipGame.HEIGHT - vanTalk.getHeight() - 20);
-			} else if (!nextPressed && dialogCounter == 5) {
-				LevelRenderer.batch.draw(vanTalk, RipGame.WIDTH - vanTalk.getWidth() - 20, RipGame.HEIGHT - vanTalk.getHeight() - 20);
-				LevelRenderer.batch.draw(vanTalk2_2, RipGame.WIDTH - vanTalk.getWidth() - 40 - vanTalk1.getWidth(), RipGame.HEIGHT - vanTalk.getHeight() - 20);
-			} else if (!nextPressed && dialogCounter == 6) {
-				LevelRenderer.batch.draw(vanTalk, RipGame.WIDTH - vanTalk.getWidth() - 20, RipGame.HEIGHT - vanTalk.getHeight() - 20);
-				LevelRenderer.batch.draw(vanTalk2_3, RipGame.WIDTH - vanTalk.getWidth() - 40 - vanTalk1.getWidth(), RipGame.HEIGHT - vanTalk.getHeight() - 20);
-			} else if (!nextPressed && dialogCounter == 7) {
-				LevelRenderer.batch.draw(ripTalk, 20, RipGame.HEIGHT - ripTalk.getHeight() - 20);
-				LevelRenderer.batch.draw(ripTalk3, 40 + ripTalk.getWidth(), RipGame.HEIGHT - ripTalk.getHeight() - 20);
-			} else if (!nextPressed && dialogCounter == 8) {
+				LevelRenderer.batch.draw(vanTalk2, RipGame.WIDTH - vanTalk.getWidth() - 40 - vanTalk1.getWidth(), RipGame.HEIGHT - vanTalk.getHeight() - 20);
+			}  else if (!nextPressed && dialogCounter == 5) {
 				LevelRenderer.batch.draw(vanTalk, RipGame.WIDTH - vanTalk.getWidth() - 20, RipGame.HEIGHT - vanTalk.getHeight() - 20);
 				LevelRenderer.batch.draw(vanTalk3, RipGame.WIDTH - vanTalk.getWidth() - 40 - vanTalk1.getWidth(), RipGame.HEIGHT - vanTalk.getHeight() - 20);
-			} else if (!nextPressed && dialogCounter == 9) {
-				LevelRenderer.batch.draw(ripTalk, 20, RipGame.HEIGHT - ripTalk.getHeight() - 20);
-				LevelRenderer.batch.draw(ripTalk4, 40 + ripTalk.getWidth(), RipGame.HEIGHT - ripTalk.getHeight() - 20);
-			} else if (!nextPressed && dialogCounter == 10) {
+			}  else if (!nextPressed && dialogCounter == 6) {
 				LevelRenderer.batch.draw(vanTalk, RipGame.WIDTH - vanTalk.getWidth() - 20, RipGame.HEIGHT - vanTalk.getHeight() - 20);
 				LevelRenderer.batch.draw(vanTalk4, RipGame.WIDTH - vanTalk.getWidth() - 40 - vanTalk1.getWidth(), RipGame.HEIGHT - vanTalk.getHeight() - 20);
-			} else if (!nextPressed && dialogCounter == 11) {
-				LevelRenderer.batch.draw(ripTalk, 20, RipGame.HEIGHT - ripTalk.getHeight() - 20);
-				LevelRenderer.batch.draw(ripTalk5, 40 + ripTalk.getWidth(), RipGame.HEIGHT - ripTalk.getHeight() - 20);
-			} else if (!nextPressed && dialogCounter == 12) {
+			}  else if (!nextPressed && dialogCounter == 7) {
 				LevelRenderer.batch.draw(vanTalk, RipGame.WIDTH - vanTalk.getWidth() - 20, RipGame.HEIGHT - vanTalk.getHeight() - 20);
 				LevelRenderer.batch.draw(vanTalk5, RipGame.WIDTH - vanTalk.getWidth() - 40 - vanTalk1.getWidth(), RipGame.HEIGHT - vanTalk.getHeight() - 20);
+			} else if (!nextPressed && dialogCounter == 8) {
+				LevelRenderer.batch.draw(ripTalk, 20, RipGame.HEIGHT - ripTalk.getHeight() - 20);
+				LevelRenderer.batch.draw(ripTalk3, 40 + ripTalk.getWidth(), RipGame.HEIGHT - ripTalk.getHeight() - 20);
+			} else if (!nextPressed && dialogCounter == 9) {
+				LevelRenderer.batch.draw(vanTalk, RipGame.WIDTH - vanTalk.getWidth() - 20, RipGame.HEIGHT - vanTalk.getHeight() - 20);
+				LevelRenderer.batch.draw(vanTalk6, RipGame.WIDTH - vanTalk.getWidth() - 40 - vanTalk1.getWidth(), RipGame.HEIGHT - vanTalk.getHeight() - 20);
+			} else if (!nextPressed && dialogCounter == 10) {
+				LevelRenderer.batch.draw(ripTalk, 20, RipGame.HEIGHT - ripTalk.getHeight() - 20);
+				LevelRenderer.batch.draw(ripTalk4, 40 + ripTalk.getWidth(), RipGame.HEIGHT - ripTalk.getHeight() - 20);
+			} else if (!nextPressed && dialogCounter == 11) {
+				LevelRenderer.batch.draw(vanTalk, RipGame.WIDTH - vanTalk.getWidth() - 20, RipGame.HEIGHT - vanTalk.getHeight() - 20);
+				LevelRenderer.batch.draw(vanTalk7, RipGame.WIDTH - vanTalk.getWidth() - 40 - vanTalk1.getWidth(), RipGame.HEIGHT - vanTalk.getHeight() - 20);
+			} else if (!nextPressed && dialogCounter == 12) {
+				LevelRenderer.batch.draw(vanTalk, RipGame.WIDTH - vanTalk.getWidth() - 20, RipGame.HEIGHT - vanTalk.getHeight() - 20);
+				LevelRenderer.batch.draw(vanTalk8, RipGame.WIDTH - vanTalk.getWidth() - 40 - vanTalk1.getWidth(), RipGame.HEIGHT - vanTalk.getHeight() - 20);
 			} else if (dialogCounter > 12 && !punch) {
+				drawHUD = true;
 				LevelRenderer.ripMove = true;
 				LevelRenderer.batch.draw(punchDir, RipGame.WIDTH / 2 - punchDir.getWidth() /2, RipGame.HEIGHT - punchDir.getHeight() - 20);
 				if (clockHitBox.overlaps(player.hitableBox)) {
@@ -170,12 +179,17 @@ public class TutorialLevel extends Level {
 					}
 				}
 			}
-		} else if (!kick) {
-			if (!nextPressed && dialogCounter == 1 && timer >= 3) {
-				LevelRenderer.ripMove = false;
+		} else if (!kick && timer >= 3) {
+			drawHUD = false;
+			LevelRenderer.ripMove = false;
+			if (!nextPressed && dialogCounter == 1) {
 				LevelRenderer.batch.draw(vanTalk, RipGame.WIDTH - vanTalk.getWidth() - 20, RipGame.HEIGHT - vanTalk.getHeight() - 20);
-				LevelRenderer.batch.draw(vanTalk6, RipGame.WIDTH - vanTalk.getWidth() - 40 - vanTalk1.getWidth(), RipGame.HEIGHT - vanTalk.getHeight() - 20);
-			} else if (dialogCounter > 1 && !kick) {
+				LevelRenderer.batch.draw(vanTalk9, RipGame.WIDTH - vanTalk.getWidth() - 40 - vanTalk1.getWidth(), RipGame.HEIGHT - vanTalk.getHeight() - 20);
+			} else if (!nextPressed && dialogCounter == 2) {
+				LevelRenderer.batch.draw(vanTalk, RipGame.WIDTH - vanTalk.getWidth() - 20, RipGame.HEIGHT - vanTalk.getHeight() - 20);
+				LevelRenderer.batch.draw(vanTalk10, RipGame.WIDTH - vanTalk.getWidth() - 40 - vanTalk1.getWidth(), RipGame.HEIGHT - vanTalk.getHeight() - 20);
+			} else if (dialogCounter > 2 && !kick) {
+				drawHUD = true;
 				LevelRenderer.ripMove = true;
 				LevelRenderer.batch.draw(kickDir, RipGame.WIDTH / 2 - punchDir.getWidth() /2, RipGame.HEIGHT - punchDir.getHeight() - 20);
 				if (clockHitBox.overlaps(player.hitableBox) && player.getPlayer_animation() == player.getKickAnimationRight()) {
@@ -184,121 +198,296 @@ public class TutorialLevel extends Level {
 					timer = 0;
 				}
 			}
-		} else if (!combo) {
-			if (!nextPressed && dialogCounter == 1 && timer > 3) {
-				LevelRenderer.ripMove = false;
+		} else if (!combos && timer >= 3) {
+			drawHUD = false;
+			LevelRenderer.ripMove = false;
+			if (!nextPressed && dialogCounter == 1) {
 				LevelRenderer.batch.draw(vanTalk, RipGame.WIDTH - vanTalk.getWidth() - 20, RipGame.HEIGHT - vanTalk.getHeight() - 20);
-				LevelRenderer.batch.draw(vanTalk7, RipGame.WIDTH - vanTalk.getWidth() - 40 - vanTalk1.getWidth(), RipGame.HEIGHT - vanTalk.getHeight() - 20);
+				LevelRenderer.batch.draw(vanTalk11, RipGame.WIDTH - vanTalk.getWidth() - 40 - vanTalk1.getWidth(), RipGame.HEIGHT - vanTalk.getHeight() - 20);
 			} else if (dialogCounter > 1 && !combo1) {
+				drawHUD = true;
 				LevelRenderer.ripMove = true;
 				LevelRenderer.batch.draw(punchComboDir, RipGame.WIDTH / 2 - punchDir.getWidth() /2, RipGame.HEIGHT - punchDir.getHeight() - 20);
 				if (clockHitBox.overlaps(player.hitableBox) && player.getPlayer_animation() == player.getPunch2AnimationRight()) {
 					combo1 = true;
 					timer = 0;
-					
 				} 
 			} else if (!nextPressed && combo1 && !combo2 && timer > 3) {
+				drawHUD = true;
+				LevelRenderer.ripMove = true;
 				LevelRenderer.batch.draw(kickComboDir, RipGame.WIDTH / 2 - punchDir.getWidth() /2, RipGame.HEIGHT - punchDir.getHeight() - 20);
 				if (clockHitBox.overlaps(player.hitableBox) && player.getPlayer_animation() == player.getKick3AnimationRight()) {
 					combo2 = true;
-					combo = true;
+					combos = true;
 					dialogCounter = 1;
 					timer = 0;
 				}
 			}
-			
-		} else if (!timePower) {
-			if (!nextPressed && dialogCounter == 1 && timer > 3) {
-				LevelRenderer.ripMove = false;
-				LevelRenderer.batch.draw(vanTalk, RipGame.WIDTH - vanTalk.getWidth() - 20, RipGame.HEIGHT - vanTalk.getHeight() - 20);
-				LevelRenderer.batch.draw(vanTalk8, RipGame.WIDTH - vanTalk.getWidth() - 40 - vanTalk1.getWidth(), RipGame.HEIGHT - vanTalk.getHeight() - 20);
-			} else if (!nextPressed && !timePower && dialogCounter == 2) {
-				LevelRenderer.batch.draw(timeDir, RipGame.WIDTH / 2 - punchDir.getWidth() /2, RipGame.HEIGHT - punchDir.getHeight() - 20);
-				if (player.getTimeFreeze()) {
-					//player will have to do the super time attack to get through this checkPoint.
-					//Will also show how to time warp.
-				}
-			} else if (dialogCounter > 2) {
-				timePower = true;
-				dialogCounter = 1;
-				timer = 0;
-			}
-		} else if (!levelComplete) {
-			LevelRenderer.ripMove = false; 
-			if (!nextPressed && dialogCounter == 1 && timer > 3) {
-				LevelRenderer.batch.draw(vanTalk, RipGame.WIDTH - vanTalk.getWidth() - 20, RipGame.HEIGHT - vanTalk.getHeight() - 20);
-				LevelRenderer.batch.draw(vanTalk9, RipGame.WIDTH - vanTalk.getWidth() - 40 - vanTalk1.getWidth(), RipGame.HEIGHT - vanTalk.getHeight() - 20);
-			} else if (!nextPressed && dialogCounter == 2) {
-				LevelRenderer.batch.draw(ripTalk, 20, RipGame.HEIGHT - ripTalk.getHeight() - 20);
-				LevelRenderer.batch.draw(ripTalk6, 40 + ripTalk.getWidth(), RipGame.HEIGHT - ripTalk.getHeight() - 20);
-			} else if (!nextPressed && dialogCounter == 3) {
-				LevelRenderer.batch.draw(vanTalk, RipGame.WIDTH - vanTalk.getWidth() - 20, RipGame.HEIGHT - vanTalk.getHeight() - 20);
-				LevelRenderer.batch.draw(vanTalk10_1, RipGame.WIDTH - vanTalk.getWidth() - 40 - vanTalk1.getWidth(), RipGame.HEIGHT - vanTalk.getHeight() - 20);
-			} else if (!nextPressed && dialogCounter == 4) {
-				LevelRenderer.batch.draw(vanTalk, RipGame.WIDTH - vanTalk.getWidth() - 20, RipGame.HEIGHT - vanTalk.getHeight() - 20);
-				LevelRenderer.batch.draw(vanTalk10_2, RipGame.WIDTH - vanTalk.getWidth() - 40 - vanTalk1.getWidth(), RipGame.HEIGHT - vanTalk.getHeight() - 20);
-			} else if (!nextPressed && dialogCounter == 5) {
-				LevelRenderer.batch.draw(ripTalk, 20, RipGame.HEIGHT - ripTalk.getHeight() - 20);
-				LevelRenderer.batch.draw(ripTalk7_1, 40 + ripTalk.getWidth(), RipGame.HEIGHT - ripTalk.getHeight() - 20);
-			} else if (!nextPressed && dialogCounter == 6) {
-				LevelRenderer.batch.draw(ripTalk, 20, RipGame.HEIGHT - ripTalk.getHeight() - 20);
-				LevelRenderer.batch.draw(ripTalk7_2, 40 + ripTalk.getWidth(), RipGame.HEIGHT - ripTalk.getHeight() - 20);
-			} else if (!nextPressed && dialogCounter == 7) {
-				LevelRenderer.batch.draw(vanTalk, RipGame.WIDTH - vanTalk.getWidth() - 20, RipGame.HEIGHT - vanTalk.getHeight() - 20);
-				LevelRenderer.batch.draw(vanTalk11, RipGame.WIDTH - vanTalk.getWidth() - 40 - vanTalk1.getWidth(), RipGame.HEIGHT - vanTalk.getHeight() - 20);
-			} else if (!nextPressed && dialogCounter == 8) {
-				LevelRenderer.batch.draw(ripTalk, 20, RipGame.HEIGHT - ripTalk.getHeight() - 20);
-				LevelRenderer.batch.draw(ripTalk8, 40 + ripTalk.getWidth(), RipGame.HEIGHT - ripTalk.getHeight() - 20);
-			} else if (!nextPressed && dialogCounter == 9) {
+		} else if (!timeWarp && timer >= 3) {
+			drawHUD = false;
+			LevelRenderer.ripMove = false;
+			if (!nextPressed && dialogCounter == 1) {
 				LevelRenderer.batch.draw(vanTalk, RipGame.WIDTH - vanTalk.getWidth() - 20, RipGame.HEIGHT - vanTalk.getHeight() - 20);
 				LevelRenderer.batch.draw(vanTalk12, RipGame.WIDTH - vanTalk.getWidth() - 40 - vanTalk1.getWidth(), RipGame.HEIGHT - vanTalk.getHeight() - 20);
-			} else if (!nextPressed && dialogCounter == 10) {
-				LevelRenderer.batch.draw(ripTalk, 20, RipGame.HEIGHT - ripTalk.getHeight() - 20);
-				LevelRenderer.batch.draw(ripTalk9, 40 + ripTalk.getWidth(), RipGame.HEIGHT - ripTalk.getHeight() - 20);
-			} else if (!nextPressed && dialogCounter == 11) {
+			} else if (!nextPressed && dialogCounter == 2) {
 				LevelRenderer.batch.draw(vanTalk, RipGame.WIDTH - vanTalk.getWidth() - 20, RipGame.HEIGHT - vanTalk.getHeight() - 20);
 				LevelRenderer.batch.draw(vanTalk13, RipGame.WIDTH - vanTalk.getWidth() - 40 - vanTalk1.getWidth(), RipGame.HEIGHT - vanTalk.getHeight() - 20);
-			} else if (!nextPressed && dialogCounter == 12) {
-				LevelRenderer.batch.draw(ripTalk, 20, RipGame.HEIGHT - ripTalk.getHeight() - 20);
-				LevelRenderer.batch.draw(ripTalk10_1, 40 + ripTalk.getWidth(), RipGame.HEIGHT - ripTalk.getHeight() - 20);
-			} else if (!nextPressed  && dialogCounter == 13) {
-				LevelRenderer.batch.draw(ripTalk, 20, RipGame.HEIGHT - ripTalk.getHeight() - 20);
-				LevelRenderer.batch.draw(ripTalk10_2, 40 + ripTalk.getWidth(), RipGame.HEIGHT - ripTalk.getHeight() - 20);
-			} else if (!nextPressed && dialogCounter == 14) {
-				LevelRenderer.batch.draw(ripTalk, 20, RipGame.HEIGHT - ripTalk.getHeight() - 20);
-				LevelRenderer.batch.draw(ripTalk10_3, 40 + ripTalk.getWidth(), RipGame.HEIGHT - ripTalk.getHeight() - 20);
-			} else if (!nextPressed && dialogCounter == 15) {
+			} else if (!nextPressed && dialogCounter == 3) {
 				LevelRenderer.batch.draw(vanTalk, RipGame.WIDTH - vanTalk.getWidth() - 20, RipGame.HEIGHT - vanTalk.getHeight() - 20);
 				LevelRenderer.batch.draw(vanTalk14, RipGame.WIDTH - vanTalk.getWidth() - 40 - vanTalk1.getWidth(), RipGame.HEIGHT - vanTalk.getHeight() - 20);
-			} else if (!nextPressed && dialogCounter == 16) {
-				LevelRenderer.batch.draw(ripTalk, 20, RipGame.HEIGHT - ripTalk.getHeight() - 20);
-				LevelRenderer.batch.draw(ripTalk11, 40 + ripTalk.getWidth(), RipGame.HEIGHT - ripTalk.getHeight() - 20);
-			} else if (!nextPressed && dialogCounter == 17) {
+				player.setTime(100f);
+			} else if (!nextPressed && !timeWarp && dialogCounter > 3) {
+				drawHUD = true; 
+				player.setTime(75f);
+				LevelRenderer.ripMove = true;
+				LevelRenderer.batch.draw(timeWarpDir, RipGame.WIDTH / 2 - punchDir.getWidth() / 2, RipGame.HEIGHT - punchDir.getHeight() - 20);
+				if (player.getTime() <= 50f) {
+					timeAttackTimer = 0;
+					timeWarp = true;
+					timer = 0;
+					dialogCounter = 1;
+				} 
+			} 
+		} else if (!timeBlast && timer >= 3) { 
+			drawHUD = false;
+			LevelRenderer.ripMove = false;
+			if (!nextPressed && dialogCounter == 1) {
 				LevelRenderer.batch.draw(vanTalk, RipGame.WIDTH - vanTalk.getWidth() - 20, RipGame.HEIGHT - vanTalk.getHeight() - 20);
 				LevelRenderer.batch.draw(vanTalk15, RipGame.WIDTH - vanTalk.getWidth() - 40 - vanTalk1.getWidth(), RipGame.HEIGHT - vanTalk.getHeight() - 20);
-			} else if (!nextPressed && dialogCounter == 18) {
-				LevelRenderer.batch.draw(ripTalk, 20, RipGame.HEIGHT - ripTalk.getHeight() - 20);
-				LevelRenderer.batch.draw(ripTalk12, 40 + ripTalk.getWidth(), RipGame.HEIGHT - ripTalk.getHeight() - 20);
-			} else if (!nextPressed && dialogCounter == 19) {
+			} else if (!nextPressed && dialogCounter == 2) {
 				LevelRenderer.batch.draw(vanTalk, RipGame.WIDTH - vanTalk.getWidth() - 20, RipGame.HEIGHT - vanTalk.getHeight() - 20);
 				LevelRenderer.batch.draw(vanTalk16, RipGame.WIDTH - vanTalk.getWidth() - 40 - vanTalk1.getWidth(), RipGame.HEIGHT - vanTalk.getHeight() - 20);
+				player.setTime(100f);
+			} else if (!nextPressed && !timeBlast && dialogCounter > 2) {
+				drawHUD = true;
 				LevelRenderer.ripMove = true;
-			} else if (dialogCounter > 19) {
+				LevelRenderer.batch.draw(timeBlastDir, RipGame.WIDTH / 2 - punchDir.getWidth() / 2, RipGame.HEIGHT - punchDir.getHeight() - 20);
+				if (player.ULT || (Gdx.input.isKeyPressed(Keys.SHIFT_LEFT) && player.getTime() <= 1f)){
+				//if (Gdx.input.isKeyPressed(Keys.SPACE) && player.getTime() <= 1f) {
+					timeBlast = true;
+					timer = 0;
+					dialogCounter = 1;
+				}
+			}
+		} else if (!levelComplete && timer >= 3) {
+			drawHUD = false;
+			LevelRenderer.ripMove = false;
+			if (!nextPressed && dialogCounter == 1) {
+				LevelRenderer.batch.draw(vanTalk, RipGame.WIDTH - vanTalk.getWidth() - 20, RipGame.HEIGHT - vanTalk.getHeight() - 20);
+				LevelRenderer.batch.draw(vanTalk17, RipGame.WIDTH - vanTalk.getWidth() - 40 - vanTalk1.getWidth(), RipGame.HEIGHT - vanTalk.getHeight() - 20);
+			} else if (!nextPressed && dialogCounter == 2) {
+				LevelRenderer.batch.draw(vanTalk, RipGame.WIDTH - vanTalk.getWidth() - 20, RipGame.HEIGHT - vanTalk.getHeight() - 20);
+				LevelRenderer.batch.draw(vanTalk18, RipGame.WIDTH - vanTalk.getWidth() - 40 - vanTalk1.getWidth(), RipGame.HEIGHT - vanTalk.getHeight() - 20);
+			} else if (!nextPressed && dialogCounter == 3) {
+				LevelRenderer.batch.draw(vanTalk, RipGame.WIDTH - vanTalk.getWidth() - 20, RipGame.HEIGHT - vanTalk.getHeight() - 20);
+				LevelRenderer.batch.draw(vanTalk19, RipGame.WIDTH - vanTalk.getWidth() - 40 - vanTalk1.getWidth(), RipGame.HEIGHT - vanTalk.getHeight() - 20);
+			} else if (!nextPressed && dialogCounter == 4) {
+				LevelRenderer.batch.draw(ripTalk, 20, RipGame.HEIGHT - ripTalk.getHeight() - 20);
+				LevelRenderer.batch.draw(ripTalk5, 40 + ripTalk.getWidth(), RipGame.HEIGHT - ripTalk.getHeight() - 20);
+			} else if (!nextPressed && dialogCounter == 5) {
+				LevelRenderer.batch.draw(ripTalk, 20, RipGame.HEIGHT - ripTalk.getHeight() - 20);
+				LevelRenderer.batch.draw(ripTalk6, 40 + ripTalk.getWidth(), RipGame.HEIGHT - ripTalk.getHeight() - 20);
+			} else if (!nextPressed && dialogCounter == 6) {
+				LevelRenderer.batch.draw(vanTalk, RipGame.WIDTH - vanTalk.getWidth() - 20, RipGame.HEIGHT - vanTalk.getHeight() - 20);
+				LevelRenderer.batch.draw(vanTalk20, RipGame.WIDTH - vanTalk.getWidth() - 40 - vanTalk1.getWidth(), RipGame.HEIGHT - vanTalk.getHeight() - 20);
+			} else if (!nextPressed && dialogCounter == 7) {
+				LevelRenderer.batch.draw(ripTalk, 20, RipGame.HEIGHT - ripTalk.getHeight() - 20);
+				LevelRenderer.batch.draw(ripTalk7, 40 + ripTalk.getWidth(), RipGame.HEIGHT - ripTalk.getHeight() - 20);
+			} else if (!nextPressed && dialogCounter == 8) {
+				LevelRenderer.batch.draw(vanTalk, RipGame.WIDTH - vanTalk.getWidth() - 20, RipGame.HEIGHT - vanTalk.getHeight() - 20);
+				LevelRenderer.batch.draw(vanTalk21, RipGame.WIDTH - vanTalk.getWidth() - 40 - vanTalk1.getWidth(), RipGame.HEIGHT - vanTalk.getHeight() - 20);
+			} else if (!nextPressed && dialogCounter == 9) {
+				LevelRenderer.batch.draw(vanTalk, RipGame.WIDTH - vanTalk.getWidth() - 20, RipGame.HEIGHT - vanTalk.getHeight() - 20);
+				LevelRenderer.batch.draw(vanTalk22, RipGame.WIDTH - vanTalk.getWidth() - 40 - vanTalk1.getWidth(), RipGame.HEIGHT - vanTalk.getHeight() - 20);
+			} else if (!nextPressed && dialogCounter == 10) {
+				LevelRenderer.batch.draw(ripTalk, 20, RipGame.HEIGHT - ripTalk.getHeight() - 20);
+				LevelRenderer.batch.draw(ripTalk8, 40 + ripTalk.getWidth(), RipGame.HEIGHT - ripTalk.getHeight() - 20);
+			} else if (!nextPressed && dialogCounter == 11) {
+				LevelRenderer.batch.draw(vanTalk, RipGame.WIDTH - vanTalk.getWidth() - 20, RipGame.HEIGHT - vanTalk.getHeight() - 20);
+				LevelRenderer.batch.draw(vanTalk23, RipGame.WIDTH - vanTalk.getWidth() - 40 - vanTalk1.getWidth(), RipGame.HEIGHT - vanTalk.getHeight() - 20);
+			} else if (!nextPressed && dialogCounter == 12) {
+				LevelRenderer.batch.draw(ripTalk, 20, RipGame.HEIGHT - ripTalk.getHeight() - 20);
+				LevelRenderer.batch.draw(ripTalk9, 40 + ripTalk.getWidth(), RipGame.HEIGHT - ripTalk.getHeight() - 20);
+			} else if (!nextPressed && dialogCounter == 13) {
+				LevelRenderer.batch.draw(vanTalk, RipGame.WIDTH - vanTalk.getWidth() - 20, RipGame.HEIGHT - vanTalk.getHeight() - 20);
+				LevelRenderer.batch.draw(vanTalk24, RipGame.WIDTH - vanTalk.getWidth() - 40 - vanTalk1.getWidth(), RipGame.HEIGHT - vanTalk.getHeight() - 20);
+			} else if (!nextPressed && dialogCounter > 14) {
 				levelComplete = true;
 			}
 		}
-	}
 		
-//		else if (timer >= 24 && timer < 35) {
-//			LevelRenderer.batch.draw(ripTalk, 20, RipGame.HEIGHT - ripTalk.getHeight() - 20);
-//			if (timer >= 24 && timer < 28) {
-//				LevelRenderer.batch.draw(ripTalk8_1, 40 + ripTalk.getWidth(), RipGame.HEIGHT - ripTalk.getHeight() - 20);
-//			} else if (timer >= 28 && timer < 32) {
-//				LevelRenderer.batch.draw(ripTalk8_2, 40 + ripTalk.getWidth(), RipGame.HEIGHT - ripTalk.getHeight() - 20);
-//			} else {
-//				LevelRenderer.batch.draw(ripTalk8_3, 40 + ripTalk.getWidth(), RipGame.HEIGHT - ripTalk.getHeight() - 20);
+//		if (!punch && timer >= 3) {
+//			//first set of dialog.
+//			LevelRenderer.ripMove = false;
+//			if (!nextPressed && dialogCounter == 1) {
+//				LevelRenderer.batch.draw(ripTalk, 20, RipGame.HEIGHT - ripTalk.getHeight() - 20);
+//				LevelRenderer.batch.draw(ripTalk1, 40 + ripTalk.getWidth(), RipGame.HEIGHT - ripTalk.getHeight() - 20);
+//			} else if (!nextPressed && dialogCounter == 2) {
+//				LevelRenderer.batch.draw(vanTalk, RipGame.WIDTH - vanTalk.getWidth() - 20, RipGame.HEIGHT - vanTalk.getHeight() - 20);
+//				LevelRenderer.batch.draw(vanTalk1, RipGame.WIDTH - vanTalk.getWidth() - 40 - vanTalk1.getWidth(), RipGame.HEIGHT - vanTalk.getHeight() - 20);
+//			} else if (!nextPressed && dialogCounter == 3) {
+//				LevelRenderer.batch.draw(ripTalk, 20, RipGame.HEIGHT - ripTalk.getHeight() - 20);
+//				LevelRenderer.batch.draw(ripTalk2, 40 + ripTalk.getWidth(), RipGame.HEIGHT - ripTalk.getHeight() - 20);
+//			} else if (!nextPressed && dialogCounter == 4) {
+//				LevelRenderer.batch.draw(vanTalk, RipGame.WIDTH - vanTalk.getWidth() - 20, RipGame.HEIGHT - vanTalk.getHeight() - 20);
+//				LevelRenderer.batch.draw(vanTalk2_1, RipGame.WIDTH - vanTalk.getWidth() - 40 - vanTalk1.getWidth(), RipGame.HEIGHT - vanTalk.getHeight() - 20);
+//			} else if (!nextPressed && dialogCounter == 5) {
+//				LevelRenderer.batch.draw(vanTalk, RipGame.WIDTH - vanTalk.getWidth() - 20, RipGame.HEIGHT - vanTalk.getHeight() - 20);
+//				LevelRenderer.batch.draw(vanTalk2_2, RipGame.WIDTH - vanTalk.getWidth() - 40 - vanTalk1.getWidth(), RipGame.HEIGHT - vanTalk.getHeight() - 20);
+//			} else if (!nextPressed && dialogCounter == 6) {
+//				LevelRenderer.batch.draw(vanTalk, RipGame.WIDTH - vanTalk.getWidth() - 20, RipGame.HEIGHT - vanTalk.getHeight() - 20);
+//				LevelRenderer.batch.draw(vanTalk2_3, RipGame.WIDTH - vanTalk.getWidth() - 40 - vanTalk1.getWidth(), RipGame.HEIGHT - vanTalk.getHeight() - 20);
+//			} else if (!nextPressed && dialogCounter == 7) {
+//				LevelRenderer.batch.draw(ripTalk, 20, RipGame.HEIGHT - ripTalk.getHeight() - 20);
+//				LevelRenderer.batch.draw(ripTalk3, 40 + ripTalk.getWidth(), RipGame.HEIGHT - ripTalk.getHeight() - 20);
+//			} else if (!nextPressed && dialogCounter == 8) {
+//				LevelRenderer.batch.draw(vanTalk, RipGame.WIDTH - vanTalk.getWidth() - 20, RipGame.HEIGHT - vanTalk.getHeight() - 20);
+//				LevelRenderer.batch.draw(vanTalk3, RipGame.WIDTH - vanTalk.getWidth() - 40 - vanTalk1.getWidth(), RipGame.HEIGHT - vanTalk.getHeight() - 20);
+//			} else if (!nextPressed && dialogCounter == 9) {
+//				LevelRenderer.batch.draw(ripTalk, 20, RipGame.HEIGHT - ripTalk.getHeight() - 20);
+//				LevelRenderer.batch.draw(ripTalk4, 40 + ripTalk.getWidth(), RipGame.HEIGHT - ripTalk.getHeight() - 20);
+//			} else if (!nextPressed && dialogCounter == 10) {
+//				LevelRenderer.batch.draw(vanTalk, RipGame.WIDTH - vanTalk.getWidth() - 20, RipGame.HEIGHT - vanTalk.getHeight() - 20);
+//				LevelRenderer.batch.draw(vanTalk4, RipGame.WIDTH - vanTalk.getWidth() - 40 - vanTalk1.getWidth(), RipGame.HEIGHT - vanTalk.getHeight() - 20);
+//			} else if (!nextPressed && dialogCounter == 11) {
+//				LevelRenderer.batch.draw(ripTalk, 20, RipGame.HEIGHT - ripTalk.getHeight() - 20);
+//				LevelRenderer.batch.draw(ripTalk5, 40 + ripTalk.getWidth(), RipGame.HEIGHT - ripTalk.getHeight() - 20);
+//			} else if (!nextPressed && dialogCounter == 12) {
+//				LevelRenderer.batch.draw(vanTalk, RipGame.WIDTH - vanTalk.getWidth() - 20, RipGame.HEIGHT - vanTalk.getHeight() - 20);
+//				LevelRenderer.batch.draw(vanTalk5, RipGame.WIDTH - vanTalk.getWidth() - 40 - vanTalk1.getWidth(), RipGame.HEIGHT - vanTalk.getHeight() - 20);
+//			} else if (dialogCounter > 12 && !punch) {
+//				LevelRenderer.ripMove = true;
+//				LevelRenderer.batch.draw(punchDir, RipGame.WIDTH / 2 - punchDir.getWidth() /2, RipGame.HEIGHT - punchDir.getHeight() - 20);
+//				if (clockHitBox.overlaps(player.hitableBox)) {
+//					if (player.getPlayer_animation() == player.getPunchAnimationRight() || player.getPlayer_animation() == player.getPunchAnimationLeft()) {
+//						punch = true;
+//						dialogCounter = 1;
+//						timer = 0;
+//					}
+//				}
+//			}
+//		} else if (!kick) {
+//			if (!nextPressed && dialogCounter == 1 && timer >= 3) {
+//				LevelRenderer.ripMove = false;
+//				LevelRenderer.batch.draw(vanTalk, RipGame.WIDTH - vanTalk.getWidth() - 20, RipGame.HEIGHT - vanTalk.getHeight() - 20);
+//				LevelRenderer.batch.draw(vanTalk6, RipGame.WIDTH - vanTalk.getWidth() - 40 - vanTalk1.getWidth(), RipGame.HEIGHT - vanTalk.getHeight() - 20);
+//			} else if (dialogCounter > 1 && !kick) {
+//				LevelRenderer.ripMove = true;
+//				LevelRenderer.batch.draw(kickDir, RipGame.WIDTH / 2 - punchDir.getWidth() /2, RipGame.HEIGHT - punchDir.getHeight() - 20);
+//				if (clockHitBox.overlaps(player.hitableBox) && player.getPlayer_animation() == player.getKickAnimationRight()) {
+//					kick = true;
+//					dialogCounter = 1;
+//					timer = 0;
+//				}
+//			}
+//		} else if (!combo) {
+//			if (!nextPressed && dialogCounter == 1 && timer > 3) {
+//				LevelRenderer.ripMove = false;
+//				LevelRenderer.batch.draw(vanTalk, RipGame.WIDTH - vanTalk.getWidth() - 20, RipGame.HEIGHT - vanTalk.getHeight() - 20);
+//				LevelRenderer.batch.draw(vanTalk7, RipGame.WIDTH - vanTalk.getWidth() - 40 - vanTalk1.getWidth(), RipGame.HEIGHT - vanTalk.getHeight() - 20);
+//			} else if (dialogCounter > 1 && !combo1) {
+//				LevelRenderer.ripMove = true;
+//				LevelRenderer.batch.draw(punchComboDir, RipGame.WIDTH / 2 - punchDir.getWidth() /2, RipGame.HEIGHT - punchDir.getHeight() - 20);
+//				if (clockHitBox.overlaps(player.hitableBox) && player.getPlayer_animation() == player.getPunch2AnimationRight()) {
+//					combo1 = true;
+//					timer = 0;
+//					
+//				} 
+//			} else if (!nextPressed && combo1 && !combo2 && timer > 3) {
+//				LevelRenderer.batch.draw(kickComboDir, RipGame.WIDTH / 2 - punchDir.getWidth() /2, RipGame.HEIGHT - punchDir.getHeight() - 20);
+//				if (clockHitBox.overlaps(player.hitableBox) && player.getPlayer_animation() == player.getKick3AnimationRight()) {
+//					combo2 = true;
+//					combo = true;
+//					dialogCounter = 1;
+//					timer = 0;
+//				}
+//			}
+//			
+//		} else if (!timePower) {
+//			if (!nextPressed && dialogCounter == 1 && timer > 3) {
+//				LevelRenderer.ripMove = false;
+//				LevelRenderer.batch.draw(vanTalk, RipGame.WIDTH - vanTalk.getWidth() - 20, RipGame.HEIGHT - vanTalk.getHeight() - 20);
+//				LevelRenderer.batch.draw(vanTalk8, RipGame.WIDTH - vanTalk.getWidth() - 40 - vanTalk1.getWidth(), RipGame.HEIGHT - vanTalk.getHeight() - 20);
+//			} else if (!nextPressed && !timePower && dialogCounter == 2) {
+//				LevelRenderer.ripMove = true;
+//				LevelRenderer.batch.draw(timeDir, RipGame.WIDTH / 2 - punchDir.getWidth() /2, RipGame.HEIGHT - punchDir.getHeight() - 20);
+//				if (timeAttackTimer <= .25f) {
+//					if (Gdx.input.isKeyPressed(Keys.SPACE) && (Gdx.input.isKeyPressed(Keys.A) || Gdx.input.isKeyPressed(Keys.D))) {
+//						timeAttackTimer += LevelRenderer.delta;
+//					}
+//				} else {
+//					timeAttackTimer = 0;
+//					timePower = true;
+//					timer = 0;
+//					dialogCounter = 1;
+//				}
+//			}
+//		} else if (!levelComplete) {
+//			LevelRenderer.ripMove = false; 
+//			if (!nextPressed && dialogCounter == 1 && timer > 3) {
+//				LevelRenderer.batch.draw(vanTalk, RipGame.WIDTH - vanTalk.getWidth() - 20, RipGame.HEIGHT - vanTalk.getHeight() - 20);
+//				LevelRenderer.batch.draw(vanTalk9, RipGame.WIDTH - vanTalk.getWidth() - 40 - vanTalk1.getWidth(), RipGame.HEIGHT - vanTalk.getHeight() - 20);
+//			} else if (!nextPressed && dialogCounter == 2) {
+//				LevelRenderer.batch.draw(ripTalk, 20, RipGame.HEIGHT - ripTalk.getHeight() - 20);
+//				LevelRenderer.batch.draw(ripTalk6, 40 + ripTalk.getWidth(), RipGame.HEIGHT - ripTalk.getHeight() - 20);
+//			} else if (!nextPressed && dialogCounter == 3) {
+//				LevelRenderer.batch.draw(vanTalk, RipGame.WIDTH - vanTalk.getWidth() - 20, RipGame.HEIGHT - vanTalk.getHeight() - 20);
+//				LevelRenderer.batch.draw(vanTalk10_1, RipGame.WIDTH - vanTalk.getWidth() - 40 - vanTalk1.getWidth(), RipGame.HEIGHT - vanTalk.getHeight() - 20);
+//			} else if (!nextPressed && dialogCounter == 4) {
+//				LevelRenderer.batch.draw(vanTalk, RipGame.WIDTH - vanTalk.getWidth() - 20, RipGame.HEIGHT - vanTalk.getHeight() - 20);
+//				LevelRenderer.batch.draw(vanTalk10_2, RipGame.WIDTH - vanTalk.getWidth() - 40 - vanTalk1.getWidth(), RipGame.HEIGHT - vanTalk.getHeight() - 20);
+//			} else if (!nextPressed && dialogCounter == 5) {
+//				LevelRenderer.batch.draw(ripTalk, 20, RipGame.HEIGHT - ripTalk.getHeight() - 20);
+//				LevelRenderer.batch.draw(ripTalk7_1, 40 + ripTalk.getWidth(), RipGame.HEIGHT - ripTalk.getHeight() - 20);
+//			} else if (!nextPressed && dialogCounter == 6) {
+//				LevelRenderer.batch.draw(ripTalk, 20, RipGame.HEIGHT - ripTalk.getHeight() - 20);
+//				LevelRenderer.batch.draw(ripTalk7_2, 40 + ripTalk.getWidth(), RipGame.HEIGHT - ripTalk.getHeight() - 20);
+//			} else if (!nextPressed && dialogCounter == 7) {
+//				LevelRenderer.batch.draw(vanTalk, RipGame.WIDTH - vanTalk.getWidth() - 20, RipGame.HEIGHT - vanTalk.getHeight() - 20);
+//				LevelRenderer.batch.draw(vanTalk11, RipGame.WIDTH - vanTalk.getWidth() - 40 - vanTalk1.getWidth(), RipGame.HEIGHT - vanTalk.getHeight() - 20);
+//			} else if (!nextPressed && dialogCounter == 8) {
+//				LevelRenderer.batch.draw(ripTalk, 20, RipGame.HEIGHT - ripTalk.getHeight() - 20);
+//				LevelRenderer.batch.draw(ripTalk8, 40 + ripTalk.getWidth(), RipGame.HEIGHT - ripTalk.getHeight() - 20);
+//			} else if (!nextPressed && dialogCounter == 9) {
+//				LevelRenderer.batch.draw(vanTalk, RipGame.WIDTH - vanTalk.getWidth() - 20, RipGame.HEIGHT - vanTalk.getHeight() - 20);
+//				LevelRenderer.batch.draw(vanTalk12, RipGame.WIDTH - vanTalk.getWidth() - 40 - vanTalk1.getWidth(), RipGame.HEIGHT - vanTalk.getHeight() - 20);
+//			} else if (!nextPressed && dialogCounter == 10) {
+//				LevelRenderer.batch.draw(ripTalk, 20, RipGame.HEIGHT - ripTalk.getHeight() - 20);
+//				LevelRenderer.batch.draw(ripTalk9, 40 + ripTalk.getWidth(), RipGame.HEIGHT - ripTalk.getHeight() - 20);
+//			} else if (!nextPressed && dialogCounter == 11) {
+//				LevelRenderer.batch.draw(vanTalk, RipGame.WIDTH - vanTalk.getWidth() - 20, RipGame.HEIGHT - vanTalk.getHeight() - 20);
+//				LevelRenderer.batch.draw(vanTalk13, RipGame.WIDTH - vanTalk.getWidth() - 40 - vanTalk1.getWidth(), RipGame.HEIGHT - vanTalk.getHeight() - 20);
+//			} else if (!nextPressed && dialogCounter == 12) {
+//				LevelRenderer.batch.draw(ripTalk, 20, RipGame.HEIGHT - ripTalk.getHeight() - 20);
+//				LevelRenderer.batch.draw(ripTalk10_1, 40 + ripTalk.getWidth(), RipGame.HEIGHT - ripTalk.getHeight() - 20);
+//			} else if (!nextPressed  && dialogCounter == 13) {
+//				LevelRenderer.batch.draw(ripTalk, 20, RipGame.HEIGHT - ripTalk.getHeight() - 20);
+//				LevelRenderer.batch.draw(ripTalk10_2, 40 + ripTalk.getWidth(), RipGame.HEIGHT - ripTalk.getHeight() - 20);
+//			} else if (!nextPressed && dialogCounter == 14) {
+//				LevelRenderer.batch.draw(ripTalk, 20, RipGame.HEIGHT - ripTalk.getHeight() - 20);
+//				LevelRenderer.batch.draw(ripTalk10_3, 40 + ripTalk.getWidth(), RipGame.HEIGHT - ripTalk.getHeight() - 20);
+//			} else if (!nextPressed && dialogCounter == 15) {
+//				LevelRenderer.batch.draw(vanTalk, RipGame.WIDTH - vanTalk.getWidth() - 20, RipGame.HEIGHT - vanTalk.getHeight() - 20);
+//				LevelRenderer.batch.draw(vanTalk14, RipGame.WIDTH - vanTalk.getWidth() - 40 - vanTalk1.getWidth(), RipGame.HEIGHT - vanTalk.getHeight() - 20);
+//			} else if (!nextPressed && dialogCounter == 16) {
+//				LevelRenderer.batch.draw(ripTalk, 20, RipGame.HEIGHT - ripTalk.getHeight() - 20);
+//				LevelRenderer.batch.draw(ripTalk11, 40 + ripTalk.getWidth(), RipGame.HEIGHT - ripTalk.getHeight() - 20);
+//			} else if (!nextPressed && dialogCounter == 17) {
+//				LevelRenderer.batch.draw(vanTalk, RipGame.WIDTH - vanTalk.getWidth() - 20, RipGame.HEIGHT - vanTalk.getHeight() - 20);
+//				LevelRenderer.batch.draw(vanTalk15, RipGame.WIDTH - vanTalk.getWidth() - 40 - vanTalk1.getWidth(), RipGame.HEIGHT - vanTalk.getHeight() - 20);
+//			} else if (!nextPressed && dialogCounter == 18) {
+//				LevelRenderer.batch.draw(ripTalk, 20, RipGame.HEIGHT - ripTalk.getHeight() - 20);
+//				LevelRenderer.batch.draw(ripTalk12, 40 + ripTalk.getWidth(), RipGame.HEIGHT - ripTalk.getHeight() - 20);
+//			} else if (!nextPressed && dialogCounter == 19) {
+//				LevelRenderer.batch.draw(vanTalk, RipGame.WIDTH - vanTalk.getWidth() - 20, RipGame.HEIGHT - vanTalk.getHeight() - 20);
+//				LevelRenderer.batch.draw(vanTalk16, RipGame.WIDTH - vanTalk.getWidth() - 40 - vanTalk1.getWidth(), RipGame.HEIGHT - vanTalk.getHeight() - 20);
+//				LevelRenderer.ripMove = true;
+//			} else if (dialogCounter > 19) {
+//				levelComplete = true;
 //			}
 //		}
+	}			
+	
 	
 	@Override
 	public void generateBackground() {
@@ -396,13 +585,13 @@ public class TutorialLevel extends Level {
 		batch.draw(ground.getTexture(), ground.getX(), ground.getY());
 		batch.draw(ground.getTexture(), ground.getX() + ground.getTexture().getWidth(), ground.getY());
 		
-		if (!punch) {
+		if (!kick) {
 			batch.draw(clock1, 600, 100);
-		} else if (!kick) {
+		} else if (!combo1) {
 			batch.draw(clock2, 600, 100);
-		} else if (!combo) {
+		} else if (!combo2) {
 			batch.draw(clock3, 600, 100);
-		} else if (combo) {
+		} else if (combos) {
 			batch.draw(clock4, 600, 100);
 		}
 	}
@@ -420,7 +609,9 @@ public class TutorialLevel extends Level {
 	
 	@Override
 	public void drawHud(SpriteBatch batch, String color, LevelRenderer lr) {
-		//do nothing
+		if (drawHUD) {
+			super.drawHud(batch, color, lr);
+		}
 	}
 	
 }

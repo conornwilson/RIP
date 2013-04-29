@@ -42,5 +42,11 @@ public class HealthPack extends MovableEntity{
 		return vocal_sounds[index];
 	}
 	
+	public void dispose() {
+		this.texture.dispose();
+		pickup.dispose();
+		super.dispose();
+	}
+	
 
 }

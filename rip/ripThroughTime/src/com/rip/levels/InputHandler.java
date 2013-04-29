@@ -106,7 +106,7 @@ public class InputHandler implements InputProcessor {
 			break;
 		case Keys.DPAD_LEFT:
 			//player.setTexture(player.getLEFT());
-			if (!player.isATTACK_ANIMATION() && (player.getHealth() > 0)) {
+			if (!player.isATTACK_ANIMATION() && (player.getHealth() > 0) && !player.ULT) {
 				Gdx.app.log(RipGame.LOG, "IN A");
 				player.setDir(Directions.DIR_LEFT);
 				player.setAttack_dir(Attack_Directions.DIR_LEFT);
@@ -119,7 +119,7 @@ public class InputHandler implements InputProcessor {
 			break;
 		case Keys.DPAD_RIGHT:
 			//player.setTexture(player.getRIGHT());
-			if (!player.isATTACK_ANIMATION() && (player.getHealth() > 0)) {
+			if (!player.isATTACK_ANIMATION() && (player.getHealth() > 0) && !player.ULT) {
 				Gdx.app.log(RipGame.LOG, "IN D");
 				player.setDir(Directions.DIR_RIGHT);
 				player.setAttack_dir(Attack_Directions.DIR_RIGHT);

@@ -82,5 +82,9 @@ public class BackgroundObject {
 	public Texture getTexture() {
 		return texture;
 	}
+	
+	public void dispose() {
+		this.texture.dispose();
+	}
 
 }

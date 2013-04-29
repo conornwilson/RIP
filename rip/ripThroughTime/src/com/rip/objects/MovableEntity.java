@@ -143,22 +143,8 @@ public abstract class MovableEntity extends Entity {
 	}
 	
 	
-	/*
-	public void track(Player p) {
-		int pX = p.getX();
-		int pY = p.getY();
-
-		int dx = pX - x;
-		int dy = pY - y;
-
-		this.setX(this.getX() + (int)((dx - this.SPEED) * LevelRender.delta));
-
-
-		this.setY(this.getY() + (int)((dy - this.SPEED) * LevelRender.delta));
-
-
+	public void dispose() {
+		super.dispose();
 	}
-
-	 */
 
 }

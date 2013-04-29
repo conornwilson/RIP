@@ -133,7 +133,12 @@ public class Raptor extends LowLevelEnemy {
 				raptor_animation = walkAnimationRight;
 			}
 		}
-		//this.currentFrame = player_animation.getKeyFrame(stateTime, true);
+		else if (this.getHealth() <= 0 && this.exploding){
+			if  (!(raptor_animation == this.EXPAnimation)) {
+				raptor_animation = this.EXPAnimation;
+			}
+		}
+	//this.currentFrame = player_animation.getKeyFrame(stateTime, true);
 		if (this.raptor_animation == this.attackAnimationLeft ||
 				this.raptor_animation == this.attackAnimationRight ||
 				this.raptor_animation == this.EXPAnimation) {
@@ -174,6 +179,13 @@ public class Raptor extends LowLevelEnemy {
 
 	public void setStateTime(float stateTime) {
 		this.stateTime = stateTime;
+	}
+	
+	public void dispose() {
+		this.walkSheet.dispose();
+		this.attackSheet.dispose();
+		
+		super.dispose();
 	}
 	
 	
