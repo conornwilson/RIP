@@ -155,9 +155,12 @@ public class Level_1_4 extends Level {
 
 		if (levelComplete && this.getEnemies().size() == 0) {
 			//end level.
-			this.end = true;
+			if (!this.end) {
+				lr.getBeatlevel().play();
+				this.end = true;
+				Gdx.app.log(RipGame.LOG, "Level 1_4 Complete.");
+			}
 			LevelRenderer.move = false;
-			Gdx.app.log(RipGame.LOG, "Level 1_4 Complete.");
 		}
 
 	}

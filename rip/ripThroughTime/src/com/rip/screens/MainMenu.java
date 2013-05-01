@@ -29,10 +29,13 @@ public class MainMenu implements Screen {
 	SpriteBatch batch;
 	TextButton startButton;
 	TextButton selectButton;
+	TextButton controlsButton;
 	TextButton creditsButton;
 	TextButton quitButton;
 	Texture title = new Texture(Gdx.files.internal("data/mainmenu.png"));
-
+	
+	boolean start, select, controls, credits, quit;
+	
 	Music maintheme;
 	Music selectPlay;
 
@@ -45,7 +48,11 @@ public class MainMenu implements Screen {
 
 		selectPlay = Gdx.audio.newMusic(Gdx.files.internal("data/Main Menu Select.mp3"));
 		selectPlay.setLooping(false);
-		
+		this.start = false;
+		this.select = false;
+		this.controls = false;
+		this.credits = false;
+		this.quit = false;
 
 	}
 
@@ -57,7 +64,21 @@ public class MainMenu implements Screen {
 		stage.act(delta);
 
 		//maintheme.play();
+/*
+		if (!this.selectPlay.isPlaying()) {
 
+			if (this.start) {
+				game.setScreen(new IntroScreen(game));
+			} else if (this.select) {
+				game.setScreen(new LevelSelect(game));
+			} else if (this.controls) {
+				game.setScreen(new Controls(game));
+			} else if (this.credits) {
+
+			} else if (this.quit) {
+				Gdx.app.exit();
+			}
+		}*/
 		batch.begin();
 			//white.draw(batch, "Rip Through Time", Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2);
 			batch.draw(title, 0, 0);
@@ -84,25 +105,26 @@ public class MainMenu implements Screen {
 		startButton.setWidth(250);
 		startButton.setHeight(50);
 		startButton.setX(Gdx.graphics.getWidth() / 2 + 125);
-		startButton.setY(Gdx.graphics.getHeight() /2 - startButton.getHeight() / 2 - 10);
+		startButton.setY(Gdx.graphics.getHeight() /2 - startButton.getHeight() / 2 + 50); //-10 + 60
 
 		selectButton = new TextButton("Level Select", style);
 		selectButton.setWidth(250);
 		selectButton.setHeight(50);
 		selectButton.setX(Gdx.graphics.getWidth()/2 + 125);
-		selectButton.setY(Gdx.graphics.getHeight()/2 - selectButton.getHeight() / 2 - 70);
+		selectButton.setY(Gdx.graphics.getHeight()/2 - selectButton.getHeight() / 2 - 10);
+		
+		controlsButton = new TextButton("Controls", style);
+		controlsButton.setWidth(250);
+		controlsButton.setHeight(50);
+		controlsButton.setX(Gdx.graphics.getWidth()/2 + 125);
+		controlsButton.setY(Gdx.graphics.getHeight()/2 - controlsButton.getHeight() / 2 - 70);
 
-		creditsButton = new TextButton("Credits", style);
-		creditsButton.setWidth(250);
-		creditsButton.setHeight(50);
-		creditsButton.setX(Gdx.graphics.getWidth() / 2 + 125);
-		creditsButton.setY(Gdx.graphics.getHeight() / 2 - creditsButton.getHeight() / 2 - 130);
 		
 		quitButton = new TextButton("Quit", style);
 		quitButton.setWidth(250);
 		quitButton.setHeight(50);
 		quitButton.setX(Gdx.graphics.getWidth() / 2 + 125);
-		quitButton.setY(Gdx.graphics.getHeight() / 2 - quitButton.getHeight() / 2 - 190);
+		quitButton.setY(Gdx.graphics.getHeight() / 2 - quitButton.getHeight() / 2 - 130);
 
 		startButton.addListener(new InputListener() {
 			public void enter (InputEvent event, float x, float y, int pointer, Actor formActor) {
@@ -111,7 +133,7 @@ public class MainMenu implements Screen {
 			}
 			
 			public void exit (InputEvent event, float x, float y, int pointer, Actor formActor) {
-				startButton.setY(Gdx.graphics.getHeight() /2 - startButton.getHeight() / 2 - 10);
+				startButton.setY(Gdx.graphics.getHeight() /2 - startButton.getHeight() / 2 + 50);
 				startButton.setHeight(50);
 			}
 			
@@ -122,9 +144,10 @@ public class MainMenu implements Screen {
 			public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
 				Gdx.app.log(RipGame.LOG, "Start Game: pushed");
 				maintheme.stop();
-				selectPlay.play();
-
-				game.setScreen(new GameScreen(game, "Tutorial Level"));
+				//selectPlay.play();
+				
+				start = true;
+				game.setScreen(new IntroScreen(game));
 				//game.setScreen(new GameScreen(game, "level1_1"));
 			}
 		});
@@ -136,7 +159,7 @@ public class MainMenu implements Screen {
 			}
 			
 			public void exit (InputEvent event, float x, float y, int pointer, Actor formActor) {
-				selectButton.setY(Gdx.graphics.getHeight()/2 - selectButton.getHeight() / 2 - 70);
+				selectButton.setY(Gdx.graphics.getHeight()/2 - selectButton.getHeight() / 2 - 10);
 				selectButton.setHeight(50);
 			}
 			
@@ -147,20 +170,23 @@ public class MainMenu implements Screen {
 			public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
 				Gdx.app.log(RipGame.LOG, "select: pushed");
 				maintheme.stop();
-				selectPlay.play();
+				//selectPlay.play();
 				game.setScreen(new LevelSelect(game));
+				select = true;
+				
 			}
 		});
-
-		creditsButton.addListener(new InputListener() {
+		
+		
+		controlsButton.addListener(new InputListener() {
 			public void enter (InputEvent event, float x, float y, int pointer, Actor formActor) {
-				creditsButton.setY(creditsButton.getY() - 1);
-				creditsButton.setHeight(52);
+				controlsButton.setY(controlsButton.getY() - 1);
+				controlsButton.setHeight(52);
 			}
 			
 			public void exit (InputEvent event, float x, float y, int pointer, Actor formActor) {
-				creditsButton.setY(Gdx.graphics.getHeight() / 2 - creditsButton.getHeight() / 2 - 130);
-				creditsButton.setHeight(50);
+				controlsButton.setY(Gdx.graphics.getHeight()/2 - controlsButton.getHeight() / 2 - 70);
+				controlsButton.setHeight(50);
 			}
 			
 			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
@@ -168,9 +194,16 @@ public class MainMenu implements Screen {
 			}
 
 			public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
-				Gdx.app.log(RipGame.LOG, "Credits: pushed");
+				Gdx.app.log(RipGame.LOG, "controls: pushed");
+				maintheme.stop();
+				//selectPlay.play();
+				controls = true;
+				game.setScreen(new Controls(game));
+				
 			}
 		});
+
+		
 		
 		quitButton.addListener(new InputListener() {
 			public void enter (InputEvent event, float x, float y, int pointer, Actor formActor) {
@@ -179,7 +212,7 @@ public class MainMenu implements Screen {
 			}
 			
 			public void exit (InputEvent event, float x, float y, int pointer, Actor formActor) {
-				quitButton.setY(Gdx.graphics.getHeight() / 2 - quitButton.getHeight() / 2 - 190);
+				quitButton.setY(Gdx.graphics.getHeight() / 2 - quitButton.getHeight() / 2 - 130);
 				quitButton.setHeight(50);
 			}
 			
@@ -189,16 +222,19 @@ public class MainMenu implements Screen {
 
 			public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
 				maintheme.stop();
-				selectPlay.play();
+				//selectPlay.play();
+				quit = true;
 				Gdx.app.log(RipGame.LOG, "Quit: pushed");
 				Gdx.app.exit();
+				
 			}
 		});
 		
 		
 		stage.addActor(startButton);
 		stage.addActor(selectButton);
-		stage.addActor(creditsButton);
+		stage.addActor(controlsButton);
+		
 		stage.addActor(quitButton);
 	}
 

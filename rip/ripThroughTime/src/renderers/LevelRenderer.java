@@ -135,21 +135,6 @@ public class LevelRenderer {
 		player = level.getPlayer();
 		enemy_list = level.getEnemies();
 		
-		/*
-		for (int i = 0; i < this.enemy_list.size(); i++) {
-			Enemy e = this.enemy_list.get(i);
-			if (e.dead == true)	{
-
-				level.getEnemies().remove(i);
-				if (e.HealthDrop) {
-					HealthPack hp = e.getHealthDrop();
-					//this.drawables.add(hp);
-					this.healthpacks.add(hp);
-				}
-				//this.drawables.remove(e);
-			}
-		} 
-		*/
 		drawables.add(player);
 		drawables.addAll(healthpacks);
 		drawables.addAll(timepacks);
@@ -171,7 +156,7 @@ public class LevelRenderer {
 		//sr.setProjectionMatrix(cam.combined);
 
 		batch.begin();
-		Gdx.app.log(RipGame.LOG, "Batch Begin");
+		
 		//sr.begin(ShapeType.Rectangle);
 
 		level.drawBackground(batch);
@@ -194,6 +179,10 @@ public class LevelRenderer {
 				warp.stop();
 				this.frozen = false;
 			}
+		}
+		
+		if (pause) {
+			batch.draw(level.pauseOverlay, camPos, 0);
 		}
 
 		level.drawHud(batch, level.levelHudColor, this);
@@ -229,7 +218,7 @@ public class LevelRenderer {
 				//sr.rect(player.punchBoxRight.x, player.punchBoxRight.y, player.punchBoxRight.width, player.punchBoxRight.height);
 			} else if (me instanceof Raptor){
 				batch.draw(me.getCurrentFrame(), me.getX(), me.getY());
-				if (!this.frozen) {
+				if (!this.frozen && !this.pause) {
 					((Raptor) me).setCurrentFrame(delta);
 				}
 				if (((Raptor) me).attacking && 
@@ -264,7 +253,7 @@ public class LevelRenderer {
 				 
 			} else if (me instanceof RedRaptor){
 				batch.draw(me.getCurrentFrame(), me.getX(), me.getY());
-				if (!this.frozen) {
+				if (!this.frozen && !this.pause) {
 					((RedRaptor) me).setCurrentFrame(delta);
 				}
 				if (((RedRaptor) me).attacking && 
@@ -299,7 +288,7 @@ public class LevelRenderer {
 				 
 			} else if (me instanceof GoldenRaptor){
 				batch.draw(me.getCurrentFrame(), me.getX(), me.getY());
-				if (!this.frozen) {
+				if (!this.frozen && !this.pause) {
 					((GoldenRaptor) me).setCurrentFrame(delta);
 				}
 				if (((GoldenRaptor) me).attacking && 
@@ -333,7 +322,7 @@ public class LevelRenderer {
 					}
 			} else if (me instanceof Ape) {
 				batch.draw(me.getCurrentFrame(), me.getX(), me.getY());
-				if (!this.frozen) {
+				if (!this.frozen && !this.pause) {
 					((Ape) me).setCurrentFrame(delta);
 				} else {
 					Gdx.app.log(RipGame.LOG, "Ape Frozen");
@@ -387,7 +376,7 @@ public class LevelRenderer {
 				//sr.rect(((Lucy) me).leftHitableBox.x, ((Lucy) me).leftHitableBox.y, ((Lucy) me).leftHitableBox.width, ((Lucy) me).leftHitableBox.height);
 				//sr.rect(((Lucy) me).leftAttackBox.x, ((Lucy) me).leftAttackBox.y, ((Lucy) me).leftAttackBox.width, ((Lucy) me).leftAttackBox.height);
 				//sr.rect(((Lucy) me).rightAttackBox.x, ((Lucy) me).rightAttackBox.y, ((Lucy) me).rightAttackBox.width, ((Lucy) me).rightAttackBox.height);
-				if (((Lucy) me).waiting || ((!this.frozen) && !((Lucy) me).not_moving) || ((Lucy) me).isFallen()) {
+				if (((Lucy) me).waiting || ((!this.frozen)  && !this.pause && !((Lucy) me).not_moving) || ((Lucy) me).isFallen()) {
 					((Lucy) me).setCurrentFrame(delta);
 				}
 				if (((Lucy) me).attacking) {

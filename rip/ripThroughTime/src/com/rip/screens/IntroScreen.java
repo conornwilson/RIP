@@ -5,9 +5,11 @@ import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
@@ -20,16 +22,53 @@ public class IntroScreen implements Screen {
 	Stage stage;
 	BitmapFont black;
 	BitmapFont white;
-	TextureAtlas atlas;
-	Skin skin;
+	//TextureAtlas atlas;
+	//Skin skin;
 	Texture introScript = new Texture("data/introScript.png");
 	float introScriptHeight = introScript.getHeight() * -1;
 	
-	TextButton continueButton;
+	protected Texture eatSheet;
+	protected TextureRegion[] eatFrames;
+	protected Animation eat;
+	protected TextureRegion currentFrame;
+	
+	private static final int EAT_COLS = 2;
+	private static final int EAT_ROWS = 1;
+	
+	//TextButton continueButton;
 	Boolean endIntro = false;
+	
+	float stateTime;
 	
 	public IntroScreen(RipGame game) {
 		this.game = game;
+		create_eat();
+		stateTime = 0f;
+	}
+	
+	public void create_eat() {
+		TextureRegion temp;
+		eatSheet = new Texture(Gdx.files.internal("data/ripeat.png"));
+		TextureRegion[][] tmp = TextureRegion.split(eatSheet, eatSheet.getWidth() / EAT_COLS, eatSheet.getHeight() / EAT_ROWS);
+		eatFrames = new TextureRegion[EAT_COLS * EAT_ROWS];
+		
+		int index = 0;
+		for (int i = 0; i < EAT_ROWS; i++) {
+			for (int j = 0; j < EAT_COLS; j++) {
+				temp = tmp[i][j];
+				eatFrames[index] = temp;
+				//walkFramesLeft[index] = temp;
+				index++;
+			}
+		}
+		
+		eat = new Animation(1f, eatFrames);
+		currentFrame = eat.getKeyFrame(stateTime, true);
+	}
+	
+	public void setCurrentFrame(float delta) {
+		this.stateTime += delta;
+		currentFrame = eat.getKeyFrame(stateTime, true);
 	}
 
 	@Override
@@ -37,41 +76,12 @@ public class IntroScreen implements Screen {
 		Gdx.gl.glClearColor(0, 0, 0, 1);
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
 		
+		setCurrentFrame(delta);
+		
 		batch.begin();
-		batch.draw(introScript, 0, introScriptHeight);	
-//			if (endIntro) {
-//				if (stage == null) {
-//					stage = new Stage(RipGame.WIDTH, RipGame.HEIGHT, true);
-//				}
-//				stage.clear();
-//				Gdx.input.setInputProcessor(stage);
-//
-//				TextButtonStyle style = new TextButtonStyle();
-//				style.up = skin.getDrawable("buttonnormal");
-//				style.down = skin.getDrawable("buttonpressed");
-//				style.font = black;
-//				
-//				continueButton = new TextButton("Continue", style);
-//				continueButton.setWidth(300);
-//				continueButton.setHeight(75);
-//				continueButton.setX(Gdx.graphics.getWidth() / 2 + 125);
-//				continueButton.setY(Gdx.graphics.getHeight() / 2 - continueButton.getHeight() / 2 - 150);
-//				
-//				continueButton.addListener(new InputListener() {
-//					public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
-//						return true;
-//					}
-//
-//					public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
-//						Gdx.app.log(RipGame.LOG, "Start Game: pushed");
-//						game.setScreen(new GameScreen(game, "tutorialLevel"));
-//						dispose();
-//					}
-//				});
-//				stage.addActor(continueButton);
-//				stage.act(delta);
-//				stage.draw();
-//			}
+		batch.draw(introScript, 0, introScriptHeight);
+		batch.draw(currentFrame, 700, 150);
+		
 		batch.end();
 		
 		introScriptHeight += 20f * delta;
@@ -80,7 +90,7 @@ public class IntroScreen implements Screen {
 		}
 		
 		if (endIntro || Gdx.input.isKeyPressed(Keys.Q)) {
-			game.setScreen(new GameScreen(game, "tutorialLevel"));
+			game.setScreen(new GameScreen(game, "Tutorial Level"));
 		}
 
 	}
@@ -94,9 +104,9 @@ public class IntroScreen implements Screen {
 	@Override
 	public void show() {
 		batch = new SpriteBatch();
-		atlas = new TextureAtlas("data/button.pack"); //need to create our own button graphic!
-		skin = new Skin();
-		skin.addRegions(atlas);
+	//	atlas = new TextureAtlas("data//.pack"); //need to create our own button graphic!
+		//skin = new Skin();
+		//skin.addRegions(atlas);
 		white = new BitmapFont(Gdx.files.internal("data/arcadeFontWhite32.fnt"),false);
 		black = new BitmapFont(Gdx.files.internal("data/arcadeFontBlack32.fnt"),false);		
 	}

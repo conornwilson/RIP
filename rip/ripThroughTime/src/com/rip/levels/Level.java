@@ -95,6 +95,8 @@ public abstract class Level {
 			this.player = new Player(250, 158);
 			setIn(new InputHandler(this));
 			Gdx.input.setInputProcessor(getIn());
+			beatlevel = Gdx.audio.newMusic(Gdx.files.internal("data/Beat Level.mp3"));
+			beatlevel.setLooping(false);
 	}
 
 

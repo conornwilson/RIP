@@ -2,6 +2,8 @@ package com.rip.levels;
 
 import java.util.ArrayList;
 
+import renderers.LevelRenderer;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Input.Keys;
@@ -12,6 +14,7 @@ import com.rip.objects.Enemy;
 import com.rip.objects.Player;
 import com.rip.objects.Player.Attack_Directions;
 import com.rip.objects.Player.attack_state;
+import com.rip.screens.MainMenu;
 
 
 public class InputHandler implements InputProcessor {
@@ -40,6 +43,19 @@ public class InputHandler implements InputProcessor {
 			return true;
 		}
 		switch(keycode){
+		case Keys.SPACE:
+			if (LevelRenderer.pause) {
+				LevelRenderer.pause = false;
+			} else {
+				LevelRenderer.pause = true;
+			}
+			break;
+		case Keys.ENTER:
+			if (LevelRenderer.pause) {
+				level.game.setScreen(new MainMenu(level.game));
+			
+			}
+			break;
 		case Keys.Z:
 			if (player.isATTACK_ANIMATION()){
 				//public enum attack_state { PUNCH_ONE, PUNCH_TWO, PUNCH_THREE, 
@@ -141,6 +157,10 @@ public class InputHandler implements InputProcessor {
 		// TODO Auto-generated method stub
 		player = level.getPlayer();
 		if (player.dead) {
+			return true;
+		}
+		
+		if (LevelRenderer.pause) {
 			return true;
 		}
 		switch(keycode) {

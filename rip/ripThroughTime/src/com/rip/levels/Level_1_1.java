@@ -65,9 +65,6 @@ public class Level_1_1 extends Level {
 		 */
 		leveltheme = Gdx.audio.newMusic(Gdx.files.internal("data/Prehistoric Main.mp3"));
 		leveltheme.setLooping(true);
-		
-		beatlevel = Gdx.audio.newMusic(Gdx.files.internal("data/Beat Level.mp3"));
-		beatlevel.setLooping(false);
 
 		levelLength = 10000;
 		levelName = "Level 1 1";
@@ -137,10 +134,12 @@ public class Level_1_1 extends Level {
 
 		if (levelComplete && this.getEnemies().size() == 0) {
 			//end level.
-			this.end = true;
-			lr.getBeatlevel().play();
+			if (!this.end) {
+				lr.getBeatlevel().play();
+				this.end = true;
+				Gdx.app.log(RipGame.LOG, "End level 1_1");
+			}
 			LevelRenderer.move = false;
-			Gdx.app.log(RipGame.LOG, "End level 1_1");
 		}
 	}
 

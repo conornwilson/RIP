@@ -7,10 +7,12 @@ import renderers.LevelRenderer;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.utils.Array;
 import com.rip.RipGame;
 import com.rip.objects.BackgroundObject;
@@ -75,7 +77,27 @@ public class TutorialLevel extends Level {
 	Texture timeWarpDir = new Texture("tutorialLevel/timeWarpDir.png");
 	Texture timeBlastDir = new Texture("tutorialLevel/timeBlastDir.png");
 	
+	ArrayList<Sound> dialoglist;
+
+	Sound dia1 = Gdx.audio.newSound(Gdx.files.internal("tutorialLevel/Rip Dialog_01.wav"));
+	Sound dia2 = Gdx.audio.newSound(Gdx.files.internal("tutorialLevel/Rip Dialog_02.wav"));
+	Sound dia3 = Gdx.audio.newSound(Gdx.files.internal("tutorialLevel/Rip Dialog_03.wav"));
+	Sound dia4 = Gdx.audio.newSound(Gdx.files.internal("tutorialLevel/Rip Dialog_04.wav"));
+	Sound dia5 = Gdx.audio.newSound(Gdx.files.internal("tutorialLevel/Rip Dialog_07.wav"));
+	Sound dia6 = Gdx.audio.newSound(Gdx.files.internal("tutorialLevel/Rip Dialog_10.wav"));
+	Sound dia7 = Gdx.audio.newSound(Gdx.files.internal("tutorialLevel/Rip Dialog_12.wav"));
+	Sound dia8 = Gdx.audio.newSound(Gdx.files.internal("tutorialLevel/Rip Dialog_14.wav"));
+	Sound dia9 = Gdx.audio.newSound(Gdx.files.internal("tutorialLevel/Rip Dialog_18.wav"));
+	Sound dia10 = Gdx.audio.newSound(Gdx.files.internal("tutorialLevel/Rip Dialog_21.wav"));
+	Sound dia11 = Gdx.audio.newSound(Gdx.files.internal("tutorialLevel/Rip Dialog_22.wav"));
+	Sound dia12 = Gdx.audio.newSound(Gdx.files.internal("tutorialLevel/Rip Dialog_28.wav"));
+	Sound dia13 = Gdx.audio.newSound(Gdx.files.internal("tutorialLevel/Rip Dialog_29.wav"));
+	Sound dia14 = Gdx.audio.newSound(Gdx.files.internal("tutorialLevel/Rip Dialog_30.wav"));
 	
+	 
+	Sound current_diag = null;
+	int diag_counter = 0;
+	int diag_check = 0;
 	
 	Rectangle clockHitBox = new Rectangle(600, 100, clock1.getWidth(), clock1.getHeight());
 	
@@ -88,7 +110,7 @@ public class TutorialLevel extends Level {
 	
 	int dialogCounter;
 	float timer;
-	boolean punch, kick, combos, combo1, combo2, timeWarp, timeBlast, levelComplete = false;
+	boolean punch, kick, combos, combo1, combo2, timeWarp, timeBlast, levelComplete, timeset = false;
 	
 	float timeAttackTimer;
 	
@@ -99,7 +121,7 @@ public class TutorialLevel extends Level {
 		setIn(new InputHandler(this));
 		Gdx.input.setInputProcessor(getIn());
 		
-		leveltheme = Gdx.audio.newMusic(Gdx.files.internal("data/Prehistoric Main.mp3"));
+		leveltheme = Gdx.audio.newMusic(Gdx.files.internal("data/Tutorial Music.mp3"));
 		leveltheme.setLooping(true);
 		
 		levelLength = 2000;
@@ -108,6 +130,39 @@ public class TutorialLevel extends Level {
 		
 		dialogCounter = 1;
 		timeAttackTimer = 0;
+		
+		this.dialoglist = new ArrayList<Sound>();
+		this.dialoglist.add(dia1);
+		this.dialoglist.add(dia2);
+		this.dialoglist.add(dia3);
+		this.dialoglist.add(dia4);
+		this.dialoglist.add(dia5);
+		this.dialoglist.add(dia6);
+		this.dialoglist.add(dia7);
+		this.dialoglist.add(dia8);
+		this.dialoglist.add(dia9);
+		this.dialoglist.add(dia10);
+		this.dialoglist.add(dia11);
+		this.dialoglist.add(dia12);
+		this.dialoglist.add(dia13);
+		this.dialoglist.add(dia14);
+		
+	}
+	
+	public void playDialog() {
+		if (diag_check == this.dialogCounter) {
+			return;
+		} else {
+			diag_check = this.dialogCounter;
+		}
+		Gdx.app.log(RipGame.LOG, Integer.toString(this.diag_counter));
+		if (this.current_diag != null) {
+			this.current_diag.stop();
+		}
+		this.current_diag = dialoglist.get(this.diag_counter);
+		this.diag_counter += 1;
+		this.current_diag.play();
+		
 	}
 	
 	@Override
@@ -134,39 +189,57 @@ public class TutorialLevel extends Level {
 			if (!nextPressed && dialogCounter == 1) {
 				LevelRenderer.batch.draw(ripTalk, 20, RipGame.HEIGHT - ripTalk.getHeight() - 20);
 				LevelRenderer.batch.draw(ripTalk1, 40 + ripTalk.getWidth(), RipGame.HEIGHT - ripTalk.getHeight() - 20);
+				font.draw(LevelRenderer.batch, "Press    <Enter>     to     confirm.", LevelRenderer.camPos + 400, 60);
+				playDialog();
 			} else if (!nextPressed && dialogCounter == 2) {
 				LevelRenderer.batch.draw(vanTalk, RipGame.WIDTH - vanTalk.getWidth() - 20, RipGame.HEIGHT - vanTalk.getHeight() - 20);
 				LevelRenderer.batch.draw(vanTalk1, RipGame.WIDTH - vanTalk.getWidth() - 40 - vanTalk1.getWidth(), RipGame.HEIGHT - vanTalk.getHeight() - 20);
+				font.draw(LevelRenderer.batch, "Press    <Enter>     to     confirm.", LevelRenderer.camPos + 400, 60);
+				playDialog();
 			} else if (!nextPressed && dialogCounter == 3) {
 				LevelRenderer.batch.draw(ripTalk, 20, RipGame.HEIGHT - ripTalk.getHeight() - 20);
 				LevelRenderer.batch.draw(ripTalk2, 40 + ripTalk.getWidth(), RipGame.HEIGHT - ripTalk.getHeight() - 20);
+				font.draw(LevelRenderer.batch, "Press    <Enter>     to     confirm.", LevelRenderer.camPos + 400, 60);
+				playDialog();
 			}  else if (!nextPressed && dialogCounter == 4) {
 				LevelRenderer.batch.draw(vanTalk, RipGame.WIDTH - vanTalk.getWidth() - 20, RipGame.HEIGHT - vanTalk.getHeight() - 20);
 				LevelRenderer.batch.draw(vanTalk2, RipGame.WIDTH - vanTalk.getWidth() - 40 - vanTalk1.getWidth(), RipGame.HEIGHT - vanTalk.getHeight() - 20);
+				font.draw(LevelRenderer.batch, "Press    <Enter>     to     confirm.", LevelRenderer.camPos + 400, 60);
+				playDialog();
 			}  else if (!nextPressed && dialogCounter == 5) {
 				LevelRenderer.batch.draw(vanTalk, RipGame.WIDTH - vanTalk.getWidth() - 20, RipGame.HEIGHT - vanTalk.getHeight() - 20);
 				LevelRenderer.batch.draw(vanTalk3, RipGame.WIDTH - vanTalk.getWidth() - 40 - vanTalk1.getWidth(), RipGame.HEIGHT - vanTalk.getHeight() - 20);
+				font.draw(LevelRenderer.batch, "Press    <Enter>     to     confirm.", LevelRenderer.camPos + 400, 60);
 			}  else if (!nextPressed && dialogCounter == 6) {
 				LevelRenderer.batch.draw(vanTalk, RipGame.WIDTH - vanTalk.getWidth() - 20, RipGame.HEIGHT - vanTalk.getHeight() - 20);
 				LevelRenderer.batch.draw(vanTalk4, RipGame.WIDTH - vanTalk.getWidth() - 40 - vanTalk1.getWidth(), RipGame.HEIGHT - vanTalk.getHeight() - 20);
+				font.draw(LevelRenderer.batch, "Press    <Enter>     to     confirm.", LevelRenderer.camPos + 400, 60);
 			}  else if (!nextPressed && dialogCounter == 7) {
 				LevelRenderer.batch.draw(vanTalk, RipGame.WIDTH - vanTalk.getWidth() - 20, RipGame.HEIGHT - vanTalk.getHeight() - 20);
 				LevelRenderer.batch.draw(vanTalk5, RipGame.WIDTH - vanTalk.getWidth() - 40 - vanTalk1.getWidth(), RipGame.HEIGHT - vanTalk.getHeight() - 20);
+				font.draw(LevelRenderer.batch, "Press    <Enter>     to     confirm.", LevelRenderer.camPos + 400, 60);
 			} else if (!nextPressed && dialogCounter == 8) {
 				LevelRenderer.batch.draw(ripTalk, 20, RipGame.HEIGHT - ripTalk.getHeight() - 20);
 				LevelRenderer.batch.draw(ripTalk3, 40 + ripTalk.getWidth(), RipGame.HEIGHT - ripTalk.getHeight() - 20);
+				font.draw(LevelRenderer.batch, "Press    <Enter>     to     confirm.", LevelRenderer.camPos + 400, 60);
 			} else if (!nextPressed && dialogCounter == 9) {
 				LevelRenderer.batch.draw(vanTalk, RipGame.WIDTH - vanTalk.getWidth() - 20, RipGame.HEIGHT - vanTalk.getHeight() - 20);
 				LevelRenderer.batch.draw(vanTalk6, RipGame.WIDTH - vanTalk.getWidth() - 40 - vanTalk1.getWidth(), RipGame.HEIGHT - vanTalk.getHeight() - 20);
+				font.draw(LevelRenderer.batch, "Press    <Enter>     to     confirm.", LevelRenderer.camPos + 400, 60);
+				playDialog();
 			} else if (!nextPressed && dialogCounter == 10) {
 				LevelRenderer.batch.draw(ripTalk, 20, RipGame.HEIGHT - ripTalk.getHeight() - 20);
 				LevelRenderer.batch.draw(ripTalk4, 40 + ripTalk.getWidth(), RipGame.HEIGHT - ripTalk.getHeight() - 20);
+				font.draw(LevelRenderer.batch, "Press    <Enter>     to     confirm.", LevelRenderer.camPos + 400, 60);
 			} else if (!nextPressed && dialogCounter == 11) {
 				LevelRenderer.batch.draw(vanTalk, RipGame.WIDTH - vanTalk.getWidth() - 20, RipGame.HEIGHT - vanTalk.getHeight() - 20);
 				LevelRenderer.batch.draw(vanTalk7, RipGame.WIDTH - vanTalk.getWidth() - 40 - vanTalk1.getWidth(), RipGame.HEIGHT - vanTalk.getHeight() - 20);
+				font.draw(LevelRenderer.batch, "Press    <Enter>     to     confirm.", LevelRenderer.camPos + 400, 60);
 			} else if (!nextPressed && dialogCounter == 12) {
 				LevelRenderer.batch.draw(vanTalk, RipGame.WIDTH - vanTalk.getWidth() - 20, RipGame.HEIGHT - vanTalk.getHeight() - 20);
 				LevelRenderer.batch.draw(vanTalk8, RipGame.WIDTH - vanTalk.getWidth() - 40 - vanTalk1.getWidth(), RipGame.HEIGHT - vanTalk.getHeight() - 20);
+				font.draw(LevelRenderer.batch, "Press    <Enter>     to     confirm.", LevelRenderer.camPos + 400, 60);
+				playDialog();
 			} else if (dialogCounter > 12 && !punch) {
 				drawHUD = true;
 				LevelRenderer.ripMove = true;
@@ -185,9 +258,12 @@ public class TutorialLevel extends Level {
 			if (!nextPressed && dialogCounter == 1) {
 				LevelRenderer.batch.draw(vanTalk, RipGame.WIDTH - vanTalk.getWidth() - 20, RipGame.HEIGHT - vanTalk.getHeight() - 20);
 				LevelRenderer.batch.draw(vanTalk9, RipGame.WIDTH - vanTalk.getWidth() - 40 - vanTalk1.getWidth(), RipGame.HEIGHT - vanTalk.getHeight() - 20);
+				font.draw(LevelRenderer.batch, "Press    <Enter>     to     confirm.", LevelRenderer.camPos + 400, 60);
 			} else if (!nextPressed && dialogCounter == 2) {
 				LevelRenderer.batch.draw(vanTalk, RipGame.WIDTH - vanTalk.getWidth() - 20, RipGame.HEIGHT - vanTalk.getHeight() - 20);
 				LevelRenderer.batch.draw(vanTalk10, RipGame.WIDTH - vanTalk.getWidth() - 40 - vanTalk1.getWidth(), RipGame.HEIGHT - vanTalk.getHeight() - 20);
+				font.draw(LevelRenderer.batch, "Press    <Enter>     to     confirm.", LevelRenderer.camPos + 400, 60);
+				playDialog();
 			} else if (dialogCounter > 2 && !kick) {
 				drawHUD = true;
 				LevelRenderer.ripMove = true;
@@ -204,6 +280,8 @@ public class TutorialLevel extends Level {
 			if (!nextPressed && dialogCounter == 1) {
 				LevelRenderer.batch.draw(vanTalk, RipGame.WIDTH - vanTalk.getWidth() - 20, RipGame.HEIGHT - vanTalk.getHeight() - 20);
 				LevelRenderer.batch.draw(vanTalk11, RipGame.WIDTH - vanTalk.getWidth() - 40 - vanTalk1.getWidth(), RipGame.HEIGHT - vanTalk.getHeight() - 20);
+				font.draw(LevelRenderer.batch, "Press    <Enter>     to     confirm.", LevelRenderer.camPos + 400, 60);
+				playDialog();
 			} else if (dialogCounter > 1 && !combo1) {
 				drawHUD = true;
 				LevelRenderer.ripMove = true;
@@ -229,16 +307,22 @@ public class TutorialLevel extends Level {
 			if (!nextPressed && dialogCounter == 1) {
 				LevelRenderer.batch.draw(vanTalk, RipGame.WIDTH - vanTalk.getWidth() - 20, RipGame.HEIGHT - vanTalk.getHeight() - 20);
 				LevelRenderer.batch.draw(vanTalk12, RipGame.WIDTH - vanTalk.getWidth() - 40 - vanTalk1.getWidth(), RipGame.HEIGHT - vanTalk.getHeight() - 20);
+				font.draw(LevelRenderer.batch, "Press    <Enter>     to     confirm.", LevelRenderer.camPos + 400, 60);
 			} else if (!nextPressed && dialogCounter == 2) {
 				LevelRenderer.batch.draw(vanTalk, RipGame.WIDTH - vanTalk.getWidth() - 20, RipGame.HEIGHT - vanTalk.getHeight() - 20);
 				LevelRenderer.batch.draw(vanTalk13, RipGame.WIDTH - vanTalk.getWidth() - 40 - vanTalk1.getWidth(), RipGame.HEIGHT - vanTalk.getHeight() - 20);
+				font.draw(LevelRenderer.batch, "Press    <Enter>     to     confirm.", LevelRenderer.camPos + 400, 60);
 			} else if (!nextPressed && dialogCounter == 3) {
 				LevelRenderer.batch.draw(vanTalk, RipGame.WIDTH - vanTalk.getWidth() - 20, RipGame.HEIGHT - vanTalk.getHeight() - 20);
 				LevelRenderer.batch.draw(vanTalk14, RipGame.WIDTH - vanTalk.getWidth() - 40 - vanTalk1.getWidth(), RipGame.HEIGHT - vanTalk.getHeight() - 20);
+				font.draw(LevelRenderer.batch, "Press    <Enter>     to     confirm.", LevelRenderer.camPos + 400, 60);
 				player.setTime(100f);
 			} else if (!nextPressed && !timeWarp && dialogCounter > 3) {
-				drawHUD = true; 
-				player.setTime(75f);
+				drawHUD = true;
+				if (!this.timeset) {
+					player.setTime(75f);
+					timeset = true;
+				}
 				LevelRenderer.ripMove = true;
 				LevelRenderer.batch.draw(timeWarpDir, RipGame.WIDTH / 2 - punchDir.getWidth() / 2, RipGame.HEIGHT - punchDir.getHeight() - 20);
 				if (player.getTime() <= 50f) {
@@ -254,9 +338,12 @@ public class TutorialLevel extends Level {
 			if (!nextPressed && dialogCounter == 1) {
 				LevelRenderer.batch.draw(vanTalk, RipGame.WIDTH - vanTalk.getWidth() - 20, RipGame.HEIGHT - vanTalk.getHeight() - 20);
 				LevelRenderer.batch.draw(vanTalk15, RipGame.WIDTH - vanTalk.getWidth() - 40 - vanTalk1.getWidth(), RipGame.HEIGHT - vanTalk.getHeight() - 20);
+				font.draw(LevelRenderer.batch, "Press    <Enter>     to     confirm.", LevelRenderer.camPos + 400, 60);
+				playDialog();
 			} else if (!nextPressed && dialogCounter == 2) {
 				LevelRenderer.batch.draw(vanTalk, RipGame.WIDTH - vanTalk.getWidth() - 20, RipGame.HEIGHT - vanTalk.getHeight() - 20);
 				LevelRenderer.batch.draw(vanTalk16, RipGame.WIDTH - vanTalk.getWidth() - 40 - vanTalk1.getWidth(), RipGame.HEIGHT - vanTalk.getHeight() - 20);
+				font.draw(LevelRenderer.batch, "Press    <Enter>     to     confirm.", LevelRenderer.camPos + 400, 60);
 				player.setTime(100f);
 			} else if (!nextPressed && !timeBlast && dialogCounter > 2) {
 				drawHUD = true;
@@ -275,44 +362,67 @@ public class TutorialLevel extends Level {
 			if (!nextPressed && dialogCounter == 1) {
 				LevelRenderer.batch.draw(vanTalk, RipGame.WIDTH - vanTalk.getWidth() - 20, RipGame.HEIGHT - vanTalk.getHeight() - 20);
 				LevelRenderer.batch.draw(vanTalk17, RipGame.WIDTH - vanTalk.getWidth() - 40 - vanTalk1.getWidth(), RipGame.HEIGHT - vanTalk.getHeight() - 20);
+				font.draw(LevelRenderer.batch, "Press    <Enter>     to     confirm.", LevelRenderer.camPos + 400, 60);
 			} else if (!nextPressed && dialogCounter == 2) {
 				LevelRenderer.batch.draw(vanTalk, RipGame.WIDTH - vanTalk.getWidth() - 20, RipGame.HEIGHT - vanTalk.getHeight() - 20);
 				LevelRenderer.batch.draw(vanTalk18, RipGame.WIDTH - vanTalk.getWidth() - 40 - vanTalk1.getWidth(), RipGame.HEIGHT - vanTalk.getHeight() - 20);
+				font.draw(LevelRenderer.batch, "Press    <Enter>     to     confirm.", LevelRenderer.camPos + 400, 60);
 			} else if (!nextPressed && dialogCounter == 3) {
 				LevelRenderer.batch.draw(vanTalk, RipGame.WIDTH - vanTalk.getWidth() - 20, RipGame.HEIGHT - vanTalk.getHeight() - 20);
 				LevelRenderer.batch.draw(vanTalk19, RipGame.WIDTH - vanTalk.getWidth() - 40 - vanTalk1.getWidth(), RipGame.HEIGHT - vanTalk.getHeight() - 20);
+				font.draw(LevelRenderer.batch, "Press    <Enter>     to     confirm.", LevelRenderer.camPos + 400, 60);
+				playDialog();
 			} else if (!nextPressed && dialogCounter == 4) {
 				LevelRenderer.batch.draw(ripTalk, 20, RipGame.HEIGHT - ripTalk.getHeight() - 20);
 				LevelRenderer.batch.draw(ripTalk5, 40 + ripTalk.getWidth(), RipGame.HEIGHT - ripTalk.getHeight() - 20);
+				font.draw(LevelRenderer.batch, "Press    <Enter>     to     confirm.", LevelRenderer.camPos + 400, 60);
+				playDialog();
 			} else if (!nextPressed && dialogCounter == 5) {
 				LevelRenderer.batch.draw(ripTalk, 20, RipGame.HEIGHT - ripTalk.getHeight() - 20);
 				LevelRenderer.batch.draw(ripTalk6, 40 + ripTalk.getWidth(), RipGame.HEIGHT - ripTalk.getHeight() - 20);
+				font.draw(LevelRenderer.batch, "Press    <Enter>     to     confirm.", LevelRenderer.camPos + 400, 60);
 			} else if (!nextPressed && dialogCounter == 6) {
 				LevelRenderer.batch.draw(vanTalk, RipGame.WIDTH - vanTalk.getWidth() - 20, RipGame.HEIGHT - vanTalk.getHeight() - 20);
 				LevelRenderer.batch.draw(vanTalk20, RipGame.WIDTH - vanTalk.getWidth() - 40 - vanTalk1.getWidth(), RipGame.HEIGHT - vanTalk.getHeight() - 20);
+				font.draw(LevelRenderer.batch, "Press    <Enter>     to     confirm.", LevelRenderer.camPos + 400, 60);
 			} else if (!nextPressed && dialogCounter == 7) {
 				LevelRenderer.batch.draw(ripTalk, 20, RipGame.HEIGHT - ripTalk.getHeight() - 20);
 				LevelRenderer.batch.draw(ripTalk7, 40 + ripTalk.getWidth(), RipGame.HEIGHT - ripTalk.getHeight() - 20);
+				font.draw(LevelRenderer.batch, "Press    <Enter>     to     confirm.", LevelRenderer.camPos + 400, 60);
 			} else if (!nextPressed && dialogCounter == 8) {
 				LevelRenderer.batch.draw(vanTalk, RipGame.WIDTH - vanTalk.getWidth() - 20, RipGame.HEIGHT - vanTalk.getHeight() - 20);
 				LevelRenderer.batch.draw(vanTalk21, RipGame.WIDTH - vanTalk.getWidth() - 40 - vanTalk1.getWidth(), RipGame.HEIGHT - vanTalk.getHeight() - 20);
+				font.draw(LevelRenderer.batch, "Press    <Enter>     to     confirm.", LevelRenderer.camPos + 400, 60);
 			} else if (!nextPressed && dialogCounter == 9) {
 				LevelRenderer.batch.draw(vanTalk, RipGame.WIDTH - vanTalk.getWidth() - 20, RipGame.HEIGHT - vanTalk.getHeight() - 20);
 				LevelRenderer.batch.draw(vanTalk22, RipGame.WIDTH - vanTalk.getWidth() - 40 - vanTalk1.getWidth(), RipGame.HEIGHT - vanTalk.getHeight() - 20);
+				font.draw(LevelRenderer.batch, "Press    <Enter>     to     confirm.", LevelRenderer.camPos + 400, 60);
 			} else if (!nextPressed && dialogCounter == 10) {
 				LevelRenderer.batch.draw(ripTalk, 20, RipGame.HEIGHT - ripTalk.getHeight() - 20);
 				LevelRenderer.batch.draw(ripTalk8, 40 + ripTalk.getWidth(), RipGame.HEIGHT - ripTalk.getHeight() - 20);
+				font.draw(LevelRenderer.batch, "Press    <Enter>     to     confirm.", LevelRenderer.camPos + 400, 60);
+				playDialog();
 			} else if (!nextPressed && dialogCounter == 11) {
 				LevelRenderer.batch.draw(vanTalk, RipGame.WIDTH - vanTalk.getWidth() - 20, RipGame.HEIGHT - vanTalk.getHeight() - 20);
 				LevelRenderer.batch.draw(vanTalk23, RipGame.WIDTH - vanTalk.getWidth() - 40 - vanTalk1.getWidth(), RipGame.HEIGHT - vanTalk.getHeight() - 20);
+				font.draw(LevelRenderer.batch, "Press    <Enter>     to     confirm.", LevelRenderer.camPos + 400, 60);
+				playDialog();
 			} else if (!nextPressed && dialogCounter == 12) {
 				LevelRenderer.batch.draw(ripTalk, 20, RipGame.HEIGHT - ripTalk.getHeight() - 20);
 				LevelRenderer.batch.draw(ripTalk9, 40 + ripTalk.getWidth(), RipGame.HEIGHT - ripTalk.getHeight() - 20);
+				font.draw(LevelRenderer.batch, "Press    <Enter>     to     confirm.", LevelRenderer.camPos + 400, 60);
+				playDialog();
 			} else if (!nextPressed && dialogCounter == 13) {
 				LevelRenderer.batch.draw(vanTalk, RipGame.WIDTH - vanTalk.getWidth() - 20, RipGame.HEIGHT - vanTalk.getHeight() - 20);
 				LevelRenderer.batch.draw(vanTalk24, RipGame.WIDTH - vanTalk.getWidth() - 40 - vanTalk1.getWidth(), RipGame.HEIGHT - vanTalk.getHeight() - 20);
-			} else if (!nextPressed && dialogCounter > 14) {
+				font.draw(LevelRenderer.batch, "Press    <Enter>     to     confirm.", LevelRenderer.camPos + 400, 60);
+			} else if (!nextPressed && dialogCounter >= 14) {
 				levelComplete = true;
+				this.end = true;
+				LevelRenderer.ripMove = true;
+				lr.getBeatlevel().play();
+				//LevelRenderer.move = false;
+				Gdx.app.log(RipGame.LOG, "End Tutorial");
 			}
 		}
 		
@@ -559,7 +669,7 @@ public class TutorialLevel extends Level {
 	
 	@Override
 	public void drawBackground(SpriteBatch batch) {
-		LevelRenderer.sr.rect(600, 100, clock1.getWidth(), clock1.getHeight());
+		//LevelRenderer.sr.rect(600, 100, clock1.getWidth(), clock1.getHeight());
 		parallax();
 		
 		batch.draw(sky.getTexture(), sky.getX(), sky.getY());
@@ -612,6 +722,77 @@ public class TutorialLevel extends Level {
 		if (drawHUD) {
 			super.drawHud(batch, color, lr);
 		}
+	}
+	
+	public void dispose() {
+		this.dialoglist.clear();
+		this.dia1.dispose();
+		this.dia12.dispose();
+		this.dia10.dispose();
+		this.dia11.dispose();
+		this.dia13.dispose();
+		this.dia14.dispose();
+		this.dia2.dispose();
+		this.dia3.dispose();
+		this.dia4.dispose();
+		this.dia5.dispose();
+		this.dia6.dispose();
+		this.dia7.dispose();
+		this.dia8.dispose();
+		this.dia9.dispose();
+		
+		clock1.dispose();
+		this.clock2.dispose();
+		this.clock3.dispose();
+		this.clock4.dispose();
+		
+		this.ripTalk.dispose();
+		this.ripTalk1.dispose();
+		this.ripTalk2.dispose();
+		this.ripTalk3.dispose();
+		this.ripTalk4.dispose();
+		this.ripTalk5.dispose();
+		this.ripTalk6.dispose();
+		this.ripTalk7.dispose();
+		this.ripTalk8.dispose();
+		this.ripTalk9.dispose();
+		
+		this.vanTalk.dispose();
+		this.vanTalk1.dispose();
+		this.vanTalk10.dispose();
+		this.vanTalk11.dispose();
+		this.vanTalk12.dispose();
+		this.vanTalk13.dispose();
+		this.vanTalk14.dispose();
+		this.vanTalk15.dispose();
+		this.vanTalk16.dispose();
+		this.vanTalk17.dispose();
+		this.vanTalk18.dispose();
+		this.vanTalk19.dispose();
+		this.vanTalk2.dispose();
+		this.vanTalk20.dispose();
+		this.vanTalk21.dispose();
+		this.vanTalk22.dispose();
+		this.vanTalk23.dispose();
+		this.vanTalk24.dispose();
+		this.vanTalk3.dispose();
+		this.vanTalk4.dispose();
+		this.vanTalk5.dispose();
+		this.vanTalk6.dispose();
+		this.vanTalk7.dispose();
+		this.vanTalk8.dispose();
+		this.vanTalk9.dispose();
+		
+		this.punchComboDir.dispose();
+		this.punchDir.dispose();
+		this.kickComboDir.dispose();
+		this.kickDir.dispose();
+		this.timeWarpDir.dispose();
+		this.timeBlastDir.dispose();
+		
+		
+		super.dispose();
+		
 	}
 	
 }

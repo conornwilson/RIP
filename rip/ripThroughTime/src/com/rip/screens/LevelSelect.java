@@ -4,6 +4,7 @@ import renderers.LevelRenderer;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -35,10 +36,15 @@ public class LevelSelect implements Screen {
 	TextButton level1_5Button;
 	TextButton returnButton;
 	Texture title = new Texture(Gdx.files.internal("data/levelselect.png"));
+	
+	Music maintheme;
 
 	public LevelSelect(RipGame game) {
 		this.game = game;
 		Gdx.app.log(RipGame.LOG, "LevelSelect Screen Started");
+		maintheme = Gdx.audio.newMusic(Gdx.files.internal("data/Main Menu.mp3"));
+		maintheme.setLooping(true);
+		maintheme.play();
 	}
 
 	@Override
@@ -132,7 +138,7 @@ public class LevelSelect implements Screen {
 
 			public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
 				Gdx.app.log(RipGame.LOG, "Start Game: pushed");
-//				maintheme.stop();
+				maintheme.stop();
 //				selectPlay.play();
 
 				game.setScreen(new GameScreen(game, "Tutorial Level"));
@@ -158,7 +164,7 @@ public class LevelSelect implements Screen {
 				Gdx.app.log(RipGame.LOG, "Start Game: pushed");
 //				maintheme.stop();
 //				selectPlay.play();
-				
+				maintheme.stop();
 				//game.setScreen(new Level_1_1Screen(game));
 				game.setScreen(new GameScreen(game, "level1_1"));
 			}
@@ -183,7 +189,7 @@ public class LevelSelect implements Screen {
 				Gdx.app.log(RipGame.LOG, "Start Game: pushed");
 //				maintheme.stop();
 //				selectPlay.play();
-
+				maintheme.stop();
 				game.setScreen(new GameScreen(game, "level1_2"));
 			}
 		});
@@ -207,7 +213,7 @@ public class LevelSelect implements Screen {
 				Gdx.app.log(RipGame.LOG, "Start Game: pushed");
 //				maintheme.stop();
 //				selectPlay.play();
-
+				maintheme.stop();
 				game.setScreen(new GameScreen(game, "level1_3"));
 			}
 		});
@@ -231,7 +237,7 @@ public class LevelSelect implements Screen {
 				Gdx.app.log(RipGame.LOG, "Start Game: pushed");
 //				maintheme.stop();
 //				selectPlay.play();
-
+				maintheme.stop();
 				game.setScreen(new GameScreen(game, "level1_4"));
 			}
 		});
@@ -255,7 +261,7 @@ public class LevelSelect implements Screen {
 				Gdx.app.log(RipGame.LOG, "Start Game: pushed");
 //				maintheme.stop();
 //				selectPlay.play();
-
+				maintheme.stop();
 				game.setScreen(new GameScreen(game, "level1_5"));
 			}
 		});
@@ -279,7 +285,7 @@ public class LevelSelect implements Screen {
 				Gdx.app.log(RipGame.LOG, "Start Game: pushed");
 //				maintheme.stop();
 //				selectPlay.play();
-
+				maintheme.stop();
 				game.setScreen(new MainMenu(game));;
 			}
 		});

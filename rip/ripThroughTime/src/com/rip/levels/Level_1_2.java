@@ -70,7 +70,7 @@ public class Level_1_2 extends Level {
 	@Override
 	public void handleCheckPoints(LevelRenderer lr) {
 		if (getEnemies().isEmpty() && LevelRenderer.move == false && LevelRenderer.camPos < 11500) {
-		LevelRenderer.move = true;
+			LevelRenderer.move = true;
 		}
 		
 		if (getEnemies().isEmpty()) {
@@ -132,9 +132,12 @@ public class Level_1_2 extends Level {
 		
 		if (levelComplete && this.getEnemies().size() == 0) {
 		//end level.
-			this.end = true;
+			if (!this.end) {
+				lr.getBeatlevel().play();
+				this.end = true;
+				Gdx.app.log(RipGame.LOG, "end Level 1_2");
+			}
 			LevelRenderer.move = false;
-			Gdx.app.log(RipGame.LOG, "end Level 1_2");
 		}
 	
 	}

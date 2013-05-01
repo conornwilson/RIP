@@ -59,10 +59,12 @@ public class Level_1_5 extends Level {
 	@Override
 	public void handleCheckPoints(LevelRenderer lr) {
 		if (levelComplete && this.getEnemies().size() == 0) {
-
-			this.end = true;
-			LevelRenderer.move = false;
-			Gdx.app.log(RipGame.LOG, "End level 1_5");
+			if (!this.end) {
+				lr.getBeatlevel().play();
+				this.end = true;
+				LevelRenderer.move = false;
+				Gdx.app.log(RipGame.LOG, "End level 1_5");
+			}
 		} else {
 			if (levelComplete) {
 				this.drawLucyHealth();

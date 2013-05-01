@@ -90,9 +90,7 @@ public class Level_1_3 extends Level {
 		if (LevelRenderer.camPos >= 1000 && !checkPoint1 && !cp1Wave1) {
 			LevelRenderer.move = false;
 			newSpawnPoint();
-			this.spawnGoldenRaptor();
-			this.goldenspawned = true;
-			//spawnApe(3);
+			spawnApe(3);
 			cp1Wave1 = true;
 		} else if (getEnemies().size() <= 1 && cp1Wave1 && !cp1Wave2) {
 			LevelRenderer.move = false;
@@ -160,10 +158,13 @@ public class Level_1_3 extends Level {
 
 		if (levelComplete && this.getEnemies().size() == 0) {
 			//end level.
-			this.end = true;
-			lr.getBeatlevel().play();
+			if (!this.end) {
+				lr.getBeatlevel().play();
+				this.end = true;
+				lr.getBeatlevel().play();
+				Gdx.app.log(RipGame.LOG, "Level 1_3 Complete.");
+			}
 			LevelRenderer.move = false;
-			Gdx.app.log(RipGame.LOG, "Level 1_3 Complete.");
 		}
 	}
 

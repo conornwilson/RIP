@@ -23,6 +23,7 @@ import com.rip.levels.Level_1_4;
 import com.rip.levels.Level_1_5;
 import com.rip.objects.MovableEntity.Directions;
 import com.rip.screens.GameScreen;
+import com.rip.screens.LevelSelect;
 import com.rip.screens.Level_1_1Screen;
 import com.rip.screens.MainMenu;
 
@@ -776,16 +777,28 @@ public class Player extends MovableEntity {
 
 	public void handleMovement(LevelRenderer lr, Level level, RipGame game) {
 		boolean[] c = collides(LevelRenderer.enemy_list);
+		
+		
+		if (lr.pause) {
+			return;
+		}
 
 		if (level.isEnd()) {
+			if (Gdx.input.isKeyPressed(Keys.ENTER)) {
+				lr.getBeatlevel().stop();
+				game.setScreen(new LevelSelect(game));
+				return;
+			}
+			/*
 			if (Gdx.input.isKeyPressed(Keys.X)){
 				lr.getBeatlevel().stop();
 				game.setScreen(new MainMenu(game));
+				return;
 			}
 			if (Gdx.input.isKeyPressed(Keys.Z)){
 				lr.getBeatlevel().stop();
 				game.setScreen(new MainMenu(game));
-				/*
+				
 				if (LevelRenderer.level instanceof Level_1_1) {
 					game.setScreen(new GameScreen(game, "level1_2"));
 				} else if (LevelRenderer.level instanceof Level_1_2) {
@@ -797,40 +810,41 @@ public class Player extends MovableEntity {
 				} else if (LevelRenderer.level instanceof Level_1_5) {
 					game.setScreen(new MainMenu(game));
 				}
-				*/
-			}
+				
+				return;
+			} */
 		}
 		
 		if (this.dead) {
+			if (Gdx.input.isKeyPressed(Keys.ENTER)) {
+				//lr.getBeatlevel().stop();
+				game.setScreen(new LevelSelect(game));
+				return;
+			}
+			/*
 			if (Gdx.input.isKeyPressed(Keys.X)){
+				lr.getBeatlevel().stop();
 				game.setScreen(new MainMenu(game));
+				return;
 			}
 			if (Gdx.input.isKeyPressed(Keys.Z)){
+				lr.getBeatlevel().stop();
 				game.setScreen(new MainMenu(game));
-				//level.dispose();
-				//lr.dispose();
-				/*
-				Gdx.app.log(RipGame.LOG, "Restart");
-				if (LevelRenderer.level instanceof Level_1_1) {
-					Gdx.app.log(RipGame.LOG, "Restart 1");
-					game.setScreen(new Level_1_1Screen(game));
-					//game.setScreen(new GameScreen(game, "level1_2"));	
-				} else if (LevelRenderer.level instanceof Level_1_2) {
-					LevelRenderer.level.dispose();
-					game.setScreen(new GameScreen(game, "level1_2"));
-				} else if (LevelRenderer.level instanceof Level_1_3) {
-					LevelRenderer.level.dispose();
-					game.setScreen(new GameScreen(game, "level1_3"));
-				} else if (LevelRenderer.level instanceof Level_1_4) {
-					LevelRenderer.level.dispose();
-					game.setScreen(new GameScreen(game, "level1_4"));
-				} else if (LevelRenderer.level instanceof Level_1_5) {
-					LevelRenderer.level.dispose();
-					game.setScreen(new GameScreen(game, "level1_5"));
-				}
-				*/
 				
-			}
+				if (LevelRenderer.level instanceof Level_1_1) {
+					game.setScreen(new GameScreen(game, "level1_2"));
+				} else if (LevelRenderer.level instanceof Level_1_2) {
+					game.setScreen(new GameScreen(game, "level1_3"));
+				} else if (LevelRenderer.level instanceof Level_1_3) {
+					game.setScreen(new GameScreen(game, "level1_4"));
+				} else if (LevelRenderer.level instanceof Level_1_4) {
+					game.setScreen(new GameScreen(game, "level1_5"));
+				} else if (LevelRenderer.level instanceof Level_1_5) {
+					game.setScreen(new MainMenu(game));
+				}
+				
+				return;
+			} */
 		}
 
 		if (this.health <= 0) {
